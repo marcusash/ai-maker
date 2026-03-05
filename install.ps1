@@ -609,24 +609,21 @@ if (-not $SkipRepos) {
 Step "Cloning pc-setup repo"
 
 $pcSetupDest = "C:\GitHub\pc-setup"
-$cleanGitHub = $SETUP_GITHUB -replace '\.com$','' -replace '@.*$',''
 
 if (Test-Path (Join-Path $pcSetupDest ".git")) {
-    Write-Host "  pc-setup already cloned at $pcSetupDest" -ForegroundColor Green
+    Write-Host "  pc-setup already exists at $pcSetupDest" -ForegroundColor Green
+} elseif ($WhatIf) {
+    Write-Host "  would copy $scriptDir to $pcSetupDest and init git repo" -ForegroundColor Yellow
 } else {
-    $repoUrl = "https://github.com/$cleanGitHub/pc-setup"
-    Write-Host "  Cloning $repoUrl to $pcSetupDest..." -ForegroundColor Gray
-    if ($WhatIf) {
-        Write-Host "  would clone $repoUrl" -ForegroundColor Yellow
-    } else {
-        New-Item -ItemType Directory -Path "C:\GitHub" -Force -ErrorAction SilentlyContinue | Out-Null
-        git clone $repoUrl $pcSetupDest 2>&1 | Out-Null
-        if (Test-Path (Join-Path $pcSetupDest ".git")) {
-            Write-Host "  Cloned to $pcSetupDest" -ForegroundColor Green
-        } else {
-            Write-Host "  pc-setup repo not found on GitHub - skipping (not required for setup)" -ForegroundColor Yellow
-        }
-    }
+    New-Item -ItemType Directory -Path $pcSetupDest -Force | Out-Null
+    Copy-Item "$scriptDir\*" $pcSetupDest -Recurse -Force
+    Set-Location $pcSetupDest
+    git init | Out-Null
+    git add -A | Out-Null
+    git commit -m "Initial setup" | Out-Null
+    Set-Location $scriptDir
+    Write-Host "  Setup files copied to $pcSetupDest and initialized as a local git repo" -ForegroundColor Green
+    Write-Host "  To back it up to GitHub: create a repo and run 'git remote add origin <url>'" -ForegroundColor Gray
 }
 
 } else {
@@ -820,6 +817,8 @@ if (Test-Path $launcherSource) {
         $s.Arguments = "-ExecutionPolicy Bypass -File `"$launcherSource`""
         $s.WorkingDirectory = $scriptDir
         $s.Description = "Launch AI Maker and AI Workbench in Windows Terminal"
+        $ghExe = "C:\Program Files\GitHub CLI\gh.exe"
+        if (Test-Path $ghExe) { $s.IconLocation = "$ghExe,0" }
         $s.Save()
     }
     Write-Host "  Shortcut created: $consolePath" -ForegroundColor Green
