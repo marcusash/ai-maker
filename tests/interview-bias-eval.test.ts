@@ -103,7 +103,7 @@ describe("runBiasEval", () => {
   it("evaluates the real onboarding interview file", async () => {
     const fs = await import("fs");
     const path = await import("path");
-    const mdPath = path.resolve(process.cwd(), "docs/ai-maker/onboarding-interview.md");
+    const mdPath = path.resolve(process.cwd(), "docs/onboarding-interview.md");
     if (!fs.existsSync(mdPath)) return; // Skip if file not present
     const md = fs.readFileSync(mdPath, "utf-8");
     const result = runBiasEval(md);

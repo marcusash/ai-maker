@@ -202,7 +202,7 @@ const isMain = process.argv[1]?.includes("aimaker-interview-bias-eval");
 if (isMain) {
   const interviewPath = path.resolve(
     __dirname,
-    "../docs/ai-maker/onboarding-interview.md",
+    "../docs/onboarding-interview.md",
   );
   if (!fs.existsSync(interviewPath)) {
     console.error(`Interview file not found: ${interviewPath}`);
