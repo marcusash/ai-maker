@@ -1,0 +1,18 @@
+# auto-generated config — your name, GitHub username, and email
+# do not commit this file
+user-config.ps1
+
+# system
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editor temp files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# PowerShell temp
+*.ps1.bak
