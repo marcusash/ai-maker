@@ -1,4 +1,4 @@
-# canvas.ps1 — AI Maker Canvas launcher
+# canvas.ps1 - AI Maker Canvas launcher
 # Opens an HTML file as a full-screen app window (no browser chrome).
 # The AI Maker agent uses this to display visuals, dashboards, and documents.
 #

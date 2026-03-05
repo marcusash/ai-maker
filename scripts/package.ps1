@@ -4,7 +4,7 @@
 # Output: C:\Users\<user>\Downloads\ai-maker.zip
 
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$REPO_ROOT  = Resolve-Path "$SCRIPT_DIR\..\.."   # journal root
+$REPO_ROOT  = Resolve-Path "$SCRIPT_DIR\.."   # ai-maker root
 
 $OUT_ZIP = "$env:USERPROFILE\Downloads\ai-maker.zip"
 $STAGE   = "$env:TEMP\ai-maker-stage-$(Get-Random)"
@@ -13,14 +13,14 @@ Write-Host "[Package] Staging to $STAGE" -ForegroundColor Cyan
 
 # Clean slate
 Remove-Item $STAGE -Recurse -Force -ErrorAction SilentlyContinue
-New-Item -ItemType Directory -Force -Path "$STAGE\scripts"   | Out-Null
-New-Item -ItemType Directory -Force -Path "$STAGE\docs\ai-maker\skills" | Out-Null
+New-Item -ItemType Directory -Force -Path "$STAGE\scripts"        | Out-Null
+New-Item -ItemType Directory -Force -Path "$STAGE\docs\skills"     | Out-Null
 # Resolve to long path (avoids 8.3 short-name length mismatch in Substring)
 $STAGE = (Get-Item $STAGE).FullName
 
 # --- scripts ---
 $psFiles = @(
-    "install.ps1","test.ps1","launch.ps1",
+    "install.ps1","setup.ps1","test.ps1","launch.ps1",
     "canvas.ps1","create-shortcut.ps1","install-workiq.ps1",
     "package.ps1"
 )
@@ -31,19 +31,19 @@ foreach ($f in $psFiles) {
     }
 }
 
-# --- docs/ai-maker root ---
+# --- docs root ---
 foreach ($f in @("copilot-instructions.md","onboarding-interview.md","getting-started.html")) {
-    $src = "$REPO_ROOT\docs\ai-maker\$f"
+    $src = "$REPO_ROOT\docs\$f"
     if (Test-Path $src) {
-        Copy-Item $src "$STAGE\docs\ai-maker\$f" -Force
+        Copy-Item $src "$STAGE\docs\$f" -Force
     } else {
         Write-Warning "Missing: $src"
     }
 }
 
 # --- skills ---
-Get-ChildItem "$REPO_ROOT\docs\ai-maker\skills\*.md" | ForEach-Object {
-    Copy-Item $_.FullName "$STAGE\docs\ai-maker\skills\$($_.Name)" -Force
+Get-ChildItem "$REPO_ROOT\docs\skills\*.md" | ForEach-Object {
+    Copy-Item $_.FullName "$STAGE\docs\skills\$($_.Name)" -Force
 }
 
 # --- icon ---
@@ -71,7 +71,7 @@ Add-ToZip -Archive $zip -SourceDir "$STAGE\scripts" -EntryPrefix "scripts"
 Add-ToZip -Archive $zip -SourceDir "$STAGE\docs"    -EntryPrefix "docs"
 
 # install-guide.html goes at zip root for immediate visibility
-$guideSrc = "$REPO_ROOT\docs\ai-maker\install-guide.html"
+$guideSrc = "$REPO_ROOT\docs\install-guide.html"
 if (Test-Path $guideSrc) {
     [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
         $zip, $guideSrc, "install-guide.html",
@@ -86,4 +86,4 @@ $size = [math]::Round((Get-Item $OUT_ZIP).Length / 1KB, 1)
 Write-Host "[Package] Done: $OUT_ZIP ($size KB)" -ForegroundColor Green
 Write-Host "  Structure inside ZIP:" -ForegroundColor Gray
 Write-Host "    scripts\   <- run install.ps1 from here" -ForegroundColor Gray
-Write-Host "    docs\ai-maker\   <- persona, interview, skills" -ForegroundColor Gray
+Write-Host "    docs\   <- persona, interview, skills" -ForegroundColor Gray

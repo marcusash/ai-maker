@@ -12,7 +12,7 @@ function Write-OK($msg)   { Write-Host "  OK: $msg" -ForegroundColor Green }
 function Write-Fail($msg) { Write-Host "  FAIL: $msg" -ForegroundColor Red }
 
 # Icon path (GitHub Octocat .ico)
-$iconPath = "$ScriptDir\..\..\assets\ai-maker.ico"
+$iconPath = "$ScriptDir\ai-maker.ico"
 if (-not (Test-Path $iconPath)) {
     # Fallback to gh CLI icon if custom icon not present
     $ghPath = Get-Command gh -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
@@ -33,7 +33,7 @@ $shortcut.TargetPath       = "powershell.exe"
 $shortcut.Arguments        = "-ExecutionPolicy Bypass -WindowStyle Normal -File `"$launchScript`""
 $shortcut.WorkingDirectory = $WorkspacePath
 $shortcut.IconLocation     = "$iconPath,0"
-$shortcut.Description      = "AI Maker — your AI partner"
+$shortcut.Description      = "AI Maker - your AI partner"
 $shortcut.WindowStyle      = 1
 $shortcut.Save()
 

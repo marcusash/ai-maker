@@ -8,7 +8,7 @@ $LOG_FILE  = "$WORKSPACE\logs\session-$(Get-Date -Format 'yyyyMMdd-HHmmss').log"
 # Ensure workspace exists
 if (-not (Test-Path $WORKSPACE)) {
     Write-Host "AI Maker workspace not found at $WORKSPACE." -ForegroundColor Red
-    Write-Host "Please re-run the installer: scripts\ai-maker\install.ps1" -ForegroundColor Yellow
+    Write-Host "Please re-run the installer: setup.bat" -ForegroundColor Yellow
     Read-Host "Press Enter to exit"
     exit 1
 }
@@ -50,7 +50,7 @@ Write-Host ""
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $gettingStarted = "$WORKSPACE\canvas\getting-started.html"
 if (-not (Test-Path $gettingStarted)) {
-    $gettingStarted = "$SCRIPT_DIR\..\docs\ai-maker\getting-started.html"
+    $gettingStarted = "$SCRIPT_DIR\..\docs\getting-started.html"
 }
 if (Test-Path $gettingStarted) {
     Start-Process $gettingStarted
