@@ -38,3 +38,15 @@ If the user sees an auth prompt: tell them to complete it in the browser, then c
 ## Scope
 
 WorkIQ reads data the user already has access to in Microsoft 365. It does not write, send, or modify anything unless the user explicitly asks and confirms.
+
+## Diagnosing WorkIQ availability
+
+To check if WorkIQ is installed, use `Get-Command workiq` -- do NOT check for files or directories. WorkIQ is a global npm package installed on the system PATH.
+
+```
+Get-Command workiq
+```
+
+If this returns a result, WorkIQ is present. If it does not, WorkIQ is not installed.
+
+To run the full setup (EULA, auth, MCP registration): `powershell -File "C:\AIMaker\scripts\setup.ps1"`

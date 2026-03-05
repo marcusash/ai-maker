@@ -638,6 +638,7 @@ Step "Setting up AI Maker workspace"
 $aiMakerDirs = @(
     "C:\AIMaker\.github\skills",
     "C:\AIMaker\docs",
+    "C:\AIMaker\scripts",
     "C:\AIMaker\canvas",
     "C:\AIMaker\vault\how-to",
     "C:\AIMaker\vault\proposals",
@@ -659,6 +660,9 @@ if (Test-Path $aiMakerSource) {
         }
         if (Test-Path "$aiMakerSource\docs") {
             Copy-Item "$aiMakerSource\docs\*" "C:\AIMaker\docs\" -Force
+        }
+        if (Test-Path "$aiMakerSource\scripts") {
+            Copy-Item "$aiMakerSource\scripts\*" "C:\AIMaker\scripts\" -Force
         }
     }
     Write-Host "  AI Maker workspace ready at C:\AIMaker" -ForegroundColor Green
@@ -700,7 +704,101 @@ if (Test-Path $aiWorkbenchSource) {
 }
 
 # ─────────────────────────────────────────────────────────────
-# Section 15 — Desktop Shortcut
+# Section 15 — WorkIQ Setup
+# ─────────────────────────────────────────────────────────────
+Step "Setting up WorkIQ (Microsoft 365 integration)"
+
+function Refresh-Path-Robin {
+    $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" +
+                [System.Environment]::GetEnvironmentVariable("PATH", "User")
+}
+
+# Install WorkIQ if missing
+$wiq = Get-Command workiq -ErrorAction SilentlyContinue
+if ($wiq) {
+    $wiqVer = workiq version 2>&1 | Select-Object -First 1
+    Write-Host "  WorkIQ already installed: $wiqVer" -ForegroundColor Green
+} else {
+    Write-Host "  Installing WorkIQ via npm (@microsoft/workiq)..."
+    if (-not $WhatIf) {
+        npm install -g @microsoft/workiq
+        if ($LASTEXITCODE -eq 0) {
+            Refresh-Path-Robin
+            Write-Host "  [OK]  WorkIQ installed." -ForegroundColor Green
+        } else {
+            Write-Host "  WorkIQ install failed. You can retry later: npm install -g @microsoft/workiq" -ForegroundColor Red
+            $failures += "WorkIQ: npm install failed"
+        }
+    } else {
+        Write-Host "  would install @microsoft/workiq" -ForegroundColor Yellow
+    }
+}
+
+if (-not $WhatIf) {
+    # Accept EULA
+    Write-Host "  Accepting WorkIQ EULA..."
+    $eulaResult = workiq accept-eula 2>&1
+    $eulaStr = $eulaResult -join " "
+    if ($LASTEXITCODE -eq 0 -or $eulaStr -match "accepted|already") {
+        Write-Host "  [OK]  EULA accepted." -ForegroundColor Green
+    } else {
+        Write-Host "  EULA result: $eulaStr" -ForegroundColor Yellow
+    }
+
+    # Microsoft 365 authentication (interactive — browser required)
+    Write-Host ""
+    Write-Host "  WorkIQ needs to authenticate with your Microsoft 365 account." -ForegroundColor Cyan
+    Write-Host "  A browser window will open. Sign in with your work account." -ForegroundColor Gray
+    Write-Host "  After signing in, return here and press Enter." -ForegroundColor Gray
+    Write-Host ""
+    Read-Host "  Press Enter to open the Microsoft 365 login..."
+    Write-Host "  Connecting to Microsoft 365 via WorkIQ..."
+    $authResult = workiq ask -q "What are my meetings today?" 2>&1
+    Write-Host $authResult
+
+    $authStr = $authResult -join " "
+    if ($authStr -match "EULA|eula") {
+        workiq accept-eula 2>&1 | Out-Null
+        $authResult = workiq ask -q "What are my meetings today?" 2>&1
+        Write-Host $authResult
+        $authStr = $authResult -join " "
+    }
+
+    if ($authStr -match "^error|^failed|unauthorized|unauthenticated" -and
+        $authStr -notmatch "no meetings|no events|0 meetings|empty") {
+        Write-Host "  WARNING: WorkIQ auth may not have completed. You can re-run:" -ForegroundColor Yellow
+        Write-Host "    powershell -File C:\AIMaker\scripts\setup.ps1" -ForegroundColor Gray
+        $failures += "WorkIQ: M365 auth may be incomplete"
+    } else {
+        Write-Host "  [OK]  WorkIQ authenticated with Microsoft 365." -ForegroundColor Green
+    }
+
+    # Register WorkIQ as MCP server in Copilot CLI config
+    Write-Host "  Registering WorkIQ as MCP server..."
+    $copilotConfig = "$env:USERPROFILE\.copilot\config.json"
+    if (-not (Test-Path $copilotConfig)) {
+        $configDir = Split-Path $copilotConfig
+        New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+        '{}' | Set-Content -Path $copilotConfig
+    }
+    $cfg = Get-Content $copilotConfig -Raw | ConvertFrom-Json
+    if (-not $cfg.PSObject.Properties["mcpServers"]) {
+        $cfg | Add-Member -MemberType NoteProperty -Name "mcpServers" -Value ([PSCustomObject]@{})
+    }
+    $cfg.mcpServers | Add-Member -MemberType NoteProperty -Name "workiq" -Value ([PSCustomObject]@{
+        command = "workiq"; args = @("mcp")
+    }) -Force
+    if (-not $cfg.PSObject.Properties["trusted_folders"]) {
+        $cfg | Add-Member -MemberType NoteProperty -Name "trusted_folders" -Value @("C:\AIMaker")
+    } elseif (@($cfg.trusted_folders) -notcontains "C:\AIMaker") {
+        $cfg.trusted_folders = @($cfg.trusted_folders) + "C:\AIMaker"
+    }
+    $cfg | ConvertTo-Json -Depth 10 | Set-Content -Path $copilotConfig -Encoding UTF8
+    Write-Host "  [OK]  WorkIQ registered as MCP server in Copilot CLI config." -ForegroundColor Green
+}
+
+# ─────────────────────────────────────────────────────────────
+# Section 16 — Desktop Shortcut
 # ─────────────────────────────────────────────────────────────
 Step "Creating desktop shortcut"
 

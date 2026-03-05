@@ -12,21 +12,27 @@ Run this on first launch. Check for `C:\AIMaker\profile.md` at session start. If
 
 Tell the human:
 
-> "Before we start, I want to learn how you work so I can be useful from day one. This takes about 5 minutes. I will ask you questions one at a time."
+> "Before we start, I want to learn how you work so I can be useful from day one. I have five quick questions. I will ask them one at a time."
 
 **Format:** Most questions are open-ended. For questions where it helps, a 1-5 spectrum of example answers is offered after the human speaks -- not before. The spectrum is calibration, not a menu. The human locates themselves on it; they do not have to choose one of the five. All positions on every spectrum are equally valid -- there is no right answer.
 
-Ask one question at a time. Do not show all 10 questions up front. Do not rush.
+Ask one question at a time. Do not show all 5 questions up front. Do not rush.
 
 ---
 
 ## Name (ask before Q1 — required)
 
-Before the 10 questions, ask:
+Before the 5 questions, ask:
 
 > "Before we start — what is your name? What do you go by?"
 
 Wait for the answer. Write exactly what they say to the profile header: `# AI Maker Profile — [their answer]`. Do not proceed with Q1 until you have a confirmed name. Do not guess a name from context, GitHub account, or any other source. If they give a full name and a nickname, use the nickname in greetings.
+
+---
+
+## The 5 Questions
+
+Each question includes what to listen for and an example answer from Marcus Ash (CVP of Design, Microsoft) as a calibration reference. Marcus's answers represent the profile of someone who will push your limits. Not every human will be at this level. The example shows what a rich answer looks like.
 
 ---
 
@@ -36,19 +42,21 @@ Wait for the answer. Write exactly what they say to the profile header: `# AI Ma
 
 **Q1. Role and context**
 
-"What is your role, and what does your team do? Tell me in your own words, not your job title."
+"What is your role and what does your team do? Tell me in your own words, not your job title."
 
-*Listen for:* team size, org level, what they ship, who they serve, pace of their work. The gap between their job title and how they actually describe their work tells you where their identity lives.
+*Listen for:* team size, org level, what they ship, who they serve, pace of their work.
 
 *No spectrum for this question.* The answer is genuinely unique. Listen and record.
+
+*Why this matters:* Org level tells you how much context they carry versus need. A large team lead needs synthesis and decision support. A solo builder needs execution support.
 
 ---
 
 **Q2. How you communicate**
 
-"Do you type your messages to me, or do you use voice dictation? And do you prefer short direct answers or more context when I respond?"
+"Do you type your messages to me, or do you use voice dictation? And do you prefer short direct answers or more context?"
 
-*Listen for:* dictation errors to flag, preferred response length, formality, pace expectations.
+*Listen for:* dictation errors to watch for, preferred response length, formality level, pace expectations.
 
 After they answer, offer the spectrum if they are uncertain:
 
@@ -62,7 +70,7 @@ After they answer, offer the spectrum if they are uncertain:
 | 4 | Mostly voice dictation. Short responses. Flag if something looks like a transcription error. |
 | 5 | Almost always voice dictation. One or two sentences unless I ask for more. If my message looks wrong, confirm before acting. |
 
-*Why this matters:* Response length is the single variable that most affects session satisfaction. Too long reads as disrespect for time. Dictation users need confirmation on ambiguous input before the agent acts.
+*Why this matters:* Response length is the single variable that most affects session satisfaction. Dictation users need you to flag transcription errors before acting on them.
 
 ---
 
@@ -74,57 +82,15 @@ After they answer, offer the spectrum if they are uncertain:
 
 *No spectrum for this question.* The answer is specific and personal. Record their exact words -- these are the first problems to solve together.
 
----
-
-**Q4. What a productive day looks like**
-
-"Describe a really productive day for you. What did you get done?"
-
-*Listen for:* whether they measure by decisions made, deliverables produced, conversations completed, or problems solved. Depth vs breadth preference. Pace.
-
-After they answer:
-
-> "Here is a range. Which end sounds more like you?"
-
-| | What a good day looks like |
-|---|---|
-| 1 | I shipped something concrete. Code, a document, a design. The output is the measure. |
-| 2 | I produced outputs and had a few good conversations that moved things forward. |
-| 3 | Mix of producing and deciding. Some things got built, some things got unblocked. |
-| 4 | I made decisions that unblocked my team. I don't need to produce the outputs myself -- I need to clear the path. |
-| 5 | I created leverage. My team moved in three areas without needing me. The fewer deliverables I touched personally, the better the day. |
-
-*Why this matters:* "Made decisions" vs "produced deliverables" is a fundamentally different product requirement. Decision-support needs synthesis and crisp options. Execution support needs thoroughness and speed. Calibrate accordingly.
+*Why this matters:* This is where you will deliver the most immediate value. Start here, not with aspirational goals.
 
 ---
 
-**Q5. Your AI experience so far**
+**Q4. Decision style**
 
-"Have you used AI tools before? What worked, what frustrated you?"
+"When you're choosing between options -- do you want me to give you one strong recommendation, or lay out trade-offs and let you decide?"
 
-*Listen for:* trust level, specific past frustrations (hallucinations, verbosity, wrong format, wrong confidence level), what they liked. The frustrations are your constraint list.
-
-After they answer:
-
-> "Here is a range of experience levels. Where are you?"
-
-| | AI experience |
-|---|---|
-| 1 | I am new to this. I have tried ChatGPT a few times. Not sure what to expect. |
-| 2 | I use AI occasionally for writing help or search. I'm still learning how to get good results. |
-| 3 | I use AI tools regularly and have found things that work. I have some frustrations I can describe. |
-| 4 | I use AI daily and have strong opinions about what works. I've hit the common failure modes and I know how to route around them. |
-| 5 | I have built with AI or configured AI systems. I understand how these tools work under the hood and I have specific expectations. |
-
-*Why this matters:* An experienced user with strong opinions will escalate fast if you repeat known failure modes. A new user needs more explanation and tolerance for iteration. The specific frustrations matter more than the level number.
-
----
-
-**Q6. Decision style**
-
-"When you are choosing between options, what is most useful to you -- seeing one recommendation, or seeing the trade-offs laid out?"
-
-*Listen for:* whether they trust AI judgment, how much they want to see reasoning, how fast they move.
+*Listen for:* decisive vs deliberate, how much they trust AI judgment, whether they want to see reasoning or just the answer.
 
 After they answer:
 
@@ -138,53 +104,11 @@ After they answer:
 | 4 | Give me one recommendation and your confidence level. I will ask if I want more. |
 | 5 | One answer. Strong opinion. If you are wrong, I will tell you and you fix it. Options slow me down. |
 
-*Why this matters:* This is the variable that most divides users. Getting it wrong produces friction on every session. A "5" who receives a list of trade-offs every time will find the tool exhausting. A "1" who receives only recommendations will not trust the output. Record the number and use it as a default.
+*Why this matters:* This is the variable that most divides users. Decisive leaders want one answer fast. Deliberate leaders want options. Getting this wrong every session creates friction that accumulates into distrust.
 
 ---
 
-**Q7. When something I produce is wrong**
-
-"If something I give you misses the mark, how do you want to handle it?"
-
-*Listen for:* how much they want to direct the correction vs how much they trust AI Maker to self-correct.
-
-After they answer:
-
-> "Here is a range. Which is closest?"
-
-| | When I give you something that's not right |
-|---|---|
-| 1 | Tell me what you were trying to do and I will tell you specifically what is wrong and exactly what it should say instead. I direct the fix. |
-| 2 | I'll tell you what's wrong, you figure out the right fix and show me two options. I'll pick. |
-| 3 | Tell me what's wrong and I'll fix it. But walk me through your reasoning so I can catch it if you go in the wrong direction. |
-| 4 | Fix it yourself and show me what changed. I'll tell you if it's still off. |
-| 5 | I'll say it's wrong. You fix it immediately and show me the result without explanation. If it takes more than two tries I start to lose confidence. |
-
-*Why this matters:* The correction loop speed is one of the highest-friction variables in the first week. A human who said "5" and then has to explain the fix three times will disengage. Write their correction style into the profile exactly as they state it, including any specific thresholds ("two tries," "one shot").
-
----
-
-**Q8. Writing voice sample**
-
-"Tell me about a project you are proud of. Just talk naturally."
-
-*Listen for:* vocabulary level, sentence length, jargon vs plain language, energy and tone, how they frame their own work. This is your calibration sample for their writing register.
-
-*No spectrum for this question.* Natural speech is the data. Do not offer options. Just listen.
-
----
-
-**Q9. Tools you live in**
-
-"What apps are open on your computer right now, and which ones do you live in all day?"
-
-*Listen for:* Outlook vs Teams priority, OneNote, Loop, SharePoint, GitHub, VS Code, Excel. This maps WorkIQ connection priorities.
-
-*No spectrum for this question.* The answer is a factual list. Record it and map it to WorkIQ configuration priority.
-
----
-
-**Q10. What you want from AI Maker**
+**Q5. What you want from AI Maker**
 
 "What do you want to be able to do with me that you cannot do today?"
 
@@ -217,37 +141,22 @@ Synthesize into a profile. Write to `C:\AIMaker\profile.md`:
 **Updated:** [date]
 
 ## Communication Style
-[Medium: dictation or typing. Spectrum position Q2: N. Preferred response length. Formality. Specific transcription error patterns to watch for.]
+[Dictation or typing. Spectrum position Q2: N. Preferred response length. Formality. Specific error patterns to watch for.]
 
 ## Decision Style
-[Spectrum position Q6: N. One recommendation or trade-offs. Confidence level required? Record their exact words on this.]
-
-## Correction Protocol
-[Spectrum position Q7: N. How they want mistakes handled. Any explicit threshold stated ("two tries," etc.). Record verbatim.]
+[Spectrum position Q4: N. One recommendation or trade-offs. Confidence level required? Record their exact words.]
 
 ## Primary Use Cases
-[Top 2-3 things they want AI help with, from Q3 and Q10, in priority order]
+[Top 2-3 things they want AI help with, from Q3 and Q5, in priority order]
 
 ## Role as Partner
-[Spectrum position Q10: N. Task executor, thinking partner, or chief of staff. This defines the working relationship.]
-
-## Writing Voice
-[Key observations from Q8: vocabulary, pace, tone, sentence structure. 2-3 sentences.]
+[Spectrum position Q5: N. Task executor, thinking partner, or chief of staff. This defines the working relationship.]
 
 ## Time Drains to Solve
 [Exact quote or close paraphrase from Q3. Start here in early sessions.]
 
-## AI Experience and Frustrations
-[Experience level Q5: N. Specific frustrations to never repeat. Hard rules they stated.]
-
-## Productive Day Profile
-[Spectrum position Q4: N. Decisions vs deliverables vs leverage. One sentence.]
-
-## Tools They Live In
-[List in priority order from Q9. WorkIQ connection priorities noted.]
-
 ## Goals
-[Their words from Q10. Do not paraphrase -- this should sound like them.]
+[Their words from Q5. Do not paraphrase -- this should sound like them.]
 
 ## Notes for AI Maker
 [Anything specific that does not fit above. Sensitivities, constraints, working rules.]
@@ -261,15 +170,11 @@ Tell the human: "I have your profile saved. From now on, every session starts wi
 
 After the first 5 sessions with a profiled human, evaluate against these metrics. Log in `C:\AIMaker\logs\calibration.md`.
 
-**Response length calibration.** Does AI Maker match their Q2 spectrum position without being corrected? A "5" who keeps hearing long answers needs a profile update. Target: correct from session 2 onward.
+**Response length calibration.** Does AI Maker match their Q2 spectrum position without being corrected? Target: correct from session 2 onward.
 
-**Format hit rate.** Does AI Maker use their preferred format (Q6 decision style) without being asked to change it? Track how often the human redirects format. Target: fewer than 1 redirect per session by week 2.
+**Decision style match.** Count mismatches between their Q4 position and what AI Maker delivered. A "5" who received trade-off tables is a mismatch. Target: zero mismatches after session 2.
 
-**Correction loop speed.** From "that's not right" to "yes, that's it" -- how many turns? This should match Q7 spectrum position. A "5" should reach resolution in 1 turn. Target: consistent with stated preference.
-
-**Re-explanation rate.** How often does the human re-explain context that is already in the profile? Target: zero. Any re-explanation is a profile miss. Update the profile immediately when it happens.
-
-**Decision style match.** Count mismatches between their Q6 position and what AI Maker delivered. A "5" who received trade-off tables is a mismatch. Target: zero mismatches after session 2.
+**Re-explanation rate.** How often does the human re-explain context that is already in the profile? Target: zero. Any re-explanation is a profile miss. Update the profile immediately.
 
 **Stated satisfaction signal.** Watch for "that's what I needed," "exactly," or the human building on output without correction. Log these as positive. Watch for "that's not what I meant," "I already told you." Log these as calibration failures. If 3 or more failures appear in one session, offer a profile refresh.
 
