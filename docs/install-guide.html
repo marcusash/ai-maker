@@ -338,12 +338,44 @@
 <main class="container">
 
   <!-- ================================================ -->
-  <!-- GETTING STARTED                                  -->
+  <!-- INSTALL                                          -->
   <!-- ================================================ -->
   <section id="welcome" class="section active">
 
+    <div class="card">
+      <h2>Step 1: Download and extract</h2>
+      <p>You should have received a link to <strong>robin-setup.zip</strong>. Download it and extract it to a folder on your Desktop or Downloads.</p>
+
+      <div class="callout important">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <p><strong>Windows SmartScreen warning: this is expected.</strong></p>
+          <p>Because the scripts are downloaded from the internet and not code-signed, Windows will show a blue "Windows protected your PC" dialog when you run setup.bat. This is normal.</p>
+          <p>Click <strong>More info</strong>, then click <strong>Run anyway</strong> to continue.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 2: Run the installer</h2>
+      <p>Inside the extracted folder, double-click <strong>setup.bat</strong>. It will request administrator access and launch the installer automatically.</p>
+      <p>The installer will ask for your name, GitHub username, and email. Enter your details and let it run. It takes about 10 minutes on a fresh machine.</p>
+
+      <div class="callout">
+        <span class="callout-icon">💡</span>
+        <p>If a browser window opens during install (for GitHub or WorkIQ login), sign in and return to the PowerShell window. The installer will continue automatically.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Step 3: Close and reopen Windows Terminal</h2>
+      <p>After the installer finishes and you see the green "Setup Complete!" banner, close PowerShell and reopen Windows Terminal. Fonts and themes take effect after a restart.</p>
+    </div>
+
+    <hr>
+
     <div class="welcome-hero">
-      <h2>Welcome to your AI environment.</h2>
+      <h2>You're set up. Here's what you have.</h2>
       <p>You have two AI agents. This guide walks you through the setup and four starter projects to help you understand what they can do.</p>
       <div class="welcome-agents">
         <div class="agent-card maker">
@@ -358,21 +390,13 @@
     </div>
 
     <div class="card">
-      <h2>Before you begin</h2>
-      <p>Make sure install.ps1 has completed successfully. You should see a green "Setup Complete!" banner in your PowerShell window. Then close and reopen Windows Terminal so the fonts and themes take effect.</p>
-
-      <div class="callout important">
-        <span class="callout-icon">⚠️</span>
-        <p><strong>Close and reopen Windows Terminal after install.</strong> The Nerd Font (required for the terminal theme) only activates after a restart.</p>
-      </div>
-
-      <h3>Launch your agents</h3>
+      <h2>Step 4: Launch your agents</h2>
       <p>Double-click <strong>AI Agents</strong> on your Desktop. Two tabs open:</p>
       <ul>
         <li>A yellow tab: <strong>AI Maker</strong></li>
         <li>A red tab: <strong>AI Workbench</strong></li>
       </ul>
-      <p>Both will start the agency copilot and load your agent instructions automatically.</p>
+      <p>Both will start the Copilot CLI and load your agent instructions automatically.</p>
     </div>
 
     <div class="card">
