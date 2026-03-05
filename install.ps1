@@ -576,16 +576,19 @@ if ($wtSettings) {
     $settings.defaultProfile = $psCore
 
     # Ctrl+V paste binding (Handy compatibility)
+    # Newer WT uses "actions", older versions use "keybindings"
+    $bindingKey = if ($settings.PSObject.Properties["actions"]) { "actions" } else { "keybindings" }
+    $existingBindings = $settings.PSObject.Properties[$bindingKey]
     $hasPaste = $false
-    if ($settings.keybindings) {
-        $hasPaste = ($settings.keybindings | Where-Object { $_.keys -eq "ctrl+v" }).Count -gt 0
+    if ($existingBindings) {
+        $hasPaste = ($settings.$bindingKey | Where-Object { $_.keys -eq "ctrl+v" }).Count -gt 0
     }
     if (-not $hasPaste) {
         $pasteBinding = [PSCustomObject]@{ id = "Terminal.PasteFromClipboard"; keys = "ctrl+v" }
-        if (-not $settings.keybindings -or $settings.keybindings.Count -eq 0) {
-            $settings.keybindings = @($pasteBinding)
+        if (-not $existingBindings -or $settings.$bindingKey.Count -eq 0) {
+            $settings | Add-Member -MemberType NoteProperty -Name $bindingKey -Value @($pasteBinding) -Force
         } else {
-            $settings.keybindings += $pasteBinding
+            $settings.$bindingKey += $pasteBinding
         }
         Write-Host "  Ctrl+V paste binding added (Handy compatibility)" -ForegroundColor Green
     }
@@ -606,11 +609,12 @@ if (-not $SkipRepos) {
 Step "Cloning pc-setup repo"
 
 $pcSetupDest = "C:\GitHub\pc-setup"
+$cleanGitHub = $SETUP_GITHUB -replace '\.com$','' -replace '@.*$',''
 
 if (Test-Path (Join-Path $pcSetupDest ".git")) {
     Write-Host "  pc-setup already cloned at $pcSetupDest" -ForegroundColor Green
 } else {
-    $repoUrl = "https://github.com/$SETUP_GITHUB/pc-setup"
+    $repoUrl = "https://github.com/$cleanGitHub/pc-setup"
     Write-Host "  Cloning $repoUrl to $pcSetupDest..." -ForegroundColor Gray
     if ($WhatIf) {
         Write-Host "  would clone $repoUrl" -ForegroundColor Yellow
@@ -620,8 +624,7 @@ if (Test-Path (Join-Path $pcSetupDest ".git")) {
         if (Test-Path (Join-Path $pcSetupDest ".git")) {
             Write-Host "  Cloned to $pcSetupDest" -ForegroundColor Green
         } else {
-            Write-Host "  Clone failed — repo may not exist yet on GitHub" -ForegroundColor Red
-            $failures += "Clone pc-setup"
+            Write-Host "  pc-setup repo not found on GitHub - skipping (not required for setup)" -ForegroundColor Yellow
         }
     }
 }
