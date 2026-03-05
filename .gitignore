@@ -1,0 +1,17 @@
+# AI Maker workspace (created by install.ps1 at C:\AIMaker)
+profile.md
+canvas/
+
+# Distribution artifacts
+*.zip
+dist/
+
+# Node / TypeScript (evals)
+node_modules/
+*.js
+*.d.ts
+*.tsbuildinfo
+
+# OS
+.DS_Store
+Thumbs.db

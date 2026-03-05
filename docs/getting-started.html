@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Maker: Welcome</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0d1117;
+  --surface:  #161b22;
+  --border:   #30363d;
+  --text:     #e6edf3;
+  --body:     #c9d1d9;
+  --muted:    #b0bec5;
+  --accent:   #58a6ff;
+  --green:    #238636;
+  --green-light: #2ea043;
+}
+
+html, body {
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+/* ── SHELL ── */
+.shell {
+  display: grid;
+  grid-template-rows: 60px 1fr auto;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 32px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-name { font-size: 18px; font-weight: 700; color: var(--text); }
+.brand-sep { width: 1px; height: 20px; background: var(--border); }
+.brand-sub { font-size: 15px; color: var(--muted); }
+
+.canvas-pill {
+  margin-left: auto;
+  background: #0f2336;
+  border: 1px solid #1c4a7a;
+  color: var(--accent);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── MAIN ── */
+.main {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+}
+
+/* ── LEFT ── */
+.left {
+  border-right: 1px solid var(--border);
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.canvas-notice {
+  background: #0f2336;
+  border: 1px solid #1c4a7a;
+  border-radius: 10px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.canvas-notice-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.canvas-notice-text { font-size: 15px; color: var(--muted); line-height: 1.6; }
+.canvas-notice-text strong { color: var(--accent); }
+
+.section-label {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+
+.what-is p {
+  font-size: 16px;
+  color: var(--body);
+  line-height: 1.75;
+}
+
+.prompt-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.prompt-text {
+  padding: 18px 20px;
+  font-size: 16px;
+  color: var(--body);
+  line-height: 1.75;
+  font-style: italic;
+}
+.copy-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background: var(--green);
+  border: none;
+  border-top: 1px solid var(--border);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background .15s;
+}
+.copy-btn:hover { background: var(--green-light); }
+.copy-btn.copied { background: #0078d4; }
+
+.copy-hint {
+  font-size: 14px;
+  color: var(--muted);
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* ── RIGHT ── */
+.right {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Feature cards */
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.card-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.card h3 { font-size: 17px; font-weight: 700; color: var(--text); }
+.card p  { font-size: 15px; color: var(--muted); line-height: 1.65; }
+
+/* Prompt chips */
+.chips {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.chip {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+  text-align: left;
+}
+.chip:hover { border-color: var(--accent); background: #0f1d2e; }
+.chip-quote {
+  font-size: 15px;
+  color: var(--body);
+  line-height: 1.6;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+.chip-tag {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .8px;
+  color: var(--accent);
+}
+
+/* ── BOTTOM BAR ── */
+.bottombar {
+  padding: 0 32px;
+  height: 48px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--muted);
+}
+kbd {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 7px;
+  font-size: 13px;
+  font-family: monospace;
+  color: var(--body);
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: #0078d4;
+  color: #fff;
+  padding: 9px 22px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="brand">
+      <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+        <circle cx="16" cy="16" r="16" fill="#161b22"/>
+        <path d="M16 4C9.373 4 4 9.373 4 16c0 5.302 3.438 9.8 8.205 11.387.6.111.82-.261.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.608-4.042-1.608-.546-1.386-1.332-1.755-1.332-1.755-1.089-.744.083-.729.083-.729 1.205.085 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.108-.775.418-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0116 10.803a11.49 11.49 0 013.004.404c2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.628-5.479 5.921.43.372.823 1.102.823 2.222 0 1.606-.015 2.898-.015 3.293 0 .32.218.694.825.577C24.565 25.797 28 21.3 28 16c0-6.627-5.373-12-12-12z" fill="#f0f6fc"/>
+      </svg>
+      <span class="brand-name">AI Maker</span>
+      <div class="brand-sep"></div>
+      <span class="brand-sub">Your personal AI partner, powered by GitHub Copilot</span>
+    </div>
+    <div class="canvas-pill">Canvas</div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- LEFT -->
+    <div class="left">
+
+      <div class="canvas-notice">
+        <div class="canvas-notice-icon">👋</div>
+        <div class="canvas-notice-text">
+          <strong>AI Maker opened this page for you.</strong> The dark terminal window behind this tab is where you type. Copy the prompt below, switch to that window, and paste it to get started.
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">Step 1 of 2 &nbsp;&mdash;&nbsp; Copy this prompt</div>
+        <div class="prompt-box">
+          <div class="prompt-text" id="firstPrompt">I'm new here. Please introduce yourself, then ask me a few questions to learn my name, my role, my team, and what I'm working on right now.</div>
+          <button class="copy-btn" id="copyBtn" onclick="copyFirst()">
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg>
+            Copy to clipboard
+          </button>
+        </div>
+        <p class="copy-hint" id="nextStep">Step 2 of 2 &nbsp;&mdash;&nbsp; Switch to the terminal window and press <strong style="color:var(--body)">Ctrl+V</strong> to paste, then hit <strong style="color:var(--body)">Enter</strong></p>
+      </div>
+
+      <div class="what-is">
+        <div class="section-label">What is AI Maker?</div>
+        <p>AI Maker is a personal AI partner that lives on your PC. You type what you need in plain English, just like a Teams message, and it helps you get things done. It remembers your work, can open visual dashboards in your browser, and connects to your Microsoft tools.</p>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right">
+
+      <div>
+        <div class="section-label">What AI Maker can do</div>
+        <div class="cards">
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">🖼️</div>
+              <h3>Canvas</h3>
+            </div>
+            <p>Ask AI Maker to "open a canvas" and it builds a visual right here in your browser. Project dashboards, status reports, slide decks. No PowerPoint required.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">🗄️</div>
+              <h3>Vault</h3>
+            </div>
+            <p>Your personal notes folder. Say "save this to my vault" and AI Maker writes it to a file on your PC, organized and always easy to find. Like OneDrive, but local.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">📋</div>
+              <h3>WorkIQ Tasks</h3>
+            </div>
+            <p>Connected to Microsoft WorkIQ. Ask "what's on my task list?" or "add a task to follow up with design." Works alongside your existing M365 workflow.</p>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">🧠</div>
+              <h3>Skills</h3>
+            </div>
+            <p>AI Maker has 8 built-in skills: research, design, writing, code review, data analysis, brainstorming, user research, and communication. Just describe what you need.</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">More prompts to try</div>
+        <div class="chips">
+
+          <div class="chip" onclick="copyChip(this, 'Open a canvas and build me a simple project status dashboard for what I\'m working on.')">
+            <div class="chip-quote">"Open a canvas with a project status dashboard."</div>
+            <div class="chip-tag">Canvas</div>
+          </div>
+
+          <div class="chip" onclick="copyChip(this, 'Save my top three priorities this week to my vault so I can refer back to them.')">
+            <div class="chip-quote">"Save my top three priorities this week to my vault."</div>
+            <div class="chip-tag">Vault</div>
+          </div>
+
+          <div class="chip" onclick="copyChip(this, 'Draft a short email to my team with a quick update on what I am working on this week.')">
+            <div class="chip-quote">"Draft a quick update email to my team."</div>
+            <div class="chip-tag">Communication</div>
+          </div>
+
+          <div class="chip" onclick="copyChip(this, 'Brainstorm five ways I could make my team\'s weekly standups more effective.')">
+            <div class="chip-quote">"Brainstorm five ways to improve our weekly standups."</div>
+            <div class="chip-tag">Brainstorming</div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- BOTTOM BAR -->
+  <div class="bottombar">
+    <span>Type anything in plain English &nbsp;&bull;&nbsp; AI Maker will respond and guide you</span>
+    <span>Click any prompt above to copy it &nbsp;&bull;&nbsp; Type <kbd>exit</kbd> in the terminal to close AI Maker</span>
+  </div>
+
+</div>
+
+<div class="toast" id="toast">Copied to clipboard</div>
+
+<script>
+function copyFirst() {
+  const text = document.getElementById('firstPrompt').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.classList.add('copied');
+    btn.textContent = 'Copied!';
+    showToast();
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = `<svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor"><path d="M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 010 1.5h-1.5a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-1.5a.75.75 0 011.5 0v1.5A1.75 1.75 0 019.25 16h-7.5A1.75 1.75 0 010 14.25v-7.5z"/><path d="M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0114.25 11h-7.5A1.75 1.75 0 015 9.25v-7.5zm1.75-.25a.25.25 0 00-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 00.25-.25v-7.5a.25.25 0 00-.25-.25h-7.5z"/></svg> Copy to clipboard`;
+    }, 2500);
+  });
+}
+
+function copyChip(el, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const tag = el.querySelector('.chip-tag');
+    const orig = tag.textContent;
+    tag.textContent = 'Copied!';
+    tag.style.color = '#58a6ff';
+    el.style.borderColor = '#58a6ff';
+    showToast();
+    setTimeout(() => {
+      tag.textContent = orig;
+      tag.style.color = '';
+      el.style.borderColor = '';
+    }, 2500);
+  });
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
