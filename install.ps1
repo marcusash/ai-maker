@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     New PC setup: dev tools, GitHub, terminal themes, and AI agent workspaces.
 .DESCRIPTION
