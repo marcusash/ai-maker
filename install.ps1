@@ -613,17 +613,31 @@ $pcSetupDest = "C:\GitHub\pc-setup"
 if (Test-Path (Join-Path $pcSetupDest ".git")) {
     Write-Host "  pc-setup already exists at $pcSetupDest" -ForegroundColor Green
 } elseif ($WhatIf) {
-    Write-Host "  would copy $scriptDir to $pcSetupDest and init git repo" -ForegroundColor Yellow
+    Write-Host "  would copy setup files to $pcSetupDest, create GitHub repo, and push" -ForegroundColor Yellow
 } else {
     New-Item -ItemType Directory -Path $pcSetupDest -Force | Out-Null
     Copy-Item "$scriptDir\*" $pcSetupDest -Recurse -Force
     Set-Location $pcSetupDest
     git init | Out-Null
     git add -A | Out-Null
-    git commit -m "Initial setup" | Out-Null
+    git commit -m "Initial pc-setup" | Out-Null
+    Write-Host "  Setup files copied to $pcSetupDest" -ForegroundColor Green
+
+    # Create the GitHub repo and push
+    $ghAvailable = Get-Command gh -ErrorAction SilentlyContinue
+    if ($ghAvailable) {
+        Write-Host "  Creating GitHub repo $SETUP_GITHUB/pc-setup..."
+        gh repo create pc-setup --private --source . --remote origin --push 2>&1 | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  Pushed to https://github.com/$SETUP_GITHUB/pc-setup" -ForegroundColor Green
+        } else {
+            Write-Host "  GitHub repo create failed — repo is local only at $pcSetupDest" -ForegroundColor Yellow
+            Write-Host "  To push later: cd $pcSetupDest && gh repo create pc-setup --private --source . --push" -ForegroundColor Gray
+        }
+    } else {
+        Write-Host "  gh CLI not available — repo is local only. Push manually after setup." -ForegroundColor Yellow
+    }
     Set-Location $scriptDir
-    Write-Host "  Setup files copied to $pcSetupDest and initialized as a local git repo" -ForegroundColor Green
-    Write-Host "  To back it up to GitHub: create a repo and run 'git remote add origin <url>'" -ForegroundColor Gray
 }
 
 } else {
