@@ -12,13 +12,13 @@
   --matrix-green:#00FF41;
   --matrix-green-dark:#003B00;
   --matrix-green-glow:rgba(0,255,65,.6);
-  --blue-pill:#4A90D9;
-  --blue-pill-light:#6AB0E9;
-  --blue-pill-dark:#2A5A89;
-  --blue-glow:rgba(74,144,217,.6);
+  --blue-pill:#2E5EAA;
+  --blue-pill-light:#4A90D9;
+  --blue-pill-dark:#1A3D7C;
+  --blue-glow:rgba(74,144,217,.8);
   --red-pill:#CE1126;
-  --red-pill-light:#E84444;
-  --red-pill-dark:#8A0A18;
+  --red-pill-light:#FF1A1A;
+  --red-pill-dark:#990000;
   --red-glow:rgba(206,17,38,.6);
   --black:#000;
 }
@@ -50,8 +50,8 @@ body{font-family:'Courier New',Courier,monospace;background:var(--black);color:v
 .pill-blue:hover{transform:scale(1.05);box-shadow:0 0 60px var(--blue-glow),inset 0 0 80px rgba(255,255,255,.3)}
 .pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2);opacity:.5}
 .pill-red:hover{opacity:1;transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
-.pill-label{font-weight:700;margin-bottom:8px;color:var(--black);text-shadow:none}
-.pill-sub{color:rgba(0,0,0,.7);text-shadow:none}
+.pill-label{font-weight:700;margin-bottom:12px;color:#FFF;text-shadow:0 2px 4px rgba(0,0,0,.8);font-size:24px;letter-spacing:2px}
+.pill-sub{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.7);font-size:18px}
 .pill-current::after{content:'>>> YOU ARE HERE';position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);color:var(--matrix-green);text-shadow:0 0 8px var(--matrix-green);animation:blink 1.5s infinite}
 
 /* Content sections */
@@ -138,26 +138,20 @@ a:hover{color:var(--blue-pill-light);text-shadow:0 0 8px var(--blue-glow)}
     <div class="step">
       <div class="step-num text-base">1</div>
       <div class="step-content">
-        <div class="step-title text-md">Clone repository</div>
-        <div class="step-text text-sm"><code>git clone https://github.com/marcusash/ai-maker.git C:\AIMaker</code></div>
+        <div class="step-title text-md">Open PowerShell as Admin and paste this</div>
+        <div class="step-text text-sm"><code>git clone https://github.com/marcusash/ai-maker.git C:\AIMaker; cd C:\AIMaker; powershell -ExecutionPolicy Bypass -File scripts\install.ps1</code></div>
+        <div class="step-text text-sm" style="opacity:.6;margin-top:8px">Requires Git. The script handles everything else.</div>
       </div>
     </div>
     <div class="step">
       <div class="step-num text-base">2</div>
       <div class="step-content">
-        <div class="step-title text-md">Install dependencies</div>
-        <div class="step-text text-sm">Open PowerShell as Admin. Run: <code>cd C:\AIMaker</code> then <code>.\install.ps1</code></div>
+        <div class="step-title text-md">Initialize agent</div>
+        <div class="step-text text-sm">In VS Code, open GitHub Copilot chat. Say: "Good morning." AI Maker will run the onboarding interview. Answer one question at a time.</div>
       </div>
     </div>
     <div class="step">
       <div class="step-num text-base">3</div>
-      <div class="step-content">
-        <div class="step-title text-md">Initialize agent</div>
-        <div class="step-text text-sm">In VS Code, open GitHub Copilot chat. Say: "Good morning." AI Maker will run the onboarding interview. Answer one question at a time. Your profile saves to <code>C:\AIMaker\profile.md</code> when done.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num text-base">4</div>
       <div class="step-content">
         <div class="step-title text-md">Start working</div>
         <div class="step-text text-sm">Open any repo. AI Maker is available everywhere. No switching. No context loss.</div>
