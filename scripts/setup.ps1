@@ -1,7 +1,7 @@
 # AI Maker: Setup Script
 # Installs and configures GitHub CLI and WorkIQ for use with AI Maker.
 # Run this after the initial software install if things weren't set up.
-# Location: C:\AIMaker\scripts\setup.ps1
+# Location: C:\Github\ai-maker\scripts\setup.ps1
 
 $LogFile = "C:\AIMaker\logs\setup.log"
 $ConfigFile = "$env:USERPROFILE\.copilot\config.json"
