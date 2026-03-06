@@ -78,19 +78,23 @@ if ($LASTEXITCODE -ne 0) {
 }
 Pop-Location
 
-# Step 2: Security gate
-Write-Host ""
-Write-Host "[2/5] SECURITY GATE" -ForegroundColor Red
-Write-Host "Confirm: all CRITICAL security fixes applied?" -ForegroundColor Red
-Write-Host "  - No OneDrive URLs in docs"
-Write-Host "  - No hardcoded user paths (C:\Users\marcusash\)"
-Write-Host "  - No internal team initials or Forge references"
-Write-Host "  - No real names in persona fields"
-Write-Host ""
-$confirm = Read-Host "Security gate confirmed? [y/N]"
-if ($confirm -ne 'y') {
-    Write-Host "Aborted. Apply security fixes first." -ForegroundColor Red
-    exit 1
+# Step 2: Security gate (skipped in dry-run mode)
+if (-not $DryRun) {
+    Write-Host ""
+    Write-Host "[2/5] SECURITY GATE" -ForegroundColor Red
+    Write-Host "Confirm: all CRITICAL security fixes applied?" -ForegroundColor Red
+    Write-Host "  - No OneDrive URLs in docs"
+    Write-Host "  - No hardcoded user paths (C:\Users\marcusash\)"
+    Write-Host "  - No internal team initials or Forge references"
+    Write-Host "  - No real names in persona fields"
+    Write-Host ""
+    $confirm = Read-Host "Security gate confirmed? [y/N]"
+    if ($confirm -ne 'y') {
+        Write-Host "Aborted. Apply security fixes first." -ForegroundColor Red
+        exit 1
+    }
+} else {
+    Write-Host "[2/5] SECURITY GATE (skipped in dry-run)" -ForegroundColor DarkYellow
 }
 
 # Step 3: Clone or verify target repo
