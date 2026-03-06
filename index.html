@@ -126,38 +126,97 @@ a:hover{color:var(--blue-pill-light);text-shadow:0 0 8px var(--blue-glow)}
   </div>
 
   <div class="section">
-    <div class="section-title text-lg">&gt; PREREQUISITES</div>
-    <div class="prereq">
-      <div class="prereq-title text-md">GitHub Copilot Pro</div>
-      <div class="prereq-text text-sm">$10/month minimum. Required for custom agent instructions. <a href="https://github.com/features/copilot/plans">Subscribe here</a>.</div>
+    <div class="section-title text-lg">&gt; BEFORE YOU START</div>
+    <div class="terminal">
+      <div class="terminal-body">
+        <div class="text-base" style="margin-bottom:16px">
+          <strong>Read the full install guide first:</strong> <a href="https://github.com/marcusash/ai-maker/blob/main/docs/INSTALL.md" target="_blank">AI Maker Installation Guide</a>
+        </div>
+        <div class="text-sm" style="opacity:.8">
+          Installation has interactive steps (GitHub sign-in, device connection). The guide walks you through everything.
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title text-lg">&gt; INSTALLATION SEQUENCE</div>
+    <div class="section-title text-lg">&gt; PREREQUISITES</div>
+    
+    <div class="prereq" style="background:rgba(0,59,0,.5);border:2px solid var(--matrix-green)">
+      <div class="prereq-title text-md">Microsoft Employees</div>
+      <div class="prereq-text text-sm" style="margin-bottom:12px">
+        <strong>1. Personal GitHub account:</strong> If you don't have one, create at <a href="https://github.com/signup" target="_blank">github.com/signup</a>
+      </div>
+      <div class="prereq-text text-sm">
+        <strong>2. Enterprise account:</strong> Use format <code>yourAlias_microsoft</code> (e.g., <code>marcusash_microsoft</code>). GitHub Copilot is included.
+      </div>
+    </div>
+
+    <div class="prereq">
+      <div class="prereq-title text-md">External Users</div>
+      <div class="prereq-text text-sm">GitHub Copilot Pro required ($10/month). <a href="https://github.com/features/copilot/plans" target="_blank">Subscribe here</a>.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; INSTALLATION</div>
+    
     <div class="step">
       <div class="step-num text-base">1</div>
       <div class="step-content">
-        <div class="step-title text-md">Open PowerShell as Admin and paste this</div>
-        <div class="step-text text-sm"><code>git clone https://github.com/marcusash/ai-maker.git C:\AIMaker; cd C:\AIMaker; powershell -ExecutionPolicy Bypass -File scripts\install.ps1</code></div>
-        <div class="step-text text-sm" style="opacity:.6;margin-top:8px">Requires Git. The script handles everything else.</div>
+        <div class="step-title text-md">Open Windows Terminal as Admin</div>
+        <div class="step-text text-sm" style="margin-bottom:8px">Press <code>Win+X</code>, select "Terminal (Admin)"</div>
+        <div class="step-text text-sm" style="opacity:.7">Or search "Terminal" in Start menu, right-click, "Run as administrator"</div>
       </div>
     </div>
+
     <div class="step">
       <div class="step-num text-base">2</div>
       <div class="step-content">
-        <div class="step-title text-md">Initialize agent</div>
-        <div class="step-text text-sm">In VS Code, open GitHub Copilot chat. Say: "Good morning." AI Maker will run the onboarding interview. Answer one question at a time.</div>
+        <div class="step-title text-md">Paste this command and press Enter</div>
+        <div style="position:relative;margin-top:12px">
+          <code id="installCmd" style="display:block;padding:12px;background:rgba(0,255,65,.1);border:1px solid var(--matrix-green);border-radius:4px;font-size:13px;line-height:1.6;overflow-x:auto">irm https://github.com/marcusash/ai-maker/raw/main/install.ps1 | iex</code>
+          <button onclick="copyInstall()" style="position:absolute;top:8px;right:8px;background:var(--matrix-green);color:var(--black);border:none;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700">COPY</button>
+        </div>
+        <div class="step-text text-sm" style="opacity:.7;margin-top:12px">Script installs Git (if needed), downloads AI Maker, sets everything up.</div>
       </div>
     </div>
+
     <div class="step">
       <div class="step-num text-base">3</div>
       <div class="step-content">
-        <div class="step-title text-md">Start working</div>
-        <div class="step-text text-sm">Open any repo. AI Maker is available everywhere. No switching. No context loss.</div>
+        <div class="step-title text-md">Launch AI Maker from desktop</div>
+        <div class="step-text text-sm">After install completes, double-click the <strong>AI Maker</strong> shortcut (GitHub logo) on your desktop. Opens VS Code with Copilot ready.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">4</div>
+      <div class="step-content">
+        <div class="step-title text-md">Initialize your agent</div>
+        <div class="step-text text-sm">In GitHub Copilot chat, say: <code>Good morning.</code> AI Maker runs the onboarding interview. Answer one question at a time.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">5</div>
+      <div class="step-content">
+        <div class="step-title text-md">Start using AI Maker</div>
+        <div class="step-text text-sm">AI Maker works everywhere. No repo setup needed. Just open Copilot chat and start working.</div>
       </div>
     </div>
   </div>
+
+<script>
+function copyInstall(){
+  const cmd=document.getElementById('installCmd').textContent;
+  navigator.clipboard.writeText(cmd).then(()=>{
+    const btn=event.target;
+    btn.textContent='COPIED!';
+    setTimeout(()=>btn.textContent='COPY',2000);
+  });
+}
+</script>
 
   <div class="section">
     <div class="section-title text-lg">&gt; WHAT HAPPENS NEXT</div>
@@ -174,7 +233,7 @@ a:hover{color:var(--blue-pill-light);text-shadow:0 0 8px var(--blue-glow)}
   </div>
 
   <div class="footer text-sm">
-    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="https://marcusash.github.io/gh-copilot-setup/">Take the red pill</a>.</div>
+    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="matrix-gh-copilot-setup.html">Take the red pill</a>.</div>
     <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
   </div>
 
