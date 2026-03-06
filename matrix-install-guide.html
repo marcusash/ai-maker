@@ -62,7 +62,7 @@ body{font-family:'Courier New',Courier,monospace;background:var(--black);color:v
 /* Code and commands */
 code{background:rgba(0,255,65,.08);padding:3px 8px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(0,255,65,.2);font-family:'Courier New',monospace}
 .code-block{background:rgba(0,20,0,.9);border:2px solid var(--matrix-green);padding:16px;margin:16px 0;border-radius:4px;font-family:'Courier New',monospace;font-size:14px;color:var(--matrix-green);overflow-x:auto;position:relative}
-.copy-btn{position:absolute;top:8px;right:8px;background:var(--matrix-green);color:var(--black);border:none;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--matrix-green);color:var(--black);border:none;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:14px;font-weight:700}
 .copy-btn:hover{background:#00D941}
 
 /* Links */
@@ -88,8 +88,8 @@ li::marker{color:var(--matrix-green)}
     <div class="header-title text-xl">&gt; AI MAKER INSTALLATION GUIDE</div>
     <div class="header-subtitle text-base">One agent. Five minutes. Works everywhere.</div>
     <div class="pill-choice text-sm">
-      <div class="pill-badge pill-active">🔵 BLUE PILL — YOU'RE HERE</div>
-      <div class="pill-badge">🔴 RED PILL — FULL SETUP</div>
+      <div class="pill-badge pill-active">BLUE PILL : YOU'RE HERE</div>
+      <div class="pill-badge">RED PILL : FULL SETUP</div>
     </div>
   </div>
 
@@ -117,14 +117,28 @@ li::marker{color:var(--matrix-green)}
       <div class="info-title text-md">Required</div>
       <ul class="text-sm">
         <li>Windows 10 or Windows 11</li>
-        <li>GitHub account: <a href="https://github.com" target="_blank">github.com</a></li>
-        <li><strong>GitHub Copilot Pro or higher</strong> ($10/month) — the free plan does not support the CLI</li>
         <li>Node.js 22+ and PowerShell 7+ (the setup script installs these if missing)</li>
       </ul>
     </div>
 
+    <div class="info-box" style="background:rgba(0,59,0,.5);border:2px solid var(--matrix-green)">
+      <div class="info-title text-md">Microsoft Employees</div>
+      <ul class="text-sm">
+        <li><strong>Personal GitHub account:</strong> If you don't have one, create at <a href="https://github.com/signup" target="_blank">github.com/signup</a></li>
+        <li><strong>Enterprise account:</strong> Use format <code>yourAlias_microsoft</code> (e.g., <code>marcusash_microsoft</code>). GitHub Copilot is included.</li>
+      </ul>
+    </div>
+
     <div class="info-box">
-      <div class="info-title text-md">WorkIQ (Optional — Microsoft 365 users only)</div>
+      <div class="info-title text-md">External Users</div>
+      <ul class="text-sm">
+        <li>GitHub account: <a href="https://github.com/signup" target="_blank">github.com/signup</a></li>
+        <li><strong>GitHub Copilot Pro or higher</strong> ($10/month). The free plan does not support the CLI. <a href="https://github.com/features/copilot/plans" target="_blank">Subscribe here</a>.</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <div class="info-title text-md">WorkIQ (Optional : Microsoft 365 users only)</div>
       <ul class="text-sm">
         <li>An organizational Microsoft 365 account (E3, E5, Business Standard, or Business Premium)</li>
         <li>Microsoft 365 Copilot add-on license</li>
@@ -252,16 +266,16 @@ li::marker{color:var(--matrix-green)}
     <div class="terminal">
       <div class="terminal-body">
         <div class="section-text text-base">
-          <strong>AI Maker agent</strong> — a personalized Copilot agent with skills for design, code, research, quality, data, brainstorming, and user research
+          <strong>AI Maker agent</strong> : a personalized Copilot agent with skills for design, code, research, quality, data, brainstorming, and user research
         </div>
         <div class="section-text text-base">
-          <strong>Onboarding interview</strong> — AI Maker learns your working style in the first session
+          <strong>Onboarding interview</strong> : AI Maker learns your working style in the first session
         </div>
         <div class="section-text text-base">
-          <strong>WorkIQ integration</strong> — if you have M365 Copilot, AI Maker can query your calendar, email, and Teams without you having to summarize them
+          <strong>WorkIQ integration</strong> : if you have M365 Copilot, AI Maker can query your calendar, email, and Teams without you having to summarize them
         </div>
         <div class="section-text text-base">
-          <strong>Personalization</strong> — agent knows your name and adapts to your preferences over time
+          <strong>Personalization</strong> : agent knows your name and adapts to your preferences over time
         </div>
       </div>
     </div>
@@ -309,7 +323,7 @@ li::marker{color:var(--matrix-green)}
     <div class="highlight-box">
       <div class="text-md" style="margin-bottom:12px;color:var(--matrix-green)">Installation complete? Read the user guide.</div>
       <div class="text-base">
-        <a href="matrix-ai-maker-guide.html">AI Maker User Guide</a> — learn what to ask and how it works
+        <a href="https://github.com/marcusash/ai-maker/blob/main/docs/user-guide.html" target="_blank">AI Maker User Guide</a> : learn what to ask and how it works
       </div>
     </div>
   </div>
