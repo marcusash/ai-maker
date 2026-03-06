@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Maker Installation Guide</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+/* MATRIX COLOR PALETTE */
+:root{
+  --matrix-green:#00FF41;
+  --matrix-green-dark:#003B00;
+  --matrix-green-glow:rgba(0,255,65,.6);
+  --black:#000;
+  --cyan:#00D9FF;
+}
+
+/* TYPOGRAPHY */
+body{font-family:'Courier New',Courier,monospace;background:var(--black);color:var(--matrix-green);overflow-x:hidden;min-height:100vh;font-size:16px;line-height:1.6}
+.text-xl{font-size:32px;line-height:1.2}
+.text-lg{font-size:24px;line-height:1.3}
+.text-md{font-size:18px;line-height:1.4}
+.text-base{font-size:16px;line-height:1.6}
+.text-sm{font-size:14px;line-height:1.6}
+
+#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.08}
+.content{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 20px}
+
+/* Header */
+.header{text-align:center;margin-bottom:60px;padding-top:40px}
+.header-title{text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 20px var(--matrix-green);margin-bottom:16px}
+.header-subtitle{opacity:.7;margin-bottom:30px}
+.pill-choice{display:flex;gap:20px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:30px}
+.pill-badge{padding:8px 16px;border:2px solid var(--matrix-green);border-radius:20px;font-size:14px;letter-spacing:1px}
+.pill-active{background:rgba(0,255,65,.2);box-shadow:0 0 10px var(--matrix-green)}
+
+/* Terminal window */
+.terminal{background:rgba(0,20,0,.85);border:2px solid var(--matrix-green);border-radius:0;box-shadow:0 0 30px rgba(0,255,65,.3);margin-bottom:40px;overflow:hidden}
+.terminal-header{background:var(--matrix-green-dark);border-bottom:1px solid var(--matrix-green);padding:8px 12px;display:flex;align-items:center;gap:8px}
+.terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--matrix-green)}
+.terminal-body{padding:30px}
+
+/* Sections */
+.section{margin-bottom:50px}
+.section-title{margin-bottom:20px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--matrix-green);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
+.section-text{margin-bottom:16px;opacity:.9}
+
+/* Boxes */
+.info-box{background:rgba(0,59,0,.2);border:1px solid var(--matrix-green);padding:20px;margin-bottom:20px;border-radius:4px}
+.info-title{margin-bottom:12px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green)}
+.info-text{opacity:.85}
+
+.highlight-box{background:rgba(0,59,0,.4);border:2px solid var(--matrix-green);padding:24px;margin:30px 0;box-shadow:0 0 20px rgba(0,255,65,.2)}
+
+/* Steps */
+.step{background:rgba(0,59,0,.15);border-left:3px solid var(--matrix-green);padding:20px;margin-bottom:16px;position:relative;padding-left:60px}
+.step-num{position:absolute;left:15px;top:20px;width:30px;height:30px;border-radius:50%;background:var(--matrix-green);color:var(--black);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 0 10px var(--matrix-green)}
+.step-title{margin-bottom:8px;color:var(--matrix-green);font-weight:700}
+.step-text{opacity:.85}
+
+/* Code and commands */
+code{background:rgba(0,255,65,.08);padding:3px 8px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(0,255,65,.2);font-family:'Courier New',monospace}
+.code-block{background:rgba(0,20,0,.9);border:2px solid var(--matrix-green);padding:16px;margin:16px 0;border-radius:4px;font-family:'Courier New',monospace;font-size:14px;color:var(--matrix-green);overflow-x:auto;position:relative}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--matrix-green);color:var(--black);border:none;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700}
+.copy-btn:hover{background:#00D941}
+
+/* Links */
+a{color:var(--cyan);text-decoration:underline;text-shadow:0 0 6px rgba(0,217,255,.6);font-weight:600}
+a:hover{color:#4DFFFF;text-shadow:0 0 10px rgba(77,255,255,.8)}
+
+/* Lists */
+ul{margin-left:20px;margin-bottom:16px}
+li{margin-bottom:8px;opacity:.9}
+li::marker{color:var(--matrix-green)}
+
+/* Footer */
+.footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6}
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="content">
+  
+  <div class="header">
+    <div class="header-title text-xl">&gt; AI MAKER INSTALLATION GUIDE</div>
+    <div class="header-subtitle text-base">One agent. Five minutes. Works everywhere.</div>
+    <div class="pill-choice text-sm">
+      <div class="pill-badge pill-active">🔵 BLUE PILL — YOU'RE HERE</div>
+      <div class="pill-badge">🔴 RED PILL — FULL SETUP</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; WHAT IS AI MAKER?</div>
+    <div class="terminal">
+      <div class="terminal-body">
+        <div class="section-text text-base">
+          AI Maker is a personalized GitHub Copilot agent that learns how you work and gets better at helping you over time. It runs in your terminal via the Copilot CLI.
+        </div>
+        <div class="section-text text-base">
+          One setup script. One agent. Done in five minutes. No GitHub repo required, no dev environment to configure.
+        </div>
+        <div class="section-text text-base">
+          If you have a Microsoft 365 Copilot license, AI Maker also connects to your email, calendar, and Teams via WorkIQ.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; PREREQUISITES</div>
+    
+    <div class="info-box">
+      <div class="info-title text-md">Required</div>
+      <ul class="text-sm">
+        <li>Windows 10 or Windows 11</li>
+        <li>GitHub account: <a href="https://github.com" target="_blank">github.com</a></li>
+        <li><strong>GitHub Copilot Pro or higher</strong> ($10/month) — the free plan does not support the CLI</li>
+        <li>Node.js 22+ and PowerShell 7+ (the setup script installs these if missing)</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <div class="info-title text-md">WorkIQ (Optional — Microsoft 365 users only)</div>
+      <ul class="text-sm">
+        <li>An organizational Microsoft 365 account (E3, E5, Business Standard, or Business Premium)</li>
+        <li>Microsoft 365 Copilot add-on license</li>
+        <li>IT admin consent to WorkIQ in your organization's Entra ID</li>
+        <li>Personal Outlook.com accounts do not qualify</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; QUICK START</div>
+    
+    <div class="highlight-box">
+      <div class="text-md" style="margin-bottom:16px;font-weight:700">Open PowerShell and run:</div>
+      <div class="code-block" style="margin-top:12px">
+        <span id="quickCmd">irm https://raw.githubusercontent.com/marcusash/ai-maker/main/setup.ps1 | iex</span>
+        <button class="copy-btn" onclick="copyCode('quickCmd')">COPY</button>
+      </div>
+      <div class="text-sm" style="opacity:.8;margin-top:16px">
+        The script will ask for your name, then copy the AI Maker agent files to your machine and personalize them. If you want WorkIQ, it will walk you through that too.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; DETAILED INSTALLATION STEPS</div>
+    
+    <div class="step">
+      <div class="step-num text-base">1</div>
+      <div>
+        <div class="step-title text-md">Get a GitHub account</div>
+        <div class="step-text text-sm">
+          If you don't have one: <a href="https://github.com/signup" target="_blank">github.com/signup</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">2</div>
+      <div>
+        <div class="step-title text-md">Subscribe to GitHub Copilot Pro</div>
+        <div class="step-text text-sm">
+          <strong>$10/month minimum.</strong> The free plan does not support custom agents or CLI access.<br>
+          Subscribe: <a href="https://github.com/features/copilot/plans" target="_blank">github.com/features/copilot/plans</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">3</div>
+      <div>
+        <div class="step-title text-md">Open PowerShell</div>
+        <div class="step-text text-sm">
+          Press <code>Win+X</code> and select "Terminal" or "PowerShell".<br>
+          Or: search "PowerShell" in Start menu and click it.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">4</div>
+      <div>
+        <div class="step-title text-md">Run the setup script</div>
+        <div class="code-block" style="margin-top:12px">
+          <span id="setupCmd">irm https://raw.githubusercontent.com/marcusash/ai-maker/main/setup.ps1 | iex</span>
+          <button class="copy-btn" onclick="copyCode('setupCmd')">COPY</button>
+        </div>
+        <div class="step-text text-sm" style="margin-top:12px">
+          The script will:
+          <ul style="margin-top:8px">
+            <li>Ask for your name</li>
+            <li>Install Node.js and PowerShell 7 if needed</li>
+            <li>Copy AI Maker agent files to your machine</li>
+            <li>Personalize the agent with your name</li>
+            <li>Optionally set up WorkIQ for M365 integration</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">5</div>
+      <div>
+        <div class="step-title text-md">Sign in to GitHub</div>
+        <div class="step-text text-sm">
+          The setup script will prompt you to authenticate with GitHub. Follow the instructions in your terminal. This is a one-time step.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">6</div>
+      <div>
+        <div class="step-title text-md">Launch AI Maker</div>
+        <div class="step-text text-sm">
+          After setup completes, open the Copilot CLI from the Start menu or desktop shortcut. AI Maker is ready.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">7</div>
+      <div>
+        <div class="step-title text-md">Run the onboarding interview</div>
+        <div class="step-text text-sm">
+          In the Copilot CLI, say: <code>Good morning.</code><br>
+          AI Maker will run the onboarding interview. Answer one question at a time. This teaches AI Maker your working style.
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">8</div>
+      <div>
+        <div class="step-title text-md">Start working</div>
+        <div class="step-text text-sm">
+          AI Maker is now available everywhere. No switching. No context loss. Just open the CLI and start chatting.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; WHAT YOU GET</div>
+    <div class="terminal">
+      <div class="terminal-body">
+        <div class="section-text text-base">
+          <strong>AI Maker agent</strong> — a personalized Copilot agent with skills for design, code, research, quality, data, brainstorming, and user research
+        </div>
+        <div class="section-text text-base">
+          <strong>Onboarding interview</strong> — AI Maker learns your working style in the first session
+        </div>
+        <div class="section-text text-base">
+          <strong>WorkIQ integration</strong> — if you have M365 Copilot, AI Maker can query your calendar, email, and Teams without you having to summarize them
+        </div>
+        <div class="section-text text-base">
+          <strong>Personalization</strong> — agent knows your name and adapts to your preferences over time
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; TROUBLESHOOTING</div>
+    
+    <div class="info-box">
+      <div class="info-title text-md">Script execution error</div>
+      <div class="info-text text-sm">
+        If you see "running scripts is disabled", run this first:<br>
+        <code style="display:inline-block;margin-top:8px">Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="info-title text-md">GitHub CLI not found</div>
+      <div class="info-text text-sm">
+        The setup script should install GitHub CLI automatically. If you see this error, manually install from:<br>
+        <a href="https://cli.github.com" target="_blank">cli.github.com</a>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <div class="info-title text-md">Node.js version error</div>
+      <div class="info-text text-sm">
+        AI Maker requires Node.js 22 or higher. The setup script will install it if missing. If you have an older version, uninstall it first from Settings > Apps, then re-run the setup script.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; WANT MORE?</div>
+    <div class="highlight-box">
+      <div class="text-md" style="margin-bottom:12px">Take the red pill. Two agents, full dev environment, your own GitHub repo.</div>
+      <div class="text-base">
+        <a href="matrix-gh-copilot-setup.html">Red Pill: GitHub Copilot Setup</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer text-sm">
+    <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
+  </div>
+
+</div>
+
+<script>
+const canvas=document.getElementById('matrix');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+const chars='アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴ01';
+const fontSize=14;
+const cols=canvas.width/fontSize;
+const drops=[];
+for(let i=0;i<cols;i++)drops[i]=1;
+function draw(){
+  ctx.fillStyle='rgba(0,0,0,.05)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#00FF41';
+  ctx.font=fontSize+'px monospace';
+  for(let i=0;i<drops.length;i++){
+    const text=chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+    if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
+    drops[i]++;
+  }
+}
+setInterval(draw,33);
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight});
+
+function copyCode(id){
+  const text=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=event.target;
+    btn.textContent='COPIED!';
+    setTimeout(()=>btn.textContent='COPY',2000);
+  });
+}
+</script>
+
+</body>
+</html>
