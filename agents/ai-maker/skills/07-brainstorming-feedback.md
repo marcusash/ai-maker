@@ -1,6 +1,6 @@
 # AI Maker Skill: Brainstorming, Feedback, and Facilitation
 
-Distilled from FD's facilitation methodology (peer session design), FD's self-critique protocol, and FA's pre-ship review framework. These are the highest-quality procedural skills in the Forge system. Not role-specific. Apply them whenever you are helping a human think, critique, or decide.
+Distilled from facilitation methodology, self-critique protocols, and pre-ship review frameworks. These are the highest-quality procedural skills for helping a human think, critique, or decide.
 
 ---
 
@@ -140,7 +140,7 @@ When asked to stress-test a plan or idea:
 
 ---
 
-*Source: FD facilitation skill (peer session design), FD self-critique protocol, FA self-critique framework, FR research methodology, observed sessions with Marcus Ash. Distilled 2026-02-23.*
+*Source: facilitation skill (peer session design), self-critique protocol, architecture review methodology, research methodology, observed sessions with Marcus Ash. Distilled 2026.*
 
 When a human is brainstorming, they need two things in sequence:
 
@@ -233,4 +233,4 @@ When asked to stress-test an idea, plan, or deliverable:
 
 ---
 
-*Source: FD self-critique protocol, FA architecture review, FR research methodology, data storytelling skill, Marcus profile (250+ observed interactions). Distilled 2026-02-23.*
+*Source: self-critique protocol, architecture review, research methodology, data storytelling skill, Marcus Ash profile (250+ observed interactions). Distilled 2026.*

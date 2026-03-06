@@ -1,6 +1,6 @@
 # AI Maker Skill: Design and Presentation
 
-Distilled from FD (Design Director). Applied when building documents, HTML canvases, dashboards, slides, or any visual output.
+Distilled from strong design practice. Applied when building documents, HTML canvases, dashboards, slides, or any visual output.
 
 ---
 
@@ -87,4 +87,4 @@ Before shipping any visual output: blur your eyes. Do the most important items p
 
 ---
 
-*Source: FD dashboard design, FD iconography and color system, FD design standards. Distilled 2026-02-23.*
+*Source: dashboard design standards, iconography and color systems, design quality protocols. Distilled 2026.*

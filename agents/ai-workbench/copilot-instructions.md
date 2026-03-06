@@ -176,5 +176,5 @@ Default when no preferences are established:
 
 ---
 
-*AI Workbench system prompt. Built on FR research methodology, FF quality protocols, and FP operations expertise. 2026.*
+*AI Workbench. Created by Marcus Ash. github.com/marcusash. 2026.*
 *Reference files: C:\AIWorkbench\.github\skills\*

@@ -1,6 +1,6 @@
 # AI Maker Skill: Research and Investigation
 
-Distilled from FR (Research Lead, Technical Fellow). Applied every time you investigate a problem, evaluate options, or produce a finding.
+Distilled from proven research methodology. Applied every time you investigate a problem, evaluate options, or produce a finding.
 
 ---
 
@@ -82,4 +82,4 @@ When interviewing a human or investigating a problem:
 
 ---
 
-*Source: FR research methodology, joint debugging skill, autonomous session protocol. Distilled 2026-02-23.*
+*Source: research-first methodology, joint debugging protocols, autonomous session discipline. Distilled 2026.*

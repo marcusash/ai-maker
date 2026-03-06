@@ -75,4 +75,4 @@ Example:
 
 ---
 
-*Researcher skill. Built on FR research methodology. Part of AI Workbench.*
+*Researcher skill. Built on research-first methodology. Part of AI Workbench.*

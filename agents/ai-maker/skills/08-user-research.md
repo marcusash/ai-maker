@@ -2,7 +2,7 @@
 
 Distilled from a live cognitive walkthrough session with Marcus Ash (2026-02-23) in which a non-technical persona was simulated against the AI Maker onboarding experience. The session produced 8 failure findings, separated content failures from delivery failures, and proposed specific fixes. That session is the worked example for this skill.
 
-Reference: `C:\Users\marcusash\Downloads\ai-maker\USABILITY-CRITIQUE.md`
+Reference: see the worked example session in this skill file (below).
 
 ---
 
@@ -40,7 +40,7 @@ A generic persona produces generic findings. "Non-technical user" tells you almo
 
 Example from the 2026-02-23 session:
 
-> "Sarah, Director of Marketing, Microsoft. Uses Teams and Outlook all day. Has used Microsoft Copilot in Teams chat panel. Low-confidence Windows user. When something goes wrong, her first instinct is to close the window and email IT. She is afraid of breaking something or looking like she does not know what she is doing."
+> "Alex, Director of Marketing. Uses Teams and Outlook all day. Has used Microsoft Copilot in Teams chat panel. Low-confidence Windows user. When something goes wrong, her first instinct is to close the window and email IT. She is afraid of breaking something or looking like she does not know what she is doing."
 
 ---
 
@@ -138,9 +138,9 @@ The better path: give the persona description to someone who was not in the room
 
 ## Worked Example
 
-Full session: `C:\Users\marcusash\Downloads\ai-maker\USABILITY-CRITIQUE.md`
+Full session: see worked example below.
 
-Persona: Sarah, Director of Marketing, Microsoft. Teams and Outlook daily. Microsoft Copilot in Teams. Low-confidence Windows user. First instinct when something breaks: close window, email IT. Fear: breaking something, looking incompetent.
+Persona: Alex, Director of Marketing. Teams and Outlook daily. Microsoft Copilot in Teams. Low-confidence Windows user. First instinct when something breaks: close window, email IT. Fear: breaking something, looking incompetent.
 
 Artifact: AI Maker installer and first-launch experience.
 

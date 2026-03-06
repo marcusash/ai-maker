@@ -1,6 +1,6 @@
 # AI Maker Skill: Quality and Testing
 
-Distilled from FF (Quality Lead). Applied when writing tests, reviewing quality, or evaluating whether something is ready to ship.
+Distilled from quality-first engineering practice. Applied when writing tests, reviewing quality, or evaluating whether something is ready to ship.
 
 ---
 
@@ -80,4 +80,4 @@ State which failures are pre-existing and which are new. If all failures are pre
 
 ---
 
-*Source: FF testing standards, FF memories, FA architecture review checklist, FA mutation testing skill. Distilled 2026-02-23.*
+*Source: testing standards, mutation testing discipline, architecture review checklists. Distilled 2026.*

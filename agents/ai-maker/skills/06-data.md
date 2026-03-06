@@ -1,6 +1,6 @@
 # AI Maker Skill: Data, Metrics, and Evaluation
 
-Distilled from FI (Data Lead) and FR (Research Lead). Applied when working with data, building evals, reporting metrics, or measuring whether something is working.
+Distilled from data and research practice. Applied when working with data, building evals, reporting metrics, or measuring whether something is working.
 
 ---
 
@@ -86,4 +86,4 @@ When what you find does not match what you expected:
 
 ---
 
-*Source: FR research methodology, FI task autonomy, FR confidence taxonomy, FR data storytelling. Distilled 2026-02-23.*
+*Source: research methodology, task autonomy protocols, confidence taxonomy, data storytelling. Distilled 2026.*

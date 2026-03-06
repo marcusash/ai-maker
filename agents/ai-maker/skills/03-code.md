@@ -1,6 +1,6 @@
 # AI Maker Skill: Code, Debugging, and Technical Work
 
-Distilled from FA (Chief Architect). Applied when writing code, reviewing it, debugging it, or working through a technical problem with the human present.
+Distilled from rigorous engineering practice. Applied when writing code, reviewing it, debugging it, or working through a technical problem with the human present.
 
 ---
 
@@ -69,4 +69,4 @@ Documentation about code goes stale. When you need to know if something is fixed
 
 ---
 
-*Source: FA TypeScript standards, FA self-critique protocol, FR joint debugging skill. Distilled 2026-02-23.*
+*Source: TypeScript standards, self-critique protocol, joint debugging methodology. Distilled 2026.*

@@ -186,11 +186,11 @@ if (-not $SETUP_NAME) {
     Write-Host ""
 
     do {
-        $SETUP_NAME = Read-Host "  Your full name (e.g., Robin Seiler)"
+        $SETUP_NAME = Read-Host "  Your full name (e.g., Marcus Ash)"
     } while (-not $SETUP_NAME)
 
     do {
-        $SETUP_GITHUB = Read-Host "  Your GitHub username (e.g., rseiler_microsoft)"
+        $SETUP_GITHUB = Read-Host "  Your GitHub username (e.g., marcusash)"
     } while (-not $SETUP_GITHUB)
 
     $emailDefault = "$($SETUP_NAME.ToLower() -replace ' ', '')@microsoft.com"
@@ -718,11 +718,33 @@ if (Test-Path $aiWorkbenchSource) {
 }
 
 # ─────────────────────────────────────────────────────────────
-# Section 15 — WorkIQ Setup
+# Section 14b — Personalization pass
+# Replace [FIRST_NAME] placeholder in all installed agent files
+# with the user's actual first name so the agent knows who they
+# are from the very first session.
+# ─────────────────────────────────────────────────────────────
+Step "Personalizing agent files for $SETUP_NAME"
+
+$firstName = $SETUP_NAME.Split(' ')[0]
+$agentRoots = @('C:\AIMaker\.github', 'C:\AIWorkbench\.github')
+foreach ($root in $agentRoots) {
+    if (Test-Path $root) {
+        Get-ChildItem $root -Recurse -File -Include *.md | ForEach-Object {
+            $content = Get-Content $_.FullName -Raw
+            if ($content -match '\[FIRST_NAME\]') {
+                $content = $content -replace '\[FIRST_NAME\]', $firstName
+                Set-Content $_.FullName $content -NoNewline -Encoding UTF8
+            }
+        }
+    }
+}
+Write-Host "  Agent files personalized for $firstName" -ForegroundColor Green
+
+
 # ─────────────────────────────────────────────────────────────
 Step "Setting up WorkIQ (Microsoft 365 integration)"
 
-function Refresh-Path-Robin {
+function Refresh-Path {
     $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" +
                 [System.Environment]::GetEnvironmentVariable("PATH", "User")
 }
@@ -737,7 +759,7 @@ if ($wiq) {
     if (-not $WhatIf) {
         npm install -g @microsoft/workiq
         if ($LASTEXITCODE -eq 0) {
-            Refresh-Path-Robin
+            Refresh-Path
             Write-Host "  [OK]  WorkIQ installed." -ForegroundColor Green
         } else {
             Write-Host "  WorkIQ install failed. You can retry later: npm install -g @microsoft/workiq" -ForegroundColor Red

@@ -1,6 +1,6 @@
 # AI Maker Skill: Operations and Communication
 
-Distilled from FO (Chief of Operations) and FI (Data Lead). Applied when managing tasks, communicating with others, or keeping work moving without being told what to do next.
+Distilled from ops and data discipline. Applied when managing tasks, communicating with others, or keeping work moving without being told what to do next.
 
 ---
 

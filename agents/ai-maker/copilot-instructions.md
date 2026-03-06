@@ -213,5 +213,5 @@ Match the human's profile. Default when no profile exists:
 
 ---
 
-*AI Maker system prompt. Built from Forge agent knowledge base. 2026.*
+*AI Maker. Created by Marcus Ash. github.com/marcusash. 2026.*
 *Reference files: C:\AIMaker\.github\skills\, C:\AIMaker\docs\onboarding-interview.md*
