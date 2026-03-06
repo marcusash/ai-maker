@@ -6,51 +6,215 @@
 <title>BLUE PILL: AI Maker</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Courier New',Courier,monospace;background:#000;color:#00FF41;overflow-x:hidden;min-height:100vh}
+
+/* MATRIX COLOR PALETTE */
+:root{
+  --matrix-green:#00FF41;
+  --matrix-green-dark:#003B00;
+  --matrix-green-glow:rgba(0,255,65,.6);
+  --blue-pill:#4A90D9;
+  --blue-pill-light:#6AB0E9;
+  --blue-pill-dark:#2A5A89;
+  --blue-glow:rgba(74,144,217,.6);
+  --red-pill:#CE1126;
+  --red-pill-light:#E84444;
+  --red-pill-dark:#8A0A18;
+  --red-glow:rgba(206,17,38,.6);
+  --black:#0A1520;
+}
+
+/* TYPOGRAPHY SYSTEM */
+body{font-family:'Courier New',Courier,monospace;background:var(--black);color:var(--matrix-green);overflow-x:hidden;min-height:100vh;font-size:16px;line-height:1.6}
+.text-xl{font-size:32px;line-height:1.2}
+.text-lg{font-size:24px;line-height:1.3}
+.text-md{font-size:18px;line-height:1.4}
+.text-base{font-size:16px;line-height:1.6}
+.text-sm{font-size:14px;line-height:1.6}
+
 #matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.12}
 .content{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 20px}
 
 /* Terminal window */
-.terminal{background:rgba(0,20,0,.95);border:2px solid #00FF41;border-radius:0;box-shadow:0 0 40px rgba(0,255,65,.3),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
-.terminal-header{background:#001a00;border-bottom:1px solid #00FF41;padding:8px 12px;display:flex;align-items:center;gap:8px;font-size:14px}
-.terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid #00FF41}
-.terminal-body{padding:30px;font-size:16px;line-height:1.8}
+.terminal{background:rgba(0,20,0,.95);border:2px solid var(--matrix-green);border-radius:0;box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
+.terminal-header{background:var(--matrix-green-dark);border-bottom:1px solid var(--matrix-green);padding:8px 12px;display:flex;align-items:center;gap:8px}
+.terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--matrix-green)}
+.terminal-body{padding:30px}
 
 /* Pills */
 .choice{text-align:center;margin-bottom:60px}
-.choice-title{font-size:32px;margin-bottom:10px;text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 10px #00FF41}
-.choice-sub{font-size:14px;opacity:.6;margin-bottom:40px}
+.choice-title{text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 10px var(--matrix-green);margin-bottom:10px}
+.choice-sub{opacity:.6;margin-bottom:40px}
 .pills{display:flex;gap:30px;justify-content:center;flex-wrap:wrap}
 .pill{width:280px;height:280px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;text-decoration:none;position:relative}
-.pill-blue{background:radial-gradient(circle at 30% 30%,#6AB0E9,#4A90D9 50%,#2A5A89);border:3px solid #4A90D9;box-shadow:0 0 40px rgba(74,144,217,.6),inset 0 0 60px rgba(255,255,255,.2)}
-.pill-blue:hover{transform:scale(1.05);box-shadow:0 0 60px rgba(74,144,217,.9),inset 0 0 80px rgba(255,255,255,.3)}
-.pill-red{background:radial-gradient(circle at 30% 30%,#E84444,#CE1126 50%,#8A0A18);border:3px solid #CE1126;box-shadow:0 0 40px rgba(206,17,38,.6),inset 0 0 60px rgba(255,255,255,.2);opacity:.5}
-.pill-red:hover{opacity:1;transform:scale(1.05);box-shadow:0 0 60px rgba(206,17,38,.9)}
-.pill-label{font-size:20px;font-weight:700;margin-bottom:8px;color:#000;text-shadow:none}
-.pill-sub{font-size:14px;color:rgba(0,0,0,.7);text-shadow:none}
-.pill-current::after{content:'>>> YOU ARE HERE';position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);font-size:14px;color:#00FF41;text-shadow:0 0 8px #00FF41;animation:blink 1.5s infinite}
+.pill-blue{background:radial-gradient(circle at 30% 30%,var(--blue-pill-light),var(--blue-pill) 50%,var(--blue-pill-dark));border:3px solid var(--blue-pill);box-shadow:0 0 40px var(--blue-glow),inset 0 0 60px rgba(255,255,255,.2)}
+.pill-blue:hover{transform:scale(1.05);box-shadow:0 0 60px var(--blue-glow),inset 0 0 80px rgba(255,255,255,.3)}
+.pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2);opacity:.5}
+.pill-red:hover{opacity:1;transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
+.pill-label{font-weight:700;margin-bottom:8px;color:var(--black);text-shadow:none}
+.pill-sub{color:rgba(0,0,0,.7);text-shadow:none}
+.pill-current::after{content:'>>> YOU ARE HERE';position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);color:var(--matrix-green);text-shadow:0 0 8px var(--matrix-green);animation:blink 1.5s infinite}
 
 /* Content sections */
 .section{margin-bottom:50px}
-.section-title{font-size:24px;margin-bottom:20px;color:#00FF41;text-transform:uppercase;letter-spacing:2px;border-left:4px solid #00FF41;padding-left:12px;text-shadow:0 0 8px #00FF41}
-.section-text{font-size:16px;line-height:1.8;margin-bottom:16px;opacity:.9}
-.prereq{background:rgba(0,59,0,.3);border:1px solid #00FF41;padding:20px;margin-bottom:20px;border-radius:4px}
-.prereq-title{font-size:18px;margin-bottom:12px;color:#00FF41;text-shadow:0 0 6px #00FF41}
-.prereq-text{font-size:14px;opacity:.8;line-height:1.6}
-.step{background:rgba(0,59,0,.2);border-left:3px solid #00FF41;padding:20px;margin-bottom:16px;position:relative;padding-left:60px}
-.step-num{position:absolute;left:15px;top:20px;width:30px;height:30px;border-radius:50%;background:#00FF41;color:#000;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;box-shadow:0 0 10px #00FF41}
-.step-title{font-size:18px;margin-bottom:8px;color:#00FF41}
-.step-text{font-size:14px;opacity:.8;line-height:1.6}
-code{background:rgba(0,255,65,.1);padding:3px 8px;border-radius:3px;color:#00FF41;border:1px solid rgba(0,255,65,.3);font-family:'Courier New',monospace;font-size:14px}
-a{color:#4A90D9;text-decoration:none;text-shadow:0 0 4px rgba(74,144,217,.6)}
-a:hover{color:#6AB0E9;text-shadow:0 0 8px rgba(74,144,217,.9)}
+.section-title{margin-bottom:20px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--matrix-green);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
+.section-text{margin-bottom:16px;opacity:.9}
+.prereq{background:rgba(0,59,0,.3);border:1px solid var(--matrix-green);padding:20px;margin-bottom:20px;border-radius:4px}
+.prereq-title{margin-bottom:12px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green)}
+.prereq-text{opacity:.8}
+.step{background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:20px;margin-bottom:16px;position:relative;padding-left:60px}
+.step-num{position:absolute;left:15px;top:20px;width:30px;height:30px;border-radius:50%;background:var(--matrix-green);color:var(--black);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 0 10px var(--matrix-green)}
+.step-title{margin-bottom:8px;color:var(--matrix-green)}
+.step-text{opacity:.8}
+code{background:rgba(0,255,65,.1);padding:3px 8px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(0,255,65,.3);font-family:'Courier New',monospace}
+a{color:var(--blue-pill);text-decoration:none;text-shadow:0 0 4px var(--blue-glow)}
+a:hover{color:var(--blue-pill-light);text-shadow:0 0 8px var(--blue-glow)}
 
 /* Footer */
-.footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6;font-size:14px}
-.footer a{color:#00FF41}
+.footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6}
+.footer a{color:var(--matrix-green)}
 
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
 </style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="content">
+  
+  <div class="choice">
+    <div class="choice-title text-xl">CHOOSE YOUR REALITY</div>
+    <div class="choice-sub text-sm">The story you tell yourself about what you are capable of.</div>
+    <div class="pills">
+      <div class="pill pill-blue pill-current">
+        <div class="pill-label text-md">BLUE PILL</div>
+        <div class="pill-sub text-sm">Stay comfortable</div>
+      </div>
+      <a href="matrix-gh-copilot-setup.html" class="pill pill-red">
+        <div class="pill-label text-md">RED PILL</div>
+        <div class="pill-sub text-sm">See the truth</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="terminal">
+    <div class="terminal-header text-sm">
+      <div class="terminal-dot" style="background:var(--matrix-green)"></div>
+      <div class="terminal-dot"></div>
+      <div class="terminal-dot"></div>
+      <span style="margin-left:auto;opacity:.6">AI-MAKER.EXE</span>
+    </div>
+    <div class="terminal-body">
+      <div class="text-lg" style="margin-bottom:20px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; INITIALIZING AI MAKER</div>
+      <div class="text-base" style="opacity:.8">One agent. Works everywhere. Five minutes to set up.</div>
+      <div class="text-base" style="margin-top:16px;opacity:.8">You stay in your world. Everything you know is still true. You just get an AI partner that makes your work better.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; WHAT YOU GET</div>
+    <div class="terminal">
+      <div class="terminal-body">
+        <div class="section-text text-base">
+          AI Maker is a unified AI agent for leaders and managers. Research, design, code, quality, operations, and data in one partner. No specialization. No switching contexts. One agent that brings the right skill to whatever you need.
+        </div>
+        <div class="section-text text-base">
+          It thinks ahead. It flags problems before they become expensive. It tells you what you need to hear, not what you want to hear.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; PREREQUISITES</div>
+    <div class="prereq">
+      <div class="prereq-title text-md">GitHub Copilot Pro</div>
+      <div class="prereq-text text-sm">$10/month minimum. Required for custom agent instructions. <a href="https://github.com/features/copilot/plans">Subscribe here</a>.</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; INSTALLATION SEQUENCE</div>
+    <div class="step">
+      <div class="step-num text-base">1</div>
+      <div class="step-content">
+        <div class="step-title text-md">Clone repository</div>
+        <div class="step-text text-sm"><code>git clone https://github.com/marcusash/ai-maker.git C:\AIMaker</code></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num text-base">2</div>
+      <div class="step-content">
+        <div class="step-title text-md">Install dependencies</div>
+        <div class="step-text text-sm">Open PowerShell as Admin. Run: <code>cd C:\AIMaker</code> then <code>.\install.ps1</code></div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num text-base">3</div>
+      <div class="step-content">
+        <div class="step-title text-md">Initialize agent</div>
+        <div class="step-text text-sm">In VS Code, open GitHub Copilot chat. Say: "Good morning." AI Maker will run the onboarding interview. Answer one question at a time. Your profile saves to <code>C:\AIMaker\profile.md</code> when done.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num text-base">4</div>
+      <div class="step-content">
+        <div class="step-title text-md">Start working</div>
+        <div class="step-text text-sm">Open any repo. AI Maker is available everywhere. No switching. No context loss.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; WHAT HAPPENS NEXT</div>
+    <div class="terminal">
+      <div class="terminal-body">
+        <div class="section-text text-base">
+          AI Maker learns through the work. After 3-5 sessions, it adapts to your tone, your decision-making style, your priorities. You do not retrain it. It pays attention to what you correct.
+        </div>
+        <div class="text-md" style="margin-top:20px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green)">
+          The blue pill keeps you where you are. Comfortable. Productive. Better at what you already do.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer text-sm">
+    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="matrix-gh-copilot-setup.html">Take the red pill</a>.</div>
+    <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
+  </div>
+
+</div>
+
+<script>
+const canvas=document.getElementById('matrix');
+const ctx=canvas.getContext('2d');
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+const chars='アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴ01';
+const fontSize=14;
+const cols=canvas.width/fontSize;
+const drops=[];
+for(let i=0;i<cols;i++)drops[i]=1;
+function draw(){
+  ctx.fillStyle='rgba(0,0,0,.05)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#00FF41';
+  ctx.font=fontSize+'px monospace';
+  for(let i=0;i<drops.length;i++){
+    const text=chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+    if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
+    drops[i]++;
+  }
+}
+setInterval(draw,33);
+window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight});
+</script>
+
+</body>
+</html>
+
 </head>
 <body>
 
