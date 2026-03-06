@@ -49,4 +49,4 @@ Get-Command workiq
 
 If this returns a result, WorkIQ is present. If it does not, WorkIQ is not installed.
 
-To run the full setup (EULA, auth, MCP registration): `powershell -File "C:\AIMaker\scripts\setup.ps1"`
+To run the full setup (EULA, auth, MCP registration): `powershell -File "C:\Github\ai-maker\scripts\setup.ps1"`
