@@ -90,7 +90,7 @@ a:hover{color:var(--blue-pill-light);text-shadow:0 0 8px var(--blue-glow)}
         <div class="pill-label text-md">BLUE PILL</div>
         <div class="pill-sub text-sm">Stay comfortable</div>
       </div>
-      <a href="matrix-gh-copilot-setup.html" class="pill pill-red">
+      <a href="https://marcusash.github.io/gh-copilot-setup/" class="pill pill-red">
         <div class="pill-label text-md">RED PILL</div>
         <div class="pill-sub text-sm">See the truth</div>
       </a>
@@ -180,113 +180,7 @@ a:hover{color:var(--blue-pill-light);text-shadow:0 0 8px var(--blue-glow)}
   </div>
 
   <div class="footer text-sm">
-    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="matrix-gh-copilot-setup.html">Take the red pill</a>.</div>
-    <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
-  </div>
-
-</div>
-
-<script>
-const canvas=document.getElementById('matrix');
-const ctx=canvas.getContext('2d');
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
-const chars='アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴ01';
-const fontSize=14;
-const cols=canvas.width/fontSize;
-const drops=[];
-for(let i=0;i<cols;i++)drops[i]=1;
-function draw(){
-  ctx.fillStyle='rgba(0,0,0,.05)';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle='#00FF41';
-  ctx.font=fontSize+'px monospace';
-  for(let i=0;i<drops.length;i++){
-    const text=chars[Math.floor(Math.random()*chars.length)];
-    ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-    if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
-    drops[i]++;
-  }
-}
-setInterval(draw,33);
-window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight});
-</script>
-
-</body>
-</html>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">&gt; WHAT YOU GET</div>
-    <div class="terminal">
-      <div class="terminal-body">
-        <div class="section-text">
-          AI Maker is a unified AI agent for leaders and managers. Research, design, code, quality, operations, and data in one partner. No specialization. No switching contexts. One agent that brings the right skill to whatever you need.
-        </div>
-        <div class="section-text">
-          It thinks ahead. It flags problems before they become expensive. It tells you what you need to hear, not what you want to hear.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">&gt; PREREQUISITES</div>
-    <div class="prereq">
-      <div class="prereq-title">GitHub Copilot Pro</div>
-      <div class="prereq-text">$10/month minimum. Required for custom agent instructions. <a href="https://github.com/features/copilot/plans">Subscribe here</a>.</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">&gt; INSTALLATION SEQUENCE</div>
-    <div class="step">
-      <div class="step-num">1</div>
-      <div class="step-content">
-        <div class="step-title">Clone repository</div>
-        <div class="step-text"><code>git clone https://github.com/marcusash/ai-maker.git C:\AIMaker</code></div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">2</div>
-      <div class="step-content">
-        <div class="step-title">Install dependencies</div>
-        <div class="step-text">Open PowerShell as Admin. Run: <code>cd C:\AIMaker</code> then <code>.\install.ps1</code></div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">3</div>
-      <div class="step-content">
-        <div class="step-title">Initialize agent</div>
-        <div class="step-text">In VS Code, open GitHub Copilot chat. Say: "Good morning." AI Maker will run the onboarding interview. Answer one question at a time. Your profile saves to <code>C:\AIMaker\profile.md</code> when done.</div>
-      </div>
-    </div>
-    <div class="step">
-      <div class="step-num">4</div>
-      <div class="step-content">
-        <div class="step-title">Start working</div>
-        <div class="step-text">Open any repo. AI Maker is available everywhere. No switching. No context loss.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">&gt; WHAT HAPPENS NEXT</div>
-    <div class="terminal">
-      <div class="terminal-body">
-        <div class="section-text">
-          AI Maker learns through the work. After 3-5 sessions, it adapts to your tone, your decision-making style, your priorities. You do not retrain it. It pays attention to what you correct.
-        </div>
-        <div class="section-text" style="margin-top:20px;font-size:18px;color:#00FF41;text-shadow:0 0 6px #00FF41">
-          The blue pill keeps you where you are. Comfortable. Productive. Better at what you already do.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="footer">
-    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="matrix-gh-copilot-setup.html">Take the red pill</a>.</div>
+    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="https://marcusash.github.io/gh-copilot-setup/">Take the red pill</a>.</div>
     <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
   </div>
 
