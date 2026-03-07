@@ -881,7 +881,8 @@ if (Test-Path $launcherSource) {
         $s.Description = "Launch AI Maker and AI Workbench in Windows Terminal"
         $ghExe = (Get-Command gh -ErrorAction SilentlyContinue)?.Source
         if (-not $ghExe) { $ghExe = "C:\Program Files\GitHub CLI\gh.exe" }
-        $iconPath = if (Test-Path $ghExe) { "$ghExe,0" } else { "$pwshPath,0" }
+        $bundledIco = Join-Path $scriptDir "assets\ai-agents.ico"
+        $iconPath = if (Test-Path $bundledIco) { $bundledIco } elseif (Test-Path $ghExe) { "$ghExe,0" } else { "$pwshPath,0" }
         $s.IconLocation = $iconPath
         $s.Save()
     }
