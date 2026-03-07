@@ -10,7 +10,24 @@ param(
 $ErrorActionPreference = "Continue"
 $WORKSPACE = "C:\AIMaker"
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Definition
-$REPO_ROOT  = Resolve-Path "$SCRIPT_DIR\.."
+
+# Source file check: if bootstrapped from temp, clone the repo so all source files are available
+if (-not (Test-Path (Join-Path $SCRIPT_DIR "canvas.ps1"))) {
+    $sourceRepoUrl = "https://github.com/marcusash/ai-maker"
+    $sourceTempDir = Join-Path $env:TEMP "ai-maker-src"
+    if (-not (Test-Path $sourceTempDir)) {
+        Write-Host "  Downloading AI Maker source files..." -ForegroundColor Yellow
+        git clone $sourceRepoUrl $sourceTempDir --depth 1 --quiet 2>&1 | Out-Null
+    }
+    if (Test-Path (Join-Path $sourceTempDir "scripts\canvas.ps1")) {
+        $SCRIPT_DIR = Join-Path $sourceTempDir "scripts"
+        Write-Host "  [OK]   AI Maker source files ready" -ForegroundColor Green
+    } else {
+        Write-Host "  [WARN] Could not download source files from $sourceRepoUrl" -ForegroundColor Yellow
+    }
+}
+
+$REPO_ROOT  = Resolve-Path (Join-Path $SCRIPT_DIR "..")
 
 function Write-Step($msg) { Write-Host "`n[AI Maker] $msg" -ForegroundColor Cyan }
 function Write-OK($msg)   { Write-Host "  OK: $msg" -ForegroundColor Green }
