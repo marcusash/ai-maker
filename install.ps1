@@ -879,8 +879,10 @@ if (Test-Path $launcherSource) {
         $s.Arguments = "-ExecutionPolicy Bypass -File `"$launcherSource`""
         $s.WorkingDirectory = $scriptDir
         $s.Description = "Launch AI Maker and AI Workbench in Windows Terminal"
-        $ghExe = "C:\Program Files\GitHub CLI\gh.exe"
-        if (Test-Path $ghExe) { $s.IconLocation = "$ghExe,0" }
+        $ghExe = (Get-Command gh -ErrorAction SilentlyContinue)?.Source
+        if (-not $ghExe) { $ghExe = "C:\Program Files\GitHub CLI\gh.exe" }
+        $iconPath = if (Test-Path $ghExe) { "$ghExe,0" } else { "$pwshPath,0" }
+        $s.IconLocation = $iconPath
         $s.Save()
     }
     Write-Host "  Shortcut created: $consolePath" -ForegroundColor Green
