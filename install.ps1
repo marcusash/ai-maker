@@ -215,6 +215,32 @@ Write-Host "  GitHub: $SETUP_GITHUB" -ForegroundColor White
 Write-Host "  Email:  $SETUP_EMAIL" -ForegroundColor White
 
 # ─────────────────────────────────────────────────────────────
+# Section 1b — OneDrive KFM pre-flight fix
+# If OneDrive Known Folder Move redirected Documents to OneDrive,
+# PowerShell crashes on launch when the cloud provider is not yet
+# running (cloud-only placeholder files). Fix before anything else.
+# ─────────────────────────────────────────────────────────────
+Step-Header "OneDrive pre-flight check"
+$psConfigCandidates = @(
+  "$env:USERPROFILE\OneDrive - Microsoft\Documents\PowerShell\powershell.config.json",
+  "$env:USERPROFILE\OneDrive\Documents\PowerShell\powershell.config.json"
+)
+foreach ($candidate in $psConfigCandidates) {
+  if (Test-Path $candidate -ErrorAction SilentlyContinue) {
+    $attrs = (Get-Item $candidate -Force -ErrorAction SilentlyContinue).Attributes
+    if ($attrs -band [System.IO.FileAttributes]::ReparsePoint) {
+      Write-Host "  OneDrive placeholder detected: $candidate" -ForegroundColor Yellow
+      Write-Host "  Replacing with local file so PowerShell does not crash..." -ForegroundColor Yellow
+      Remove-Item $candidate -Force
+      '{}' | Set-Content $candidate -Encoding utf8
+      Write-Host "  Fixed: powershell.config.json is now local." -ForegroundColor Green
+    } else {
+      Write-Host "  powershell.config.json OK (already local)." -ForegroundColor Green
+    }
+  }
+}
+
+# ─────────────────────────────────────────────────────────────
 # Section 2 — Dev Tools
 # ─────────────────────────────────────────────────────────────
 if (-not $SkipApps) {
