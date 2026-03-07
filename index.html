@@ -7,7 +7,6 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
-/* MATRIX COLOR PALETTE */
 :root{
   --matrix-green:#00FF41;
   --matrix-green-dark:#003B00;
@@ -23,7 +22,6 @@
   --black:#000;
 }
 
-/* TYPOGRAPHY SYSTEM */
 body{font-family:'Courier New',Courier,monospace;background:var(--black);color:var(--matrix-green);overflow-x:hidden;min-height:100vh;font-size:16px;line-height:1.6}
 .text-xl{font-size:32px;line-height:1.2}
 .text-lg{font-size:24px;line-height:1.3}
@@ -34,13 +32,11 @@ body{font-family:'Courier New',Courier,monospace;background:var(--black);color:v
 #matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.12}
 .content{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 20px}
 
-/* Terminal window */
-.terminal{background:rgba(0,20,0,.95);border:2px solid var(--matrix-green);border-radius:0;box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
+.terminal{background:rgba(0,20,0,.95);border:2px solid var(--matrix-green);box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
 .terminal-header{background:var(--matrix-green-dark);border-bottom:1px solid var(--matrix-green);padding:8px 12px;display:flex;align-items:center;gap:8px}
 .terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--matrix-green)}
 .terminal-body{padding:30px}
 
-/* Pills */
 .choice{text-align:center;margin-bottom:60px}
 .choice-title{text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 10px var(--matrix-green);margin-bottom:10px}
 .choice-sub{opacity:.6;margin-bottom:40px}
@@ -54,7 +50,6 @@ body{font-family:'Courier New',Courier,monospace;background:var(--black);color:v
 .pill-sub{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.7);font-size:18px}
 .pill-current::after{content:'>>> YOU ARE HERE';position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);color:var(--matrix-green);text-shadow:0 0 8px var(--matrix-green);animation:blink 1.5s infinite}
 
-/* Content sections */
 .section{margin-bottom:50px}
 .section-title{margin-bottom:20px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--matrix-green);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
 .section-text{margin-bottom:16px;opacity:.9}
@@ -69,7 +64,31 @@ code{background:rgba(0,255,65,.1);padding:3px 8px;border-radius:3px;color:var(--
 a{color:#00D9FF;text-decoration:underline;text-shadow:0 0 8px rgba(0,217,255,.8);font-weight:600}
 a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
 
-/* Footer */
+.complete-divider{text-align:center;margin:60px 0;padding:20px;border-top:1px solid rgba(0,255,65,.3);border-bottom:1px solid rgba(0,255,65,.3);letter-spacing:4px;text-shadow:0 0 10px var(--matrix-green);font-size:14px}
+
+.prompt-block{background:rgba(0,20,0,.9);border:2px solid var(--matrix-green);border-radius:4px;overflow:hidden;margin:20px 0}
+.prompt-text{padding:20px;font-size:16px;opacity:.9;font-style:italic;line-height:1.7}
+.prompt-copy{width:100%;padding:12px 20px;background:rgba(0,255,65,.15);border:none;border-top:1px solid var(--matrix-green);color:var(--matrix-green);font-size:14px;font-weight:700;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:1px;transition:background .15s}
+.prompt-copy:hover{background:rgba(0,255,65,.3)}
+.prompt-copy.copied{background:rgba(0,100,255,.3);color:#4DAAFF}
+
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.feature-card{background:rgba(0,59,0,.2);border:1px solid rgba(0,255,65,.3);padding:20px;border-radius:4px}
+.feature-name{color:var(--matrix-green);font-weight:700;margin-bottom:8px;font-size:16px;text-shadow:0 0 6px var(--matrix-green)}
+.feature-desc{font-size:14px;opacity:.8;line-height:1.6}
+
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.chip:hover{border-color:var(--matrix-green)}
+.chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
+.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green)}
+.chip.copied{border-color:#4DAAFF}
+
+.launch-box{background:rgba(0,30,0,.8);border:1px solid var(--matrix-green);border-radius:4px;padding:20px;display:flex;align-items:center;gap:16px;margin:16px 0}
+.launch-icon{flex-shrink:0}
+.launch-text{font-size:16px;opacity:.9}
+.launch-text strong{color:var(--matrix-green)}
+
 .footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6}
 .footer a{color:var(--matrix-green)}
 
@@ -81,7 +100,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
 <canvas id="matrix"></canvas>
 
 <div class="content">
-  
+
   <div class="choice">
     <div class="choice-title text-xl">CHOOSE YOUR REALITY</div>
     <div class="choice-sub text-sm">The story you tell yourself about what you are capable of.</div>
@@ -115,25 +134,24 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
     <div class="section-title text-lg">&gt; WHAT YOU GET</div>
     <div class="terminal">
       <div class="terminal-body">
-        <div class="section-text text-base">
-          AI Maker is a unified AI agent for leaders and managers. Research, design, code, quality, operations, and data in one partner. No specialization. No switching contexts. One agent that brings the right skill to whatever you need.
-        </div>
-        <div class="section-text text-base">
-          It thinks ahead. It flags problems before they become expensive. It tells you what you need to hear, not what you want to hear.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title text-lg">&gt; BEFORE YOU START</div>
-    <div class="terminal">
-      <div class="terminal-body">
-        <div class="text-base" style="margin-bottom:16px">
-          <strong>Read the full install guide first:</strong> <a href="matrix-install-guide.html" target="_blank">AI Maker Installation Guide</a>
-        </div>
-        <div class="text-sm" style="opacity:.8">
-          Installation has interactive steps (GitHub sign-in, device connection). The guide walks you through everything.
+        <div class="section-text text-base">One AI agent for everything you do. Research, design, writing, data analysis, brainstorming, code review, and communication in one partner. No switching. No context loss.</div>
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-name">Canvas</div>
+            <div class="feature-desc">Ask AI Maker to "open a canvas" and it builds a visual in your browser. Project dashboards, status reports, slide decks. No PowerPoint required.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Vault</div>
+            <div class="feature-desc">Your personal notes folder. Say "save this to my vault" and AI Maker writes it to a file on your PC, organized and always easy to find.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">WorkIQ</div>
+            <div class="feature-desc">Connected to Microsoft 365. Ask "what is on my task list?" or "pull my calendar for next week." Works alongside your existing M365 workflow.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-name">Skills</div>
+            <div class="feature-desc">8 built-in skills: research, design, writing, code review, data analysis, brainstorming, user research, and communication. Just describe what you need.</div>
+          </div>
         </div>
       </div>
     </div>
@@ -141,7 +159,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
 
   <div class="section">
     <div class="section-title text-lg">&gt; PREREQUISITES</div>
-    
+
     <div class="prereq" style="background:rgba(0,59,0,.5);border:2px solid var(--matrix-green)">
       <div class="prereq-title text-md">Microsoft Employees</div>
       <div class="prereq-text text-sm" style="margin-bottom:12px">
@@ -156,11 +174,16 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
       <div class="prereq-title text-md">External Users</div>
       <div class="prereq-text text-sm">GitHub Copilot Pro required ($10/month). <a href="https://github.com/features/copilot/plans" target="_blank">Subscribe here</a>.</div>
     </div>
+
+    <div class="prereq">
+      <div class="prereq-title text-md">WorkIQ (Optional: Microsoft 365 users only)</div>
+      <div class="prereq-text text-sm">An organizational M365 account with Copilot add-on. IT admin consent to WorkIQ in Entra ID required. Personal Outlook.com accounts do not qualify.</div>
+    </div>
   </div>
 
   <div class="section">
     <div class="section-title text-lg">&gt; INSTALLATION</div>
-    
+
     <div class="step">
       <div class="step-num text-base">1</div>
       <div class="step-content">
@@ -178,91 +201,120 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
           <code id="installCmd" style="display:block;padding:12px;background:rgba(0,255,65,.1);border:1px solid var(--matrix-green);border-radius:4px;font-size:14px;line-height:1.6;overflow-x:auto">irm https://raw.githubusercontent.com/marcusash/ai-maker/main/bootstrap.ps1 | iex</code>
           <button onclick="copyInstall()" style="position:absolute;top:8px;right:8px;background:var(--matrix-green);color:var(--black);border:none;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:14px;font-weight:700">COPY</button>
         </div>
-        <div class="step-text text-sm" style="opacity:.7;margin-top:12px">Script installs Git (if needed), downloads AI Maker, sets everything up.</div>
+        <div class="step-text text-sm" style="opacity:.7;margin-top:12px">The script installs Git if needed, downloads AI Maker, and sets everything up. Troubleshooting: if you see "running scripts is disabled", run <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> first.</div>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num text-base">3</div>
       <div class="step-content">
-        <div class="step-title text-md">Launch AI Maker from desktop</div>
-        <div class="step-text text-sm">After install completes, double-click the <strong>AI Maker</strong> shortcut (GitHub logo) on your desktop. Opens GitHub CLI with Copilot ready.</div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num text-base">4</div>
-      <div class="step-content">
-        <div class="step-title text-md">Initialize your agent</div>
-        <div class="step-text text-sm">In the GitHub CLI, say: <code>Good morning.</code> AI Maker runs the onboarding interview. Answer one question at a time.</div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num text-base">5</div>
-      <div class="step-content">
-        <div class="step-title text-md">Start using AI Maker</div>
-        <div class="step-text text-sm">AI Maker works from the GitHub CLI. No repo setup needed. Just chat and start working.</div>
+        <div class="step-title text-md">Follow the prompts</div>
+        <div class="step-text text-sm">The script asks for your name, signs you in to GitHub, and optionally sets up WorkIQ for M365. Answer each prompt and press Enter.</div>
       </div>
     </div>
   </div>
 
-<script>
-function copyInstall(){
-  const cmd=document.getElementById('installCmd').textContent;
-  navigator.clipboard.writeText(cmd).then(()=>{
-    const btn=event.target;
-    btn.textContent='COPIED!';
-    setTimeout(()=>btn.textContent='COPY',2000);
-  });
-}
-</script>
+  <div class="complete-divider text-sm">&gt;&gt;&gt; SETUP COMPLETE. YOU ARE IN. &lt;&lt;&lt;</div>
 
   <div class="section">
-    <div class="section-title text-lg">&gt; WHAT HAPPENS NEXT</div>
+    <div class="section-title text-lg">&gt; YOU'RE SET UP. HERE'S WHAT TO DO.</div>
+
     <div class="terminal">
       <div class="terminal-body">
-        <div class="section-text text-base">
-          AI Maker learns through the work. After 3-5 sessions, it adapts to your tone, your decision-making style, your priorities. You do not retrain it. It pays attention to what you correct.
+        <div class="section-text text-base" style="margin-bottom:20px">AI Maker learns through the work. After 3-5 sessions, it adapts to your tone, your decision-making style, your priorities. Start here.</div>
+
+        <div class="step-title text-md" style="margin-bottom:12px">Step 1: Launch your agent</div>
+        <div class="launch-box">
+          <div class="launch-icon">
+            <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="8" fill="#24292f"/><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" fill="#ffffff"/></svg>
+          </div>
+          <div class="launch-text">Double-click <strong>AI Agents</strong> on your desktop (uses this GitHub icon). The GitHub CLI opens with AI Maker ready.</div>
         </div>
-        <div class="text-md" style="margin-top:20px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green)">
-          The blue pill keeps you where you are. Comfortable. Productive. Better at what you already do.
+
+        <div class="step-title text-md" style="margin-bottom:12px;margin-top:28px">Step 2: Start your first session</div>
+        <div class="section-text text-sm" style="opacity:.8;margin-bottom:8px">Copy this prompt, switch to the terminal window, paste it, and press Enter. AI Maker will introduce itself and ask you a few questions to get started.</div>
+        <div class="prompt-block">
+          <div class="prompt-text" id="firstPrompt">I'm new here. Please introduce yourself, then ask me a few questions to learn my name, my role, my team, and what I'm working on right now.</div>
+          <button class="prompt-copy" id="firstPromptBtn" onclick="copyPrompt('firstPrompt','firstPromptBtn')">COPY THIS PROMPT</button>
         </div>
-        <div style="margin-top:24px;padding-top:24px;border-top:1px solid rgba(0,255,65,.2)">
-          <div class="text-base" style="margin-bottom:8px"><strong>Installation complete?</strong></div>
-          <div class="text-sm"><a href="https://marcusash.github.io/ai-maker/docs/user-guide.html" target="_blank">Read the user guide</a> to learn what to ask and how AI Maker works.</div>
+        <div class="section-text text-sm" style="opacity:.7;margin-top:8px">After the onboarding, AI Maker greets you by name from session two onward. It knows your preferences, your biggest time drains, and how you want feedback delivered.</div>
+
+        <div class="step-title text-md" style="margin-bottom:12px;margin-top:28px">Step 3: Try these prompts</div>
+        <div class="chip-grid">
+          <div class="chip" onclick="copyChip(this,'Open a canvas and build me a simple project status dashboard for what I\'m working on.')">
+            <div class="chip-quote">"Open a canvas with a project status dashboard."</div>
+            <div class="chip-tag">CANVAS</div>
+          </div>
+          <div class="chip" onclick="copyChip(this,'Save my top three priorities this week to my vault so I can refer back to them.')">
+            <div class="chip-quote">"Save my top three priorities this week to my vault."</div>
+            <div class="chip-tag">VAULT</div>
+          </div>
+          <div class="chip" onclick="copyChip(this,'Draft a short email to my team with a quick update on what I am working on this week.')">
+            <div class="chip-quote">"Draft a quick update email to my team."</div>
+            <div class="chip-tag">COMMUNICATION</div>
+          </div>
+          <div class="chip" onclick="copyChip(this,'Brainstorm five ways I could make my team\'s weekly standups more effective.')">
+            <div class="chip-quote">"Brainstorm five ways to improve our weekly standups."</div>
+            <div class="chip-tag">BRAINSTORMING</div>
+          </div>
         </div>
+
       </div>
     </div>
   </div>
 
   <div class="footer text-sm">
-    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="matrix-gh-copilot-setup.html">Take the red pill</a>.</div>
+    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="https://marcusash.github.io/gh-copilot-setup/">Take the red pill</a>.</div>
     <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
   </div>
 
 </div>
 
+<div id="toast" style="position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(10px);background:#0078d4;color:#fff;padding:9px 22px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;font-family:'Courier New',monospace">Copied to clipboard</div>
+
 <script>
+function showToast(){
+  const t=document.getElementById('toast');
+  t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)'},2000);
+}
+function copyInstall(){
+  const cmd=document.getElementById('installCmd').textContent;
+  navigator.clipboard.writeText(cmd).then(()=>{
+    const btn=event.target;btn.textContent='COPIED!';
+    setTimeout(()=>btn.textContent='COPY',2000);
+  });
+}
+function copyPrompt(id,btnId){
+  const text=document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(()=>{
+    const btn=document.getElementById(btnId);
+    btn.textContent='COPIED!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='COPY THIS PROMPT';btn.classList.remove('copied')},2000);
+    showToast();
+  });
+}
+function copyChip(el,text){
+  navigator.clipboard.writeText(text).then(()=>{
+    el.classList.add('copied');
+    setTimeout(()=>el.classList.remove('copied'),2000);
+    showToast();
+  });
+}
+
 const canvas=document.getElementById('matrix');
 const ctx=canvas.getContext('2d');
-canvas.width=window.innerWidth;
-canvas.height=window.innerHeight;
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
 const chars='アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴ01';
-const fontSize=14;
-const cols=canvas.width/fontSize;
-const drops=[];
+const fontSize=14;const cols=canvas.width/fontSize;const drops=[];
 for(let i=0;i<cols;i++)drops[i]=1;
 function draw(){
-  ctx.fillStyle='rgba(0,0,0,.05)';
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle='#00FF41';
-  ctx.font=fontSize+'px monospace';
+  ctx.fillStyle='rgba(0,0,0,.05)';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#00FF41';ctx.font=fontSize+'px monospace';
   for(let i=0;i<drops.length;i++){
     const text=chars[Math.floor(Math.random()*chars.length)];
     ctx.fillText(text,i*fontSize,drops[i]*fontSize);
-    if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
-    drops[i]++;
+    if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;drops[i]++;
   }
 }
 setInterval(draw,33);
