@@ -10,24 +10,26 @@ param(
 $ErrorActionPreference = "Continue"
 $WORKSPACE = "C:\AIMaker"
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$sourceRepoUrl = "https://github.com/marcusash/ai-maker"
+$sourceTempDir = Join-Path $env:TEMP "ai-maker-src"
 
-# Source file check: if bootstrapped from temp, clone the repo so all source files are available
-if (-not (Test-Path (Join-Path $SCRIPT_DIR "canvas.ps1"))) {
-    $sourceRepoUrl = "https://github.com/marcusash/ai-maker"
-    $sourceTempDir = Join-Path $env:TEMP "ai-maker-src"
-    if (-not (Test-Path $sourceTempDir)) {
-        Write-Host "  Downloading AI Maker source files..." -ForegroundColor Yellow
-        git clone $sourceRepoUrl $sourceTempDir --depth 1 --quiet 2>&1 | Out-Null
-    }
+# Track whether we need to clone after git installs
+$needsSourceClone = -not (Test-Path (Join-Path $SCRIPT_DIR "canvas.ps1"))
+
+function Write-Step($msg) { Write-Host "`n[AI Maker] $msg" -ForegroundColor Cyan }
+function Write-OK($msg)   { Write-Host "  OK: $msg" -ForegroundColor Green }
+function Write-Fail($msg) { Write-Host "  FAIL: $msg" -ForegroundColor Red }
+function Write-Warn($msg) { Write-Host "  WARN: $msg" -ForegroundColor Yellow }
+
+function Get-SourceFiles {
     if (Test-Path (Join-Path $sourceTempDir "scripts\canvas.ps1")) {
-        $SCRIPT_DIR = Join-Path $sourceTempDir "scripts"
-        Write-Host "  [OK]   AI Maker source files ready" -ForegroundColor Green
-    } else {
-        Write-Host "  [WARN] Could not download source files from $sourceRepoUrl" -ForegroundColor Yellow
+        return $true  # already cloned
     }
+    Write-Host "  Downloading AI Maker source files..." -ForegroundColor Yellow
+    Remove-Item -Recurse -Force $sourceTempDir -ErrorAction SilentlyContinue
+    git clone $sourceRepoUrl $sourceTempDir --depth 1 --quiet 2>&1 | Out-Null
+    return (Test-Path (Join-Path $sourceTempDir "scripts\canvas.ps1"))
 }
-
-$REPO_ROOT  = Resolve-Path (Join-Path $SCRIPT_DIR "..")
 
 function Write-Step($msg) { Write-Host "`n[AI Maker] $msg" -ForegroundColor Cyan }
 function Write-OK($msg)   { Write-Host "  OK: $msg" -ForegroundColor Green }
@@ -70,6 +72,17 @@ if (-not $SkipPrereqs) {
         $gitVer = git --version
         Write-OK $gitVer
         $results["git"] = "PASS: $gitVer"
+
+        # Git just became available — retry source clone if it failed earlier
+        if ($needsSourceClone) {
+            if (Get-SourceFiles) {
+                $SCRIPT_DIR = Join-Path $sourceTempDir "scripts"
+                Write-OK "AI Maker source files ready"
+                $needsSourceClone = $false
+            } else {
+                Write-Warn "Could not download source files from $sourceRepoUrl. Some steps may fail."
+            }
+        }
     } else {
         Write-Fail "Git install failed."
         $results["git"] = "FAIL"
@@ -105,6 +118,9 @@ if (-not $SkipPrereqs) {
         $results["pwsh"] = "FAIL"
     }
 }
+
+# Resolve REPO_ROOT now that SCRIPT_DIR is finalized (after any source clone)
+$REPO_ROOT = Split-Path -Parent $SCRIPT_DIR
 
 # -----------------------------------------------------------------------
 # STEP 2: GitHub Authentication
@@ -148,8 +164,14 @@ if ($LASTEXITCODE -eq 0 -or ($copilotHelp -match "copilot")) {
 # STEP 4: WorkIQ Plugin
 # -----------------------------------------------------------------------
 Write-Step "Installing WorkIQ plugin"
-& "$SCRIPT_DIR\install-workiq.ps1"
-$results["workiq"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL (see above)" }
+$workiqScript = "$SCRIPT_DIR\install-workiq.ps1"
+if (Test-Path $workiqScript) {
+    & $workiqScript
+    $results["workiq"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL (see above)" }
+} else {
+    Write-Fail "install-workiq.ps1 not found at $workiqScript (source clone may have failed)"
+    $results["workiq"] = "FAIL: install script missing"
+}
 
 # -----------------------------------------------------------------------
 # STEP 5: Workspace
@@ -163,21 +185,38 @@ New-Item -ItemType Directory -Force -Path "$WORKSPACE\scripts" | Out-Null
 # Copy copilot-instructions.md (the persona)
 $src = "$REPO_ROOT\docs\copilot-instructions.md"
 $dst = "$WORKSPACE\.github\copilot-instructions.md"
-Copy-Item -Path $src -Destination $dst -Force
-Write-OK "Persona installed: $dst"
-$results["persona"] = "PASS"
+if (Test-Path $src) {
+    Copy-Item -Path $src -Destination $dst -Force
+    Write-OK "Persona installed: $dst"
+    $results["persona"] = "PASS"
+} else {
+    Write-Fail "Persona file not found: $src"
+    $results["persona"] = "FAIL: source file missing"
+}
 
 # Copy all skill files into .github\skills\ so the agent can load them
 New-Item -ItemType Directory -Force -Path "$WORKSPACE\.github\skills" | Out-Null
-Get-ChildItem "$REPO_ROOT\docs\skills\*.md" | ForEach-Object {
-    Copy-Item -Path $_.FullName -Destination "$WORKSPACE\.github\skills\$($_.Name)" -Force
+$skillFiles = Get-ChildItem "$REPO_ROOT\docs\skills\*.md" -ErrorAction SilentlyContinue
+if ($skillFiles) {
+    $skillFiles | ForEach-Object {
+        Copy-Item -Path $_.FullName -Destination "$WORKSPACE\.github\skills\$($_.Name)" -Force
+    }
+    $skillCount = (Get-ChildItem "$WORKSPACE\.github\skills\").Count
+    Write-OK "Skills installed: $WORKSPACE\.github\skills\ ($skillCount files)"
+    $results["skills"] = "PASS"
+} else {
+    Write-Warn "No skill files found at $REPO_ROOT\docs\skills\ — skills skipped"
+    $results["skills"] = "WARN: no skill files found"
 }
-Write-OK "Skills installed: $WORKSPACE\.github\skills\ ($((Get-ChildItem "$WORKSPACE\.github\skills\").Count) files)"
-$results["skills"] = "PASS"
 
 # Copy onboarding interview reference
-Copy-Item -Path "$REPO_ROOT\docs\onboarding-interview.md" -Destination "$WORKSPACE\" -Force
-Write-OK "Onboarding interview: $WORKSPACE\onboarding-interview.md"
+$interviewSrc = "$REPO_ROOT\docs\onboarding-interview.md"
+if (Test-Path $interviewSrc) {
+    Copy-Item -Path $interviewSrc -Destination "$WORKSPACE\" -Force
+    Write-OK "Onboarding interview: $WORKSPACE\onboarding-interview.md"
+} else {
+    Write-Warn "onboarding-interview.md not found, skipping"
+}
 
 # -----------------------------------------------------------------------
 # STEP 6: Canvas
@@ -185,11 +224,23 @@ Write-OK "Onboarding interview: $WORKSPACE\onboarding-interview.md"
 Write-Step "Setting up Canvas"
 
 New-Item -ItemType Directory -Force -Path "$WORKSPACE\canvas" | Out-Null
-Copy-Item -Path "$SCRIPT_DIR\canvas.ps1" -Destination "$WORKSPACE\scripts\canvas.ps1" -Force
-Copy-Item -Path "$REPO_ROOT\docs\getting-started.html" -Destination "$WORKSPACE\canvas\getting-started.html" -Force
-Write-OK "Canvas script: $WORKSPACE\scripts\canvas.ps1"
-Write-OK "Canvas folder: $WORKSPACE\canvas\"
-$results["canvas"] = "PASS"
+$canvasSrc = "$SCRIPT_DIR\canvas.ps1"
+$gettingStartedSrc = "$REPO_ROOT\docs\getting-started.html"
+$canvasFail = $false
+if (Test-Path $canvasSrc) {
+    Copy-Item -Path $canvasSrc -Destination "$WORKSPACE\scripts\canvas.ps1" -Force
+    Write-OK "Canvas script: $WORKSPACE\scripts\canvas.ps1"
+} else {
+    Write-Fail "canvas.ps1 not found at $canvasSrc"
+    $canvasFail = $true
+}
+if (Test-Path $gettingStartedSrc) {
+    Copy-Item -Path $gettingStartedSrc -Destination "$WORKSPACE\canvas\getting-started.html" -Force
+    Write-OK "Canvas folder: $WORKSPACE\canvas\"
+} else {
+    Write-Warn "getting-started.html not found, canvas folder created without it"
+}
+$results["canvas"] = if ($canvasFail) { "FAIL: canvas.ps1 missing" } else { "PASS" }
 
 # -----------------------------------------------------------------------
 # STEP 7: Vault
@@ -236,15 +287,27 @@ $results["vault"] = "PASS"
 # STEP 8: Desktop Shortcut
 # -----------------------------------------------------------------------
 Write-Step "Creating desktop shortcut"
-& "$SCRIPT_DIR\create-shortcut.ps1" -WorkspacePath $WORKSPACE -ScriptDir $SCRIPT_DIR
-$results["shortcut"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
+$shortcutScript = "$SCRIPT_DIR\create-shortcut.ps1"
+if (Test-Path $shortcutScript) {
+    & $shortcutScript -WorkspacePath $WORKSPACE -ScriptDir $SCRIPT_DIR
+    $results["shortcut"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
+} else {
+    Write-Fail "create-shortcut.ps1 not found at $shortcutScript"
+    $results["shortcut"] = "FAIL: script missing"
+}
 
 # -----------------------------------------------------------------------
 # STEP 9: Verification Tests
 # -----------------------------------------------------------------------
 Write-Step "Running verification tests"
-& "$SCRIPT_DIR\test.ps1" -WorkspacePath $WORKSPACE
-$results["tests"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
+$testScript = "$SCRIPT_DIR\test.ps1"
+if (Test-Path $testScript) {
+    & $testScript -WorkspacePath $WORKSPACE
+    $results["tests"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
+} else {
+    Write-Warn "test.ps1 not found — skipping verification"
+    $results["tests"] = "SKIP: test script missing"
+}
 
 # -----------------------------------------------------------------------
 # SUMMARY
