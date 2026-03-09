@@ -796,6 +796,20 @@ if ($wiq) {
     }
 }
 
+# Agency uses its own node/npm — workiq must also be installed there or the MCP proxy fails.
+$agencyNpm = Get-ChildItem "$env:USERPROFILE\.agency\nodejs" -Filter "npm.cmd" -Recurse -ErrorAction SilentlyContinue |
+    Select-Object -First 1 -ExpandProperty FullName
+if ($agencyNpm -and -not $WhatIf) {
+    Write-Host "  Installing WorkIQ into agency npm context..."
+    & $agencyNpm install -g @microsoft/workiq 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  [OK]  WorkIQ installed in agency npm." -ForegroundColor Green
+    } else {
+        Write-Host "  WARNING: Could not install WorkIQ in agency npm. MCP may fail." -ForegroundColor Yellow
+        $failures += "WorkIQ: agency npm install failed"
+    }
+}
+
 if (-not $WhatIf) {
     # Accept EULA
     Write-Host "  Accepting WorkIQ EULA..."
