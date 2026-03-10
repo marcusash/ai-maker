@@ -104,8 +104,7 @@ if ($LASTEXITCODE -eq 0) {
 Write-Step "Checking Copilot CLI"
 
 function Test-CopilotExtension {
-    # gh copilot is built-in since gh 2.x; on older versions it is an extension
-    gh copilot --version 2>&1 | Out-Null
+    gh copilot suggest --help 2>&1 | Out-Null
     return $LASTEXITCODE -eq 0
 }
 
