@@ -11,10 +11,15 @@ $ErrorActionPreference = "Stop"
 function Write-OK($msg)   { Write-Host "  OK: $msg" -ForegroundColor Green }
 function Write-Fail($msg) { Write-Host "  FAIL: $msg" -ForegroundColor Red }
 
-# Icon path (GitHub Octocat .ico)
-$iconPath = "$ScriptDir\ai-maker.ico"
-if (-not (Test-Path $iconPath)) {
-    # Fallback to gh CLI icon if custom icon not present
+# Icon path — check multiple known locations in priority order
+$iconCandidates = @(
+    "$ScriptDir\ai-maker.ico",
+    "$ScriptDir\assets\ai-maker.ico",
+    "$WorkspacePath\.github\assets\ai-maker.ico",
+    "C:\AIMaker\.github\assets\ai-maker.ico"
+)
+$iconPath = $iconCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+if (-not $iconPath) {
     $ghPath = Get-Command gh -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source
     $iconPath = if ($ghPath) { $ghPath } else { "C:\Windows\System32\cmd.exe" }
 }
