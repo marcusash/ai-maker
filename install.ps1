@@ -61,7 +61,11 @@ function Install-WingetApp {
     }
 }
 
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$scriptDir = if ($MyInvocation.MyCommand.Path) { Split-Path -Parent $MyInvocation.MyCommand.Path } else { "" }
+# When run via irm|iex the script has no path — fall back to the known pc-setup destination
+if (-not $scriptDir -or -not (Test-Path $scriptDir)) {
+    if (Test-Path "C:\GitHub\pc-setup") { $scriptDir = "C:\GitHub\pc-setup" }
+}
 $stepNum = 0
 $totalSteps = 16
 $failures = @()
@@ -896,7 +900,8 @@ if (Test-Path $launcherSource) {
         $ghExe = (Get-Command gh -ErrorAction SilentlyContinue)?.Source
         if (-not $ghExe) { $ghExe = "C:\Program Files\GitHub CLI\gh.exe" }
         $bundledIco = Join-Path $scriptDir "assets\ai-agents.ico"
-        $iconPath = if (Test-Path $bundledIco) { $bundledIco } elseif (Test-Path $ghExe) { "$ghExe,0" } else { "$pwshPath,0" }
+        $pcSetupIco = Join-Path $pcSetupDest "assets\ai-agents.ico"
+        $iconPath = if (Test-Path $bundledIco) { $bundledIco } elseif (Test-Path $pcSetupIco) { $pcSetupIco } elseif (Test-Path $ghExe) { "$ghExe,0" } else { "$pwshPath,0" }
         $s.IconLocation = $iconPath
         $s.Save()
     }
