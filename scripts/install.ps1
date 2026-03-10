@@ -1,4 +1,4 @@
-# AI Maker Installer
+# AI Maker Installer v2
 # Usage: irm https://raw.githubusercontent.com/marcusash/ai-maker/main/bootstrap.ps1 | iex
 # Or:    pwsh -ExecutionPolicy Bypass -File install.ps1
 
@@ -8,6 +8,7 @@ param(
 )
 
 $ErrorActionPreference = "Continue"
+Write-Host "`n[AI Maker] Installer v2 loaded" -ForegroundColor DarkGray
 $WORKSPACE     = "C:\AIMaker"
 $SCRIPT_DIR    = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $sourceRepoUrl = "https://github.com/marcusash/ai-maker"
@@ -85,12 +86,14 @@ function Install-Prereq {
     param([string]$Name, [string]$Cmd, [string]$WingetId, [string]$FailMsg)
     if (-not (Test-Cmd $Cmd)) {
         Write-Warn "$Name not found. Installing via winget..."
-        # Try user scope first (no UAC), fall back to machine scope if package doesn't support it
+        # Try user scope first (no UAC)
         winget install $WingetId --source winget --scope user --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
-        if ($LASTEXITCODE -ne 0) {
-            winget install $WingetId --source winget --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
-        }
         Refresh-Path
+        # If command still not found (user scope not supported by this package), fall back to machine scope
+        if (-not (Test-Cmd $Cmd)) {
+            winget install $WingetId --source winget --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
+            Refresh-Path
+        }
     }
     if (Test-Cmd $Cmd) {
         $allVer = & $Cmd --version 2>&1
