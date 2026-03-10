@@ -101,13 +101,17 @@ if ($LASTEXITCODE -eq 0) {
 # -----------------------------------------------------------------------
 Write-Step "Checking Copilot CLI"
 
-function Test-CopilotExtension { [bool](gh extension list 2>&1 | Select-String "gh-copilot") }
+function Test-CopilotExtension {
+    # gh copilot is built-in since gh 2.x; on older versions it is an extension
+    gh copilot --version 2>&1 | Out-Null
+    return $LASTEXITCODE -eq 0
+}
 
 if (Test-CopilotExtension) {
     Write-OK "Copilot CLI available"
     $results["copilot-ext"] = "PASS"
 } else {
-    Write-Warn "Installing gh-copilot extension..."
+    Write-Warn "Installing gh-copilot extension (older gh version)..."
     $extOut = gh extension install github/gh-copilot --force 2>&1
     if ($extOut) { $extOut | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray } }
     Refresh-Path
