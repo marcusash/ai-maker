@@ -91,6 +91,10 @@ function Install-Prereq {
         Refresh-Path
         # If command still not found (user scope not supported by this package), fall back to machine scope
         if (-not (Test-Cmd $Cmd)) {
+            Write-Host ""
+            Write-Host "  >>> $Name requires admin install. A UAC prompt will appear on your taskbar." -ForegroundColor Yellow
+            Write-Host "  >>> Click the flashing shield icon on the taskbar to approve it." -ForegroundColor Yellow
+            Write-Host ""
             winget install $WingetId --source winget --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
             Refresh-Path
         }
@@ -149,8 +153,8 @@ if (-not (Test-Cmd gh)) {
     } else {
         Write-Warn "Not logged in to GitHub. Launching browser login..."
         Write-Host ""
-        Write-Host "  >>> A browser window will open for GitHub login." -ForegroundColor Yellow
-        Write-Host "  >>> If nothing happens, check your TASKBAR for a flashing browser icon." -ForegroundColor Yellow
+        Write-Host "  >>> A browser window will open - sign in to GitHub to continue." -ForegroundColor Yellow
+        Write-Host "  >>> If nothing opens, check your taskbar for a flashing browser icon." -ForegroundColor Yellow
         Write-Host ""
         gh auth login --web --git-protocol https
         $results["gh-auth"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
