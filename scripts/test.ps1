@@ -48,8 +48,8 @@ Test-Case "T02: Git available" {
 
 # T03: GitHub CLI is installed and on PATH
 Test-Case "T03: gh CLI available" {
-    $v = (gh --version 2>&1 | Select-Object -First 1)
-    if ($LASTEXITCODE -eq 0) { return "PASS: $v" }
+    $v = gh --version 2>&1
+    if ($LASTEXITCODE -eq 0) { return "PASS: $($v | Select-Object -First 1)" }
     return "FAIL: gh not found"
 }
 
@@ -135,8 +135,8 @@ Test-Case "T12: Launch script syntax" {
 
 # T13: gh copilot command responds
 Test-Case "T13: Copilot CLI responds" {
-    $help = gh copilot --help 2>&1 | Select-Object -First 1
-    if ($LASTEXITCODE -eq 0 -or $help -match "copilot") { return "PASS" }
+    $help = gh copilot --help 2>&1
+    if ($LASTEXITCODE -eq 0 -or ($help -match "copilot")) { return "PASS" }
     return "FAIL: gh copilot --help failed"
 }
 
