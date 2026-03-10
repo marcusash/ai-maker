@@ -148,6 +148,10 @@ if (-not (Test-Cmd gh)) {
         $results["gh-auth"] = "PASS"
     } else {
         Write-Warn "Not logged in to GitHub. Launching browser login..."
+        Write-Host ""
+        Write-Host "  >>> A browser window will open for GitHub login." -ForegroundColor Yellow
+        Write-Host "  >>> If nothing happens, check your TASKBAR for a flashing browser icon." -ForegroundColor Yellow
+        Write-Host ""
         gh auth login --web --git-protocol https
         $results["gh-auth"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
     }
