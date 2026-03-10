@@ -43,25 +43,19 @@ $guide = @("$WORKSPACE\canvas\getting-started.html", "$SCRIPT_DIR\..\docs\gettin
     Where-Object { Test-Path $_ } | Select-Object -First 1
 if ($guide) { Start-Process $guide }
 
-# Launch Copilot - loop using suggest/explain since bare 'gh copilot' requires old extension
-Write-Host "  Commands: 'suggest <task>', 'explain <command>', or just describe what you need." -ForegroundColor DarkGray
-Write-Host "  Type 'exit' to quit." -ForegroundColor DarkGray
+# Launch Copilot interactive session
+Write-Host "  Starting AI Maker..." -ForegroundColor DarkGray
 Write-Host ""
 
-while ($true) {
-    $userInput = Read-Host "  You"
-    if (-not $userInput) { continue }
-    if ($userInput -eq "exit" -or $userInput -eq "quit") { break }
-
-    Write-Host ""
-    if ($userInput -match "^explain\s+(.+)") {
-        gh copilot explain $Matches[1]
-    } else {
-        $query = $userInput -replace "^suggest\s+", ""
-        gh copilot suggest $query
-    }
-    Write-Host ""
+# Auto-accept Copilot CLI binary setup if needed
+if (-not (Get-Command copilot -ErrorAction SilentlyContinue)) {
+    "Y" | gh copilot suggest "test" 2>&1 | Out-Null
 }
 
+try {
+    copilot -i
+} catch {
+    Write-Host "`n  AI Maker exited: $_" -ForegroundColor Red
+}
 Write-Host ""
 Read-Host "  Session ended. Press Enter to close"

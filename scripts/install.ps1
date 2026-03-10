@@ -107,22 +107,31 @@ function Test-CopilotExtension {
     gh copilot suggest --help 2>&1 | Out-Null
     return $LASTEXITCODE -eq 0
 }
+function Test-CopilotBinary { [bool](Get-Command copilot -ErrorAction SilentlyContinue) }
 
-if (Test-CopilotExtension) {
-    Write-OK "Copilot CLI available"
-    $results["copilot-ext"] = "PASS"
-} else {
-    Write-Warn "Installing gh-copilot extension (older gh version)..."
+if (-not (Test-CopilotExtension)) {
+    Write-Warn "Installing gh-copilot extension..."
     $extOut = gh extension install github/gh-copilot --force 2>&1
     if ($extOut) { $extOut | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray } }
     Refresh-Path
-    if (Test-CopilotExtension) {
-        Write-OK "Copilot extension installed"
-        $results["copilot-ext"] = "PASS"
-    } else {
-        Write-Fail "Copilot CLI install failed. Run manually: gh extension install github/gh-copilot"
-        $results["copilot-ext"] = "FAIL"
-    }
+}
+
+# Auto-accept the Copilot CLI binary install prompt (one-time setup)
+if (-not (Test-CopilotBinary)) {
+    Write-Warn "Setting up Copilot CLI binary (one-time)..."
+    "Y" | gh copilot suggest "test" 2>&1 | Out-Null
+    Refresh-Path
+}
+
+if (Test-CopilotBinary) {
+    Write-OK "Copilot CLI ready"
+    $results["copilot-ext"] = "PASS"
+} elseif (Test-CopilotExtension) {
+    Write-OK "Copilot CLI available (binary setup will complete on first launch)"
+    $results["copilot-ext"] = "PASS"
+} else {
+    Write-Fail "Copilot CLI not available"
+    $results["copilot-ext"] = "FAIL"
 }
 
 # -----------------------------------------------------------------------
