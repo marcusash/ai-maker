@@ -3,7 +3,7 @@
     Sync enterprise robin-setup to personal GitHub repos (marcusash/ai-maker, marcusash/gh-copilot-setup).
 .DESCRIPTION
     Same pattern as MCM (marcusash_microsoft/kai-algebra2-tests -> marcusash/motor-city-math).
-    Copies the correct subset of files from C:\Github\robin-setup to a local clone of the target
+    Copies the correct subset of files from C:\Github\pc-setup-template to a local clone of the target
     personal repo, commits, and pushes.
 .PARAMETER Target
     Which repo to sync: 'ai-maker' or 'gh-copilot-setup'
@@ -28,7 +28,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
-$Source = "C:\Github\robin-setup"
+$Source = "C:\Github\pc-setup-template"
 $PersonalBase = "C:\Github"
 
 # File mappings: source (relative to robin-setup) -> destination (relative to target repo root)
