@@ -14,6 +14,16 @@ $sourceRepoUrl = "https://github.com/marcusash/ai-maker"
 $sourceTempDir = Join-Path $env:TEMP "ai-maker-src"
 $results       = [ordered]@{}
 
+# Warn if running as Administrator - gh extensions install to the elevated user profile
+$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+if ($isAdmin) {
+    Write-Host ""
+    Write-Host "  WARNING: Running as Administrator. gh extensions install to the admin" -ForegroundColor Yellow
+    Write-Host "  profile, not your normal user profile. Copilot CLI may not be available" -ForegroundColor Yellow
+    Write-Host "  after install. Run this installer from a normal (non-admin) terminal." -ForegroundColor Yellow
+    Write-Host ""
+}
+
 function Write-Step($msg) { Write-Host "`n[AI Maker] $msg" -ForegroundColor Cyan }
 function Write-OK($msg)   { Write-Host "  OK: $msg" -ForegroundColor Green }
 function Write-Fail($msg) { Write-Host "  FAIL: $msg" -ForegroundColor Red }
@@ -98,12 +108,14 @@ if (Test-CopilotExtension) {
     $results["copilot-ext"] = "PASS"
 } else {
     Write-Warn "Installing gh-copilot extension..."
-    gh extension install github/gh-copilot --force 2>&1 | Out-Null
+    $extOut = gh extension install github/gh-copilot --force 2>&1
+    if ($extOut) { $extOut | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray } }
+    Refresh-Path
     if (Test-CopilotExtension) {
         Write-OK "Copilot extension installed"
         $results["copilot-ext"] = "PASS"
     } else {
-        Write-Fail "Copilot CLI not available"
+        Write-Fail "Copilot CLI install failed. Run manually: gh extension install github/gh-copilot"
         $results["copilot-ext"] = "FAIL"
     }
 }
