@@ -37,17 +37,21 @@ if (-not (Test-Cmd winget)) {
     Write-Host "  winget not found. Installing App Installer automatically..." -ForegroundColor Yellow
     $ProgressPreference = 'SilentlyContinue'
     try {
-        # VCLibs dependency
-        Write-Host "  Installing VC++ runtime dependency..." -ForegroundColor Gray
-        $vcLibs = "$env:TEMP\vclibs.appx"
-        Invoke-WebRequest "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx" -OutFile $vcLibs -UseBasicParsing
-        Add-AppxPackage $vcLibs -ErrorAction Stop
+        # VCLibs dependency - skip if already installed (any version)
+        if (-not (Get-AppxPackage -Name "Microsoft.VCLibs.140.00.UWPDesktop" -ErrorAction SilentlyContinue)) {
+            Write-Host "  Installing VC++ runtime dependency..." -ForegroundColor Gray
+            $vcLibs = "$env:TEMP\vclibs.appx"
+            Invoke-WebRequest "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx" -OutFile $vcLibs -UseBasicParsing
+            Add-AppxPackage $vcLibs -ErrorAction Stop
+        }
 
-        # UI Xaml dependency
-        Write-Host "  Installing UI Xaml dependency..." -ForegroundColor Gray
-        $xaml = "$env:TEMP\ui-xaml.appx"
-        Invoke-WebRequest "https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx" -OutFile $xaml -UseBasicParsing
-        Add-AppxPackage $xaml -ErrorAction Stop
+        # UI Xaml dependency - skip if already installed (any version)
+        if (-not (Get-AppxPackage -Name "Microsoft.UI.Xaml.2.8" -ErrorAction SilentlyContinue)) {
+            Write-Host "  Installing UI Xaml dependency..." -ForegroundColor Gray
+            $xaml = "$env:TEMP\ui-xaml.appx"
+            Invoke-WebRequest "https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx" -OutFile $xaml -UseBasicParsing
+            Add-AppxPackage $xaml -ErrorAction Stop
+        }
 
         # Winget itself
         Write-Host "  Installing winget..." -ForegroundColor Gray
