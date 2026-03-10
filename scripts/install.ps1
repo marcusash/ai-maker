@@ -1,6 +1,6 @@
 # AI Maker Installer
-# Run as Administrator on the team leader's machine.
-# Usage: powershell -ExecutionPolicy Bypass -File install.ps1
+# Usage: irm https://raw.githubusercontent.com/marcusash/ai-maker/main/bootstrap.ps1 | iex
+# Or:    pwsh -ExecutionPolicy Bypass -File install.ps1
 
 param(
     [switch]$SkipPrereqs,
@@ -8,118 +8,67 @@ param(
 )
 
 $ErrorActionPreference = "Continue"
-$WORKSPACE = "C:\AIMaker"
-$SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Definition
+$WORKSPACE     = "C:\AIMaker"
+$SCRIPT_DIR    = Split-Path -Parent $MyInvocation.MyCommand.Definition
 $sourceRepoUrl = "https://github.com/marcusash/ai-maker"
 $sourceTempDir = Join-Path $env:TEMP "ai-maker-src"
-
-# Track whether we need to clone after git installs
-$needsSourceClone = -not (Test-Path (Join-Path $SCRIPT_DIR "canvas.ps1"))
+$results       = [ordered]@{}
 
 function Write-Step($msg) { Write-Host "`n[AI Maker] $msg" -ForegroundColor Cyan }
 function Write-OK($msg)   { Write-Host "  OK: $msg" -ForegroundColor Green }
 function Write-Fail($msg) { Write-Host "  FAIL: $msg" -ForegroundColor Red }
 function Write-Warn($msg) { Write-Host "  WARN: $msg" -ForegroundColor Yellow }
+function Refresh-Path     { $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") }
+function Test-Cmd($cmd)   { [bool](Get-Command $cmd -ErrorAction SilentlyContinue) }
 
 function Get-SourceFiles {
-    if (Test-Path (Join-Path $sourceTempDir "scripts\canvas.ps1")) {
-        return $true  # already cloned
-    }
+    if (Test-Path (Join-Path $sourceTempDir "scripts\canvas.ps1")) { return $true }
     Write-Host "  Downloading AI Maker source files..." -ForegroundColor Yellow
     Remove-Item -Recurse -Force $sourceTempDir -ErrorAction SilentlyContinue
     git clone $sourceRepoUrl $sourceTempDir --depth 1 --quiet 2>&1 | Out-Null
     return (Test-Path (Join-Path $sourceTempDir "scripts\canvas.ps1"))
 }
 
-function Write-Step($msg) { Write-Host "`n[AI Maker] $msg" -ForegroundColor Cyan }
-function Write-OK($msg)   { Write-Host "  OK: $msg" -ForegroundColor Green }
-function Write-Fail($msg) { Write-Host "  FAIL: $msg" -ForegroundColor Red }
-function Write-Warn($msg) { Write-Host "  WARN: $msg" -ForegroundColor Yellow }
-
-$results = [ordered]@{}
+function Install-Prereq {
+    param([string]$Name, [string]$Cmd, [string]$WingetId, [string]$FailMsg)
+    if (-not (Test-Cmd $Cmd)) {
+        Write-Warn "$Name not found. Installing via winget..."
+        winget install $WingetId --source winget --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
+        Refresh-Path
+    }
+    if (Test-Cmd $Cmd) {
+        $ver = & $Cmd --version 2>&1 | Select-Object -First 1
+        Write-OK "$Name $ver"
+        return "PASS: $ver"
+    }
+    Write-Fail "$Name install failed. $FailMsg"
+    return "FAIL"
+}
 
 # -----------------------------------------------------------------------
 # STEP 1: Prerequisites
 # -----------------------------------------------------------------------
 Write-Step "Checking prerequisites"
 
-function Test-Command($cmd) { Get-Command $cmd -ErrorAction SilentlyContinue }
+$needsSourceClone = -not (Test-Path (Join-Path $SCRIPT_DIR "canvas.ps1"))
 
 if (-not $SkipPrereqs) {
+    $results["node"] = Install-Prereq -Name "Node.js" -Cmd "node" -WingetId "OpenJS.NodeJS.LTS" -FailMsg "Install manually from https://nodejs.org then re-run."
+    $results["git"]  = Install-Prereq -Name "Git"     -Cmd "git"  -WingetId "Git.Git"           -FailMsg ""
 
-    # Node.js
-    if (-not (Test-Command "node")) {
-        Write-Warn "Node.js not found. Installing via winget..."
-        winget install OpenJS.NodeJS.LTS --source winget --silent --accept-package-agreements --accept-source-agreements
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    }
-    if (Test-Command "node") {
-        $nodeVer = node --version
-        Write-OK "Node.js $nodeVer"
-        $results["node"] = "PASS: $nodeVer"
-    } else {
-        Write-Fail "Node.js install failed. Install manually from https://nodejs.org then re-run."
-        $results["node"] = "FAIL"
-    }
-
-    # Git
-    if (-not (Test-Command "git")) {
-        Write-Warn "Git not found. Installing via winget..."
-        winget install Git.Git --source winget --silent --accept-package-agreements --accept-source-agreements
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    }
-    if (Test-Command "git") {
-        $gitVer = git --version
-        Write-OK $gitVer
-        $results["git"] = "PASS: $gitVer"
-
-        # Git just became available - retry source clone if it failed earlier
-        if ($needsSourceClone) {
-            if (Get-SourceFiles) {
-                $SCRIPT_DIR = Join-Path $sourceTempDir "scripts"
-                Write-OK "AI Maker source files ready"
-                $needsSourceClone = $false
-            } else {
-                Write-Warn "Could not download source files from $sourceRepoUrl. Some steps may fail."
-            }
+    if ($results["git"] -like "PASS*" -and $needsSourceClone) {
+        if (Get-SourceFiles) {
+            $SCRIPT_DIR = Join-Path $sourceTempDir "scripts"
+            Write-OK "AI Maker source files ready"
+        } else {
+            Write-Warn "Could not download source files from $sourceRepoUrl. Some steps may fail."
         }
-    } else {
-        Write-Fail "Git install failed."
-        $results["git"] = "FAIL"
     }
 
-    # GitHub CLI
-    if (-not (Test-Command "gh")) {
-        Write-Warn "GitHub CLI not found. Installing via winget..."
-        winget install GitHub.cli --source winget --silent --accept-package-agreements --accept-source-agreements
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    }
-    if (Test-Command "gh") {
-        $ghVer = gh --version | Select-Object -First 1
-        Write-OK $ghVer
-        $results["gh"] = "PASS: $ghVer"
-    } else {
-        Write-Fail "GitHub CLI install failed."
-        $results["gh"] = "FAIL"
-    }
-
-    # PowerShell 7 (pwsh) -- required by GitHub Copilot CLI to run shell commands
-    if (-not (Test-Command "pwsh")) {
-        Write-Warn "PowerShell 7 not found. Installing via winget..."
-        winget install Microsoft.PowerShell --source winget --silent --accept-package-agreements --accept-source-agreements
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
-    }
-    if (Test-Command "pwsh") {
-        $pwshVer = pwsh --version
-        Write-OK "PowerShell $pwshVer"
-        $results["pwsh"] = "PASS: $pwshVer"
-    } else {
-        Write-Fail "PowerShell 7 install failed. Install manually from https://aka.ms/powershell then re-run."
-        $results["pwsh"] = "FAIL"
-    }
+    $results["gh"]   = Install-Prereq -Name "GitHub CLI"     -Cmd "gh"   -WingetId "GitHub.cli"            -FailMsg ""
+    $results["pwsh"] = Install-Prereq -Name "PowerShell 7"   -Cmd "pwsh" -WingetId "Microsoft.PowerShell"  -FailMsg "Install manually from https://aka.ms/powershell then re-run."
 }
 
-# Resolve REPO_ROOT now that SCRIPT_DIR is finalized (after any source clone)
 $REPO_ROOT = Split-Path -Parent $SCRIPT_DIR
 
 # -----------------------------------------------------------------------
@@ -127,9 +76,8 @@ $REPO_ROOT = Split-Path -Parent $SCRIPT_DIR
 # -----------------------------------------------------------------------
 Write-Step "Checking GitHub authentication"
 
-$authStatus = gh auth status 2>&1
-$authOk = $LASTEXITCODE -eq 0
-if ($authOk) {
+gh auth status 2>&1 | Out-Null
+if ($LASTEXITCODE -eq 0) {
     Write-OK "GitHub auth active"
     $results["gh-auth"] = "PASS"
 } else {
@@ -139,16 +87,16 @@ if ($authOk) {
 }
 
 # -----------------------------------------------------------------------
-# STEP 3: GitHub Copilot CLI Extension
+# STEP 3: Copilot CLI
 # -----------------------------------------------------------------------
-Write-Step "Installing GitHub Copilot CLI extension"
+Write-Step "Checking Copilot CLI"
 
 $copilotHelp = gh copilot --help 2>&1
 if ($LASTEXITCODE -eq 0 -or ($copilotHelp -match "copilot")) {
-    Write-OK "Copilot CLI available (built-in in gh 2.x+)"
+    Write-OK "Copilot CLI available"
     $results["copilot-ext"] = "PASS"
 } else {
-    # Older gh versions need the extension installed
+    Write-Warn "Installing gh-copilot extension..."
     gh extension install github/gh-copilot --force 2>&1 | Out-Null
     $copilotHelp2 = gh copilot --help 2>&1
     if ($LASTEXITCODE -eq 0 -or ($copilotHelp2 -match "copilot")) {
@@ -161,7 +109,7 @@ if ($LASTEXITCODE -eq 0 -or ($copilotHelp -match "copilot")) {
 }
 
 # -----------------------------------------------------------------------
-# STEP 4: WorkIQ Plugin
+# STEP 4: WorkIQ
 # -----------------------------------------------------------------------
 Write-Step "Installing WorkIQ plugin"
 $workiqScript = "$SCRIPT_DIR\install-workiq.ps1"
@@ -169,7 +117,7 @@ if (Test-Path $workiqScript) {
     & $workiqScript
     $results["workiq"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL (see above)" }
 } else {
-    Write-Fail "install-workiq.ps1 not found at $workiqScript (source clone may have failed)"
+    Write-Fail "install-workiq.ps1 not found at $workiqScript"
     $results["workiq"] = "FAIL: install script missing"
 }
 
@@ -178,80 +126,65 @@ if (Test-Path $workiqScript) {
 # -----------------------------------------------------------------------
 Write-Step "Creating AI Maker workspace at $WORKSPACE"
 
-New-Item -ItemType Directory -Force -Path "$WORKSPACE\.github" | Out-Null
-New-Item -ItemType Directory -Force -Path "$WORKSPACE\logs" | Out-Null
-New-Item -ItemType Directory -Force -Path "$WORKSPACE\scripts" | Out-Null
+foreach ($dir in @("$WORKSPACE\.github\skills", "$WORKSPACE\logs", "$WORKSPACE\scripts", "$WORKSPACE\canvas")) {
+    New-Item -ItemType Directory -Force -Path $dir | Out-Null
+}
 
-# Copy copilot-instructions.md (the persona)
-$src = "$REPO_ROOT\docs\copilot-instructions.md"
-$dst = "$WORKSPACE\.github\copilot-instructions.md"
-if (Test-Path $src) {
-    Copy-Item -Path $src -Destination $dst -Force
-    Write-OK "Persona installed: $dst"
+function Copy-Doc {
+    param([string]$Src, [string]$Dst, [string]$Label)
+    if (Test-Path $Src) {
+        Copy-Item -Path $Src -Destination $Dst -Force
+        Write-OK "$Label installed"
+        return $true
+    }
+    Write-Warn "$Label not found at $Src - skipping"
+    return $false
+}
+
+if (Copy-Doc "$REPO_ROOT\docs\copilot-instructions.md" "$WORKSPACE\.github\copilot-instructions.md" "Persona") {
     $results["persona"] = "PASS"
 } else {
-    Write-Fail "Persona file not found: $src"
     $results["persona"] = "FAIL: source file missing"
 }
 
-# Copy all skill files into .github\skills\ so the agent can load them
-New-Item -ItemType Directory -Force -Path "$WORKSPACE\.github\skills" | Out-Null
 $skillFiles = Get-ChildItem "$REPO_ROOT\docs\skills\*.md" -ErrorAction SilentlyContinue
 if ($skillFiles) {
-    $skillFiles | ForEach-Object {
-        Copy-Item -Path $_.FullName -Destination "$WORKSPACE\.github\skills\$($_.Name)" -Force
-    }
-    $skillCount = (Get-ChildItem "$WORKSPACE\.github\skills\").Count
-    Write-OK "Skills installed: $WORKSPACE\.github\skills\ ($skillCount files)"
+    $skillFiles | Copy-Item -Destination "$WORKSPACE\.github\skills\" -Force
+    $skillCount = @(Get-ChildItem "$WORKSPACE\.github\skills\").Count
+    Write-OK "Skills: $skillCount files installed"
     $results["skills"] = "PASS"
 } else {
-    Write-Warn "No skill files found at $REPO_ROOT\docs\skills\ - skills skipped"
+    Write-Warn "No skill files found - skipping"
     $results["skills"] = "WARN: no skill files found"
 }
 
-# Copy onboarding interview reference
-$interviewSrc = "$REPO_ROOT\docs\onboarding-interview.md"
-if (Test-Path $interviewSrc) {
-    Copy-Item -Path $interviewSrc -Destination "$WORKSPACE\" -Force
-    Write-OK "Onboarding interview: $WORKSPACE\onboarding-interview.md"
-} else {
-    Write-Warn "onboarding-interview.md not found, skipping"
-}
+Copy-Doc "$REPO_ROOT\docs\onboarding-interview.md" "$WORKSPACE\onboarding-interview.md" "Onboarding interview" | Out-Null
 
 # -----------------------------------------------------------------------
 # STEP 6: Canvas
 # -----------------------------------------------------------------------
 Write-Step "Setting up Canvas"
 
-New-Item -ItemType Directory -Force -Path "$WORKSPACE\canvas" | Out-Null
 $canvasSrc = "$SCRIPT_DIR\canvas.ps1"
-$gettingStartedSrc = "$REPO_ROOT\docs\getting-started.html"
-$canvasFail = $false
 if (Test-Path $canvasSrc) {
     Copy-Item -Path $canvasSrc -Destination "$WORKSPACE\scripts\canvas.ps1" -Force
-    Write-OK "Canvas script: $WORKSPACE\scripts\canvas.ps1"
+    Write-OK "Canvas script installed"
+    $results["canvas"] = "PASS"
 } else {
     Write-Fail "canvas.ps1 not found at $canvasSrc"
-    $canvasFail = $true
+    $results["canvas"] = "FAIL: canvas.ps1 missing"
 }
-if (Test-Path $gettingStartedSrc) {
-    Copy-Item -Path $gettingStartedSrc -Destination "$WORKSPACE\canvas\getting-started.html" -Force
-    Write-OK "Canvas folder: $WORKSPACE\canvas\"
-} else {
-    Write-Warn "getting-started.html not found, canvas folder created without it"
-}
-$results["canvas"] = if ($canvasFail) { "FAIL: canvas.ps1 missing" } else { "PASS" }
+Copy-Doc "$REPO_ROOT\docs\getting-started.html" "$WORKSPACE\canvas\getting-started.html" "Getting started guide" | Out-Null
 
 # -----------------------------------------------------------------------
 # STEP 7: Vault
 # -----------------------------------------------------------------------
 Write-Step "Setting up Vault"
 
-@("how-to","proposals","references","decisions") | ForEach-Object {
-    New-Item -ItemType Directory -Force -Path "$WORKSPACE\vault\$_" | Out-Null
+foreach ($d in @("how-to","proposals","references","decisions")) {
+    New-Item -ItemType Directory -Force -Path "$WORKSPACE\vault\$d" | Out-Null
 }
 
-# Create vault README
 $vaultReadme = @"
 # Vault
 
@@ -267,9 +200,6 @@ Your working memory. Max 20 items. Only the things that matter most.
 Tell AI Maker: "save this to the vault" or "remember this."
 Always shows you the full path when it saves something here.
 "@
-[System.IO.File]::WriteAllText("$WORKSPACE\vault\README.md", $vaultReadme, [System.Text.UTF8Encoding]::new($false))
-
-# Create decisions index
 $decisionsIndex = @"
 # Decisions Index
 
@@ -278,9 +208,10 @@ One line per decision. Date and summary.
 | Date | Decision |
 |------|---------|
 "@
+[System.IO.File]::WriteAllText("$WORKSPACE\vault\README.md", $vaultReadme, [System.Text.UTF8Encoding]::new($false))
 [System.IO.File]::WriteAllText("$WORKSPACE\vault\decisions\index.md", $decisionsIndex, [System.Text.UTF8Encoding]::new($false))
 
-Write-OK "Vault: $WORKSPACE\vault\"
+Write-OK "Vault ready at $WORKSPACE\vault\"
 $results["vault"] = "PASS"
 
 # -----------------------------------------------------------------------
@@ -322,7 +253,7 @@ foreach ($key in $results.Keys) {
         Write-Host "  $key : $val" -ForegroundColor Green
     } else {
         Write-Host "  $key : $val" -ForegroundColor Red
-        $allPassed = $false
+        if ($val -notlike "WARN*") { $allPassed = $false }
     }
 }
 
