@@ -49,8 +49,8 @@ Test-Case "T04: GitHub auth active" {
 }
 
 Test-Case "T05: Copilot CLI available" {
-    $h = gh copilot --help 2>&1
-    if ($LASTEXITCODE -eq 0 -or ($h -match "copilot")) { return "PASS" }
+    $installed = gh extension list 2>&1 | Select-String "gh-copilot"
+    if ($installed) { return "PASS" }
     return "FAIL: gh copilot not available. Run: gh extension install github/gh-copilot"
 }
 

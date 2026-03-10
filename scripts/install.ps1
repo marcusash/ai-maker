@@ -91,15 +91,15 @@ if ($LASTEXITCODE -eq 0) {
 # -----------------------------------------------------------------------
 Write-Step "Checking Copilot CLI"
 
-$copilotHelp = gh copilot --help 2>&1
-if ($LASTEXITCODE -eq 0 -or ($copilotHelp -match "copilot")) {
+function Test-CopilotExtension { [bool](gh extension list 2>&1 | Select-String "gh-copilot") }
+
+if (Test-CopilotExtension) {
     Write-OK "Copilot CLI available"
     $results["copilot-ext"] = "PASS"
 } else {
     Write-Warn "Installing gh-copilot extension..."
     gh extension install github/gh-copilot --force 2>&1 | Out-Null
-    $copilotHelp2 = gh copilot --help 2>&1
-    if ($LASTEXITCODE -eq 0 -or ($copilotHelp2 -match "copilot")) {
+    if (Test-CopilotExtension) {
         Write-OK "Copilot extension installed"
         $results["copilot-ext"] = "PASS"
     } else {
