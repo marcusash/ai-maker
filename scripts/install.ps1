@@ -85,7 +85,11 @@ function Install-Prereq {
     param([string]$Name, [string]$Cmd, [string]$WingetId, [string]$FailMsg)
     if (-not (Test-Cmd $Cmd)) {
         Write-Warn "$Name not found. Installing via winget..."
+        # Try user scope first (no UAC), fall back to machine scope if package doesn't support it
         winget install $WingetId --source winget --scope user --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            winget install $WingetId --source winget --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
+        }
         Refresh-Path
     }
     if (Test-Cmd $Cmd) {
@@ -131,14 +135,19 @@ $REPO_ROOT = Split-Path -Parent $SCRIPT_DIR
 # -----------------------------------------------------------------------
 Write-Step "Checking GitHub authentication"
 
-gh auth status 2>&1 | Out-Null
-if ($LASTEXITCODE -eq 0) {
-    Write-OK "GitHub auth active"
-    $results["gh-auth"] = "PASS"
+if (-not (Test-Cmd gh)) {
+    Write-Fail "gh CLI not available - skipping auth check"
+    $results["gh-auth"] = "FAIL: gh not installed"
 } else {
-    Write-Warn "Not logged in to GitHub. Launching browser login..."
-    gh auth login --web --git-protocol https
-    $results["gh-auth"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
+    gh auth status 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Write-OK "GitHub auth active"
+        $results["gh-auth"] = "PASS"
+    } else {
+        Write-Warn "Not logged in to GitHub. Launching browser login..."
+        gh auth login --web --git-protocol https
+        $results["gh-auth"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
+    }
 }
 
 # -----------------------------------------------------------------------
