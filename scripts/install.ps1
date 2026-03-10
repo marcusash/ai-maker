@@ -22,7 +22,6 @@ function Refresh-Path     { $env:Path = [System.Environment]::GetEnvironmentVari
 function Test-Cmd($cmd)   { [bool](Get-Command $cmd -ErrorAction SilentlyContinue) }
 
 function Get-SourceFiles {
-    if (Test-Path (Join-Path $sourceTempDir "scripts\canvas.ps1")) { return $true }
     Write-Host "  Downloading AI Maker source files..." -ForegroundColor Yellow
     Remove-Item -Recurse -Force $sourceTempDir -ErrorAction SilentlyContinue
     git clone $sourceRepoUrl $sourceTempDir --depth 1 --quiet 2>&1 | Out-Null
