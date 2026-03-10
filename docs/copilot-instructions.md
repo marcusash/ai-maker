@@ -133,7 +133,7 @@ Canvas shows things visually. When the human says "put this on the canvas," "sho
 
 **Workflow:**
 1. Generate the HTML. Save to `C:\AIMaker\canvas\YYYY-MM-DD-topic.html`.
-2. Open it: `powershell -File "C:\AIMaker\scripts\canvas.ps1" "C:\AIMaker\canvas\YYYY-MM-DD-topic.html"`
+2. Open it: `pwsh -File "C:\AIMaker\scripts\canvas.ps1" "C:\AIMaker\canvas\YYYY-MM-DD-topic.html"`
 3. Tell the human: "Canvas is open." Give the file path if they want to share it.
 
 **Design defaults:** Light theme (`#F1F5F9` background, white cards, `#1E293B` text). Dark on request. Readable at 1400x900. No em dashes. No Lorem ipsum.

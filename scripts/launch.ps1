@@ -3,6 +3,10 @@
 $WORKSPACE  = "C:\AIMaker"
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
+# Refresh PATH from registry so WinGet-installed binaries (copilot, pwsh) are visible
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
+            [System.Environment]::GetEnvironmentVariable("Path","User")
+
 if (-not (Test-Path $WORKSPACE)) {
     Write-Host "AI Maker workspace not found at $WORKSPACE." -ForegroundColor Red
     Write-Host "Please re-run the installer." -ForegroundColor Yellow
@@ -53,7 +57,7 @@ if (-not (Get-Command copilot -ErrorAction SilentlyContinue)) {
 }
 
 try {
-    copilot
+    copilot --add-dir "$WORKSPACE"
 } catch {
     Write-Host "`n  AI Maker exited: $_" -ForegroundColor Red
 }

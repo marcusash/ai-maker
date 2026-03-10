@@ -103,34 +103,22 @@ if ($LASTEXITCODE -eq 0) {
 # -----------------------------------------------------------------------
 Write-Step "Checking Copilot CLI"
 
-function Test-CopilotExtension {
-    gh copilot suggest --help 2>&1 | Out-Null
-    return $LASTEXITCODE -eq 0
-}
 function Test-CopilotBinary { [bool](Get-Command copilot -ErrorAction SilentlyContinue) }
 
-if (-not (Test-CopilotExtension)) {
-    Write-Warn "Installing gh-copilot extension..."
-    $extOut = gh extension install github/gh-copilot --force 2>&1
-    if ($extOut) { $extOut | ForEach-Object { Write-Host "  $_" -ForegroundColor DarkGray } }
-    Refresh-Path
-}
-
-# Auto-accept the Copilot CLI binary install prompt (one-time setup)
+# gh copilot in gh 2.x is a built-in subcommand (not an extension).
+# The standalone Copilot CLI binary (GitHub.Copilot) is the correct install target.
 if (-not (Test-CopilotBinary)) {
-    Write-Warn "Setting up Copilot CLI binary (one-time)..."
-    "Y" | gh copilot suggest "test" 2>&1 | Out-Null
+    Write-Warn "Installing Copilot CLI via winget..."
+    winget install GitHub.Copilot --source winget --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
     Refresh-Path
 }
 
 if (Test-CopilotBinary) {
-    Write-OK "Copilot CLI ready"
-    $results["copilot-ext"] = "PASS"
-} elseif (Test-CopilotExtension) {
-    Write-OK "Copilot CLI available (binary setup will complete on first launch)"
+    $copilotVer = (copilot --version 2>&1 | Select-Object -First 1) -replace "GitHub Copilot CLI ",""
+    Write-OK "Copilot CLI $copilotVer ready"
     $results["copilot-ext"] = "PASS"
 } else {
-    Write-Fail "Copilot CLI not available"
+    Write-Fail "Copilot CLI not found after install. Run: winget install GitHub.Copilot"
     $results["copilot-ext"] = "FAIL"
 }
 
@@ -169,6 +157,9 @@ function Copy-Doc {
 }
 
 if (Copy-Doc "$REPO_ROOT\docs\copilot-instructions.md" "$WORKSPACE\.github\copilot-instructions.md" "Persona") {
+    # Also write to AGENTS.md in workspace root so Copilot CLI picks it up regardless of CWD
+    Copy-Item "$REPO_ROOT\docs\copilot-instructions.md" "$WORKSPACE\AGENTS.md" -Force
+    Write-OK "AGENTS.md installed (Copilot CLI persona root)"
     $results["persona"] = "PASS"
 } else {
     $results["persona"] = "FAIL: source file missing"
