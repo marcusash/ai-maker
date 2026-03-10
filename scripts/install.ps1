@@ -31,18 +31,41 @@ function Write-Warn($msg) { Write-Host "  WARN: $msg" -ForegroundColor Yellow }
 function Refresh-Path     { $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") }
 function Test-Cmd($cmd)   { [bool](Get-Command $cmd -ErrorAction SilentlyContinue) }
 
-# Winget gate - must be present before any prereq installs
+# Winget gate - install automatically if missing
 if (-not (Test-Cmd winget)) {
     Write-Host ""
-    Write-Host "  STOP: winget (App Installer) is not installed on this machine." -ForegroundColor Red
-    Write-Host ""
-    Write-Host "  Install it from the Microsoft Store:" -ForegroundColor Yellow
-    Write-Host "    https://aka.ms/getwinget" -ForegroundColor Cyan
-    Write-Host ""
-    Write-Host "  After installing App Installer, close this terminal, open a new one," -ForegroundColor Yellow
-    Write-Host "  and re-run the AI Maker installer." -ForegroundColor Yellow
-    Write-Host ""
-    exit 1
+    Write-Host "  winget not found. Installing App Installer automatically..." -ForegroundColor Yellow
+    $ProgressPreference = 'SilentlyContinue'
+    try {
+        # VCLibs dependency
+        Write-Host "  Installing VC++ runtime dependency..." -ForegroundColor Gray
+        Add-AppxPackage -Uri "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx" -ErrorAction Stop
+
+        # UI Xaml dependency
+        Write-Host "  Installing UI Xaml dependency..." -ForegroundColor Gray
+        $xaml = "$env:TEMP\ui-xaml.appx"
+        Invoke-WebRequest "https://github.com/microsoft/microsoft-ui-xaml/releases/download/v2.8.6/Microsoft.UI.Xaml.2.8.x64.appx" -OutFile $xaml -UseBasicParsing
+        Add-AppxPackage $xaml -ErrorAction Stop
+
+        # Winget itself
+        Write-Host "  Installing winget..." -ForegroundColor Gray
+        $pkg = "$env:TEMP\winget.msixbundle"
+        Invoke-WebRequest "https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile $pkg -UseBasicParsing
+        Add-AppxPackage $pkg -ErrorAction Stop
+
+        Refresh-Path
+        if (Test-Cmd winget) {
+            Write-OK "winget installed successfully"
+        } else {
+            throw "winget still not found after install"
+        }
+    } catch {
+        Write-Host ""
+        Write-Host "  STOP: Could not auto-install winget: $_" -ForegroundColor Red
+        Write-Host "  Install manually: https://aka.ms/getwinget  then re-run." -ForegroundColor Yellow
+        Write-Host ""
+        exit 1
+    }
 }
 
 function Get-SourceFiles {
