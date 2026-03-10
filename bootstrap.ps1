@@ -1,5 +1,6 @@
 # Bootstrap: downloads installer and runs it properly with -File
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force -ErrorAction SilentlyContinue
+$ProgressPreference = 'SilentlyContinue'  # suppress PS5.1 blue progress bar during download
 $tmp = "$env:TEMP\ai-maker-install.ps1"
 Write-Host "`n[AI Maker] Downloading installer..." -ForegroundColor Cyan
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/marcusash/ai-maker/main/scripts/install.ps1" -OutFile $tmp -UseBasicParsing
