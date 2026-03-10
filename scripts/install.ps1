@@ -60,7 +60,9 @@ function Install-Prereq {
 # -----------------------------------------------------------------------
 Write-Step "Checking prerequisites"
 
-$needsSourceClone = -not (Test-Path (Join-Path $SCRIPT_DIR "canvas.ps1"))
+# Always re-clone when running from a temp path so re-runs get the latest scripts
+$runningFromTemp = $SCRIPT_DIR -like "*\Temp\*" -or $SCRIPT_DIR -like "*/tmp/*"
+$needsSourceClone = $runningFromTemp -or -not (Test-Path (Join-Path $SCRIPT_DIR "canvas.ps1"))
 
 if (-not $SkipPrereqs) {
     $results["node"] = Install-Prereq -Name "Node.js" -Cmd "node" -WingetId "OpenJS.NodeJS.LTS" -FailMsg "Install manually from https://nodejs.org then re-run."
@@ -291,6 +293,7 @@ foreach ($key in $results.Keys) {
 if ($allPassed) {
     Write-Host "`n  READY. Double-click 'AI Maker' on the desktop to start." -ForegroundColor Green
 } else {
-    Write-Host "`n  Some steps failed. Fix the FAIL items above and re-run." -ForegroundColor Red
+    Write-Host "`n  Some steps failed. Fix the FAIL items above, then re-run:" -ForegroundColor Red
+    Write-Host "  irm https://raw.githubusercontent.com/marcusash/ai-maker/main/bootstrap.ps1 | iex" -ForegroundColor Yellow
     exit 1
 }

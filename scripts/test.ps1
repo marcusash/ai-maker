@@ -146,6 +146,7 @@ if ($failed -eq 0) {
     Write-Host "`n  ALL TESTS PASSED. AI Maker is ready." -ForegroundColor Green
     exit 0
 } else {
-    Write-Host "`n  $failed test(s) failed. Fix the issues above and re-run install.ps1." -ForegroundColor Red
+    Write-Host "`n  $failed test(s) failed. Fix the issues above, then re-run:" -ForegroundColor Red
+    Write-Host "  irm https://raw.githubusercontent.com/marcusash/ai-maker/main/bootstrap.ps1 | iex" -ForegroundColor Yellow
     exit 1
 }
