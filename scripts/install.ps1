@@ -31,6 +31,20 @@ function Write-Warn($msg) { Write-Host "  WARN: $msg" -ForegroundColor Yellow }
 function Refresh-Path     { $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User") }
 function Test-Cmd($cmd)   { [bool](Get-Command $cmd -ErrorAction SilentlyContinue) }
 
+# Winget gate - must be present before any prereq installs
+if (-not (Test-Cmd winget)) {
+    Write-Host ""
+    Write-Host "  STOP: winget (App Installer) is not installed on this machine." -ForegroundColor Red
+    Write-Host ""
+    Write-Host "  Install it from the Microsoft Store:" -ForegroundColor Yellow
+    Write-Host "    https://aka.ms/getwinget" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  After installing App Installer, close this terminal, open a new one," -ForegroundColor Yellow
+    Write-Host "  and re-run the AI Maker installer." -ForegroundColor Yellow
+    Write-Host ""
+    exit 1
+}
+
 function Get-SourceFiles {
     Write-Host "  Downloading AI Maker source files..." -ForegroundColor Yellow
     Remove-Item -Recurse -Force $sourceTempDir -ErrorAction SilentlyContinue
