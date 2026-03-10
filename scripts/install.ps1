@@ -175,6 +175,18 @@ if (Test-Path $canvasSrc) {
     Write-Fail "canvas.ps1 not found at $canvasSrc"
     $results["canvas"] = "FAIL: canvas.ps1 missing"
 }
+# Copy launch script to workspace so the desktop shortcut has a permanent target
+Copy-Doc "$SCRIPT_DIR\launch.ps1" "$WORKSPACE\scripts\launch.ps1" "Launch script" | Out-Null
+
+# Copy icon to workspace so the shortcut can find it permanently
+$assetDest = "$WORKSPACE\.github\assets"
+New-Item -ItemType Directory -Force -Path $assetDest | Out-Null
+$iconSrc = "$REPO_ROOT\assets\ai-maker.ico"
+if (Test-Path $iconSrc) {
+    Copy-Item -Path $iconSrc -Destination "$assetDest\ai-maker.ico" -Force
+    Write-OK "Icon installed"
+}
+
 Copy-Doc "$REPO_ROOT\docs\getting-started.html" "$WORKSPACE\canvas\getting-started.html" "Getting started guide" | Out-Null
 
 # -----------------------------------------------------------------------
@@ -221,7 +233,7 @@ $results["vault"] = "PASS"
 Write-Step "Creating desktop shortcut"
 $shortcutScript = "$SCRIPT_DIR\create-shortcut.ps1"
 if (Test-Path $shortcutScript) {
-    & $shortcutScript -WorkspacePath $WORKSPACE -ScriptDir $SCRIPT_DIR
+    & $shortcutScript -WorkspacePath $WORKSPACE -ScriptDir "$WORKSPACE\scripts"
     $results["shortcut"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
 } else {
     Write-Fail "create-shortcut.ps1 not found at $shortcutScript"
