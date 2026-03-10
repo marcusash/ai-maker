@@ -85,7 +85,7 @@ function Install-Prereq {
     param([string]$Name, [string]$Cmd, [string]$WingetId, [string]$FailMsg)
     if (-not (Test-Cmd $Cmd)) {
         Write-Warn "$Name not found. Installing via winget..."
-        winget install $WingetId --source winget --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
+        winget install $WingetId --source winget --scope user --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
         Refresh-Path
     }
     if (Test-Cmd $Cmd) {
@@ -152,7 +152,7 @@ function Test-CopilotBinary { [bool](Get-Command copilot -ErrorAction SilentlyCo
 # The standalone Copilot CLI binary (GitHub.Copilot) is the correct install target.
 if (-not (Test-CopilotBinary)) {
     Write-Warn "Installing Copilot CLI via winget..."
-    winget install GitHub.Copilot --source winget --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
+    winget install GitHub.Copilot --source winget --scope user --silent --accept-package-agreements --accept-source-agreements 2>&1 | Out-Null
     Refresh-Path
 }
 
