@@ -73,7 +73,7 @@ if (-not $SkipPrereqs) {
         Write-OK $gitVer
         $results["git"] = "PASS: $gitVer"
 
-        # Git just became available — retry source clone if it failed earlier
+        # Git just became available - retry source clone if it failed earlier
         if ($needsSourceClone) {
             if (Get-SourceFiles) {
                 $SCRIPT_DIR = Join-Path $sourceTempDir "scripts"
@@ -205,7 +205,7 @@ if ($skillFiles) {
     Write-OK "Skills installed: $WORKSPACE\.github\skills\ ($skillCount files)"
     $results["skills"] = "PASS"
 } else {
-    Write-Warn "No skill files found at $REPO_ROOT\docs\skills\ — skills skipped"
+    Write-Warn "No skill files found at $REPO_ROOT\docs\skills\ - skills skipped"
     $results["skills"] = "WARN: no skill files found"
 }
 
@@ -305,7 +305,7 @@ if (Test-Path $testScript) {
     & $testScript -WorkspacePath $WORKSPACE
     $results["tests"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL" }
 } else {
-    Write-Warn "test.ps1 not found — skipping verification"
+    Write-Warn "test.ps1 not found - skipping verification"
     $results["tests"] = "SKIP: test script missing"
 }
 
