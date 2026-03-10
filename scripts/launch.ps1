@@ -53,7 +53,7 @@ if (-not (Get-Command copilot -ErrorAction SilentlyContinue)) {
 }
 
 try {
-    copilot -i
+    copilot
 } catch {
     Write-Host "`n  AI Maker exited: $_" -ForegroundColor Red
 }
