@@ -37,7 +37,8 @@ function Install-Prereq {
         Refresh-Path
     }
     if (Test-Cmd $Cmd) {
-        $ver = & $Cmd --version 2>&1 | Select-Object -First 1
+        $allVer = & $Cmd --version 2>&1
+        $ver    = $allVer | Select-Object -First 1
         Write-OK "$Name $ver"
         return "PASS: $ver"
     }
@@ -114,8 +115,9 @@ if ($LASTEXITCODE -eq 0 -or ($copilotHelp -match "copilot")) {
 Write-Step "Installing WorkIQ plugin"
 $workiqScript = "$SCRIPT_DIR\install-workiq.ps1"
 if (Test-Path $workiqScript) {
-    & $workiqScript
-    $results["workiq"] = if ($LASTEXITCODE -eq 0) { "PASS" } else { "FAIL (see above)" }
+    $wiqSuccess = $false
+    try { & $workiqScript; $wiqSuccess = ($LASTEXITCODE -eq 0) } catch {}
+    $results["workiq"] = if ($wiqSuccess) { "PASS" } else { "FAIL (see above)" }
 } else {
     Write-Fail "install-workiq.ps1 not found at $workiqScript"
     $results["workiq"] = "FAIL: install script missing"
@@ -251,9 +253,11 @@ foreach ($key in $results.Keys) {
     $val = $results[$key]
     if ($val -like "PASS*") {
         Write-Host "  $key : $val" -ForegroundColor Green
+    } elseif ($val -like "WARN*") {
+        Write-Host "  $key : $val" -ForegroundColor Yellow
     } else {
         Write-Host "  $key : $val" -ForegroundColor Red
-        if ($val -notlike "WARN*") { $allPassed = $false }
+        $allPassed = $false
     }
 }
 
