@@ -26,9 +26,11 @@ if (-not $iconPath) { $iconPath = "C:\Windows\System32\cmd.exe" }
 
 function New-Shortcut {
     param([string]$Dest)
+    $pwsh = (Get-Command pwsh -ErrorAction SilentlyContinue).Source
+    if (-not $pwsh) { $pwsh = "C:\Program Files\PowerShell\7\pwsh.exe" }
     $shell    = New-Object -ComObject WScript.Shell
     $lnk      = $shell.CreateShortcut($Dest)
-    $lnk.TargetPath       = "powershell.exe"
+    $lnk.TargetPath       = $pwsh
     $lnk.Arguments        = "-ExecutionPolicy Bypass -WindowStyle Normal -File `"$launchScript`""
     $lnk.WorkingDirectory = $WorkspacePath
     $lnk.IconLocation     = "$iconPath,0"
@@ -42,7 +44,7 @@ New-Shortcut -Dest $shortcutDest
 if (Test-Path $shortcutDest) {
     Write-Host "  OK: Desktop shortcut created: $shortcutDest" -ForegroundColor Green
 
-    # Taskbar pin (best-effort - fails silently under group policy)
+    # Taskbar pin (best-effort)
     $taskbarDest = "$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\AI Maker.lnk"
     try {
         New-Shortcut -Dest $taskbarDest
