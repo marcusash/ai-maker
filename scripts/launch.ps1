@@ -3,7 +3,7 @@
 $WORKSPACE  = "C:\AIMaker"
 $SCRIPT_DIR = Split-Path -Parent $MyInvocation.MyCommand.Definition
 
-# Refresh PATH from registry so WinGet-installed binaries (copilot, pwsh) are visible
+# Refresh PATH so WinGet-installed binaries (copilot, pwsh) are visible
 $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
             [System.Environment]::GetEnvironmentVariable("Path","User")
 
@@ -39,7 +39,7 @@ Write-Host ""
 Write-Host "  Workspace : $WORKSPACE" -ForegroundColor DarkGray
 Write-Host "  Status    : $profileStatus" -ForegroundColor $(if (Test-Path "$WORKSPACE\profile.md") { "Green" } else { "Yellow" })
 Write-Host ""
-Write-Host "  Type your question or request. Press Ctrl+C to exit." -ForegroundColor DarkGray
+Write-Host "  Press Ctrl+C to exit." -ForegroundColor DarkGray
 Write-Host ""
 
 # Open getting-started guide
@@ -47,17 +47,19 @@ $guide = @("$WORKSPACE\canvas\getting-started.html", "$SCRIPT_DIR\..\docs\gettin
     Where-Object { Test-Path $_ } | Select-Object -First 1
 if ($guide) { Start-Process $guide }
 
+# Auto-accept Copilot CLI binary setup if needed (one-time)
+if (-not (Get-Command copilot -ErrorAction SilentlyContinue)) {
+    Write-Host "  Setting up Copilot CLI (one-time)..." -ForegroundColor DarkGray
+    "Y" | gh copilot suggest "test" 2>&1 | Out-Null
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" +
+                [System.Environment]::GetEnvironmentVariable("Path","User")
+}
+
 # Launch Copilot interactive session
 Write-Host "  Starting AI Maker..." -ForegroundColor DarkGray
 Write-Host ""
-
-# Auto-accept Copilot CLI binary setup if needed
-if (-not (Get-Command copilot -ErrorAction SilentlyContinue)) {
-    "Y" | gh copilot suggest "test" 2>&1 | Out-Null
-}
-
 try {
-    copilot --add-dir "$WORKSPACE"
+    copilot
 } catch {
     Write-Host "`n  AI Maker exited: $_" -ForegroundColor Red
 }
