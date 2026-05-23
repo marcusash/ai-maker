@@ -1,72 +1,51 @@
 <#
 .SYNOPSIS
-    Sync enterprise robin-setup to personal GitHub repos (marcusash/ai-maker, marcusash/gh-copilot-setup).
+    Sync enterprise ai-maker-template to personal GitHub repo (marcusash/ai-maker).
 .DESCRIPTION
     Same pattern as MCM (marcusash_microsoft/kai-algebra2-tests -> marcusash/motor-city-math).
-    Copies the correct subset of files from C:\Github\pc-setup-template to a local clone of the target
+    Copies the correct subset of files from C:\Github\ai-maker-template to a local clone of the target
     personal repo, commits, and pushes.
-.PARAMETER Target
-    Which repo to sync: 'ai-maker' or 'gh-copilot-setup'
 .PARAMETER Message
     Optional commit message. Defaults to "sync from enterprise".
 .PARAMETER DryRun
     Show what would be copied without actually syncing.
 .EXAMPLE
-    .\sync-public.ps1 -Target ai-maker
-    .\sync-public.ps1 -Target gh-copilot-setup -Message "security fixes applied"
-    .\sync-public.ps1 -Target ai-maker -DryRun
+    .\sync-public.ps1
+    .\sync-public.ps1 -Message "security fixes applied"
+    .\sync-public.ps1 -DryRun
 #>
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory)]
-    [ValidateSet('ai-maker', 'gh-copilot-setup')]
-    [string]$Target,
-
     [string]$Message = "sync from enterprise",
 
     [switch]$DryRun
 )
 
 $ErrorActionPreference = 'Stop'
-$Source = "C:\Github\pc-setup-template"
+$Source = "C:\Github\ai-maker-template"
 $PersonalBase = "C:\Github"
+$Target = "ai-maker"
 
-# File mappings: source (relative to robin-setup) -> destination (relative to target repo root)
-# Use "/" as destination to mean "copy to root with same name"
-# Use "rename:newname" to rename on copy
-$FileMap = @{
-    'ai-maker' = @(
-        @{ src = 'agents\ai-maker';                    dst = 'agents\ai-maker' }
-        @{ src = 'docs\install-guide.html';             dst = 'docs\install-guide.html' }
-        @{ src = 'agents\ai-maker\scripts\setup.ps1';   dst = 'setup.ps1' }
-        @{ src = 'README-ai-maker.md';                  dst = 'README.md' }
-        @{ src = '.gitignore';                          dst = '.gitignore' }
-    )
-    'gh-copilot-setup' = @(
-        @{ src = 'agents';              dst = 'agents' }
-        @{ src = 'docs';                dst = 'docs' }
-        @{ src = 'install.ps1';         dst = 'install.ps1' }
-        @{ src = 'setup.bat';           dst = 'setup.bat' }
-        @{ src = 'start.ps1';           dst = 'start.ps1' }
-        @{ src = 'stop.ps1';            dst = 'stop.ps1' }
-        @{ src = 'STARTUP.md';          dst = 'STARTUP.md' }
-        @{ src = 'README-gh-copilot-setup.md'; dst = 'README.md' }
-        @{ src = '.gitignore';          dst = '.gitignore' }
-    )
-}
+# File mappings: source (relative to ai-maker-template) -> destination (relative to target repo root)
+$FileMap = @(
+    @{ src = 'agents';              dst = 'agents' }
+    @{ src = 'docs';                dst = 'docs' }
+    @{ src = 'install.ps1';         dst = 'install.ps1' }
+    @{ src = 'start.ps1';           dst = 'start.ps1' }
+    @{ src = 'stop.ps1';            dst = 'stop.ps1' }
+    @{ src = 'STARTUP.md';          dst = 'STARTUP.md' }
+    @{ src = 'README.md';           dst = 'README.md' }
+    @{ src = '.gitignore';          dst = '.gitignore' }
+)
 
-$PersonalUrls = @{
-    'ai-maker'         = 'https://marcusash@github.com/marcusash/ai-maker.git'
-    'gh-copilot-setup' = 'https://marcusash@github.com/marcusash/gh-copilot-setup.git'
-}
-
+$RemoteUrl = 'https://marcusash@github.com/marcusash/ai-maker.git'
 $TargetDir = Join-Path $PersonalBase $Target
 
 Write-Host ""
-Write-Host "=== sync-public: $Target ===" -ForegroundColor Cyan
+Write-Host "=== sync-public: ai-maker ===" -ForegroundColor Cyan
 Write-Host "Source:      $Source"
 Write-Host "Target repo: $TargetDir"
-Write-Host "Remote:      $($PersonalUrls[$Target])"
+Write-Host "Remote:      $RemoteUrl"
 Write-Host ""
 
 # Step 1: Pull latest enterprise source
@@ -101,14 +80,14 @@ if (-not $DryRun) {
 Write-Host ""
 Write-Host "[3/5] Preparing target repo..." -ForegroundColor Yellow
 if (-not (Test-Path $TargetDir)) {
-    Write-Host "Cloning $($PersonalUrls[$Target])..."
-    git clone $PersonalUrls[$Target] $TargetDir
+    Write-Host "Cloning $RemoteUrl..."
+    git clone $RemoteUrl $TargetDir
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Clone failed. Initializing fresh repo..." -ForegroundColor Yellow
         New-Item -ItemType Directory -Path $TargetDir -Force | Out-Null
         Push-Location $TargetDir
         git init
-        git remote add origin $PersonalUrls[$Target]
+        git remote add origin $RemoteUrl
         Pop-Location
     }
 } else {
@@ -121,7 +100,7 @@ if (-not (Test-Path $TargetDir)) {
 # Step 4: Copy files
 Write-Host ""
 Write-Host "[4/5] Copying files..." -ForegroundColor Yellow
-$entries = $FileMap[$Target]
+$entries = $FileMap
 
 if ($DryRun) {
     Write-Host "(DRY RUN - no files will be copied)" -ForegroundColor Magenta
@@ -186,9 +165,9 @@ if ([string]::IsNullOrWhiteSpace($status)) {
         Pop-Location
         exit 1
     }
-    Write-Host "Pushed to $($PersonalUrls[$Target])" -ForegroundColor Green
+    Write-Host "Pushed to $RemoteUrl" -ForegroundColor Green
 }
 Pop-Location
 
 Write-Host ""
-Write-Host "=== sync-public: $Target complete ===" -ForegroundColor Cyan
+Write-Host "=== sync-public: ai-maker complete ===" -ForegroundColor Cyan
