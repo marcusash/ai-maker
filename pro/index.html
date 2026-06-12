@@ -96,6 +96,23 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
 .footer a{color:var(--matrix-green)}
 
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
+
+/* Bottled-up intensity — irregular tremor, questioning the choice */
+@keyframes pillshake{
+  0%,100%{transform:translate(0,0) rotate(0deg)}
+  8%{transform:translate(-2px,1px) rotate(-0.5deg)}
+  16%{transform:translate(3px,-1px) rotate(0.4deg)}
+  24%{transform:translate(-1px,2px) rotate(-0.3deg)}
+  33%{transform:translate(2px,-2px) rotate(0.6deg)}
+  42%{transform:translate(-3px,1px) rotate(-0.4deg)}
+  50%{transform:translate(1px,0px) rotate(0.2deg)}
+  58%{transform:translate(-2px,-2px) rotate(-0.5deg)}
+  66%{transform:translate(3px,1px) rotate(0.5deg)}
+  75%{transform:translate(-1px,2px) rotate(-0.2deg)}
+  83%{transform:translate(2px,-1px) rotate(0.4deg)}
+  91%{transform:translate(-2px,0px) rotate(-0.3deg)}
+}
+.pill-red.pill-current{animation:pillshake 2.8s ease-in-out infinite}
 @keyframes termglow{0%,100%{box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05)}50%{box-shadow:0 0 70px var(--matrix-green-glow),inset 0 0 140px rgba(0,255,65,.1)}}
 .terminal{animation:termglow 3s ease-in-out infinite}
 </style>
@@ -377,6 +394,7 @@ setInterval(draw,35);
 </script>
 </body>
 </html>
+
 
 
 
