@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Maker Migration Guide</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+:root{
+  --matrix-green:#00FF41;
+  --matrix-green-dark:#003B00;
+  --matrix-green-glow:rgba(0,255,65,.6);
+  --blue-pill:#2E5EAA;
+  --blue-pill-light:#4A90D9;
+  --red-pill:#CE1126;
+  --black:#000;
+}
+
+body{font-family:'Courier New',Courier,monospace;background:var(--black);color:var(--matrix-green);overflow-x:hidden;min-height:100vh;font-size:16px;line-height:1.6}
+.text-xl{font-size:32px;line-height:1.2}
+.text-lg{font-size:24px;line-height:1.3}
+.text-md{font-size:18px;line-height:1.4}
+.text-base{font-size:16px;line-height:1.6}
+.text-sm{font-size:14px;line-height:1.6}
+
+#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.08}
+.content{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:40px 20px}
+
+.terminal{background:rgba(0,20,0,.95);border:2px solid var(--matrix-green);box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
+.terminal-header{background:var(--matrix-green-dark);border-bottom:1px solid var(--matrix-green);padding:8px 12px;display:flex;align-items:center;gap:8px}
+.terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--matrix-green)}
+.terminal-body{padding:30px}
+
+.section{margin-bottom:50px}
+.section-title{margin-bottom:20px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--matrix-green);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
+.section-text{margin-bottom:16px;opacity:.9}
+
+.step{background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:20px;margin-bottom:16px;position:relative;padding-left:60px}
+.step-num{position:absolute;left:15px;top:20px;width:30px;height:30px;border-radius:50%;background:var(--matrix-green);color:var(--black);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 0 10px var(--matrix-green)}
+.step-title{margin-bottom:8px;color:var(--matrix-green)}
+.step-text{opacity:.8}
+
+.guarantee{background:rgba(0,59,0,.6);border:2px solid var(--matrix-green);padding:24px;margin-bottom:40px;border-radius:4px;box-shadow:0 0 20px var(--matrix-green-glow)}
+.guarantee-title{color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green);font-size:20px;font-weight:700;margin-bottom:12px;letter-spacing:1px}
+
+.info-box{background:rgba(0,59,0,.2);border:1px solid rgba(0,255,65,.3);padding:20px;margin-bottom:16px;border-radius:4px}
+.info-title{margin-bottom:10px;color:var(--matrix-green);font-weight:700}
+.info-text{opacity:.8;font-size:14px}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:16px}
+.col-box{background:rgba(0,20,0,.6);border:1px solid rgba(0,255,65,.3);padding:20px;border-radius:4px}
+.col-title{color:var(--matrix-green);font-weight:700;margin-bottom:12px;font-size:15px;letter-spacing:1px;text-transform:uppercase}
+.col-item{font-size:14px;opacity:.8;margin-bottom:8px;padding-left:16px;position:relative}
+.col-item::before{content:'>';position:absolute;left:0;color:var(--matrix-green);opacity:.6}
+
+.code-block{background:rgba(0,20,0,.9);border:1px solid var(--matrix-green);border-radius:4px;padding:12px 16px;margin:12px 0;font-size:14px;position:relative;overflow-x:auto}
+.copy-btn{position:absolute;top:8px;right:8px;background:var(--matrix-green);color:var(--black);border:none;padding:4px 10px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700}
+
+code{background:rgba(0,255,65,.1);padding:3px 8px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(0,255,65,.3);font-family:'Courier New',monospace}
+a{color:#00D9FF;text-decoration:underline;text-shadow:0 0 8px rgba(0,217,255,.8);font-weight:600}
+a:hover{color:#4DFFFF}
+
+.divider{text-align:center;margin:50px 0;padding:16px 0;border-top:1px solid rgba(0,255,65,.2);border-bottom:1px solid rgba(0,255,65,.2);letter-spacing:4px;font-size:13px;opacity:.7}
+
+.footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6}
+.footer a{color:var(--matrix-green)}
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+
+<div class="content">
+
+  <div style="text-align:center;margin-bottom:60px;padding-top:20px">
+    <div class="text-xl" style="letter-spacing:4px;text-shadow:0 0 20px var(--matrix-green);margin-bottom:12px;text-transform:uppercase">&gt; MIGRATION GUIDE</div>
+    <div class="text-sm" style="opacity:.6">Upgrading from the CLI setup to the GitHub Copilot App</div>
+  </div>
+
+  <!-- Safety guarantee — first thing users see -->
+  <div class="guarantee">
+    <div class="guarantee-title">&gt; YOUR DATA IS SAFE</div>
+    <div class="text-base" style="opacity:.9;margin-bottom:8px">Your original files are never deleted. Migration copies your vault and settings to the new location — your originals stay exactly where they are until you decide to remove them yourself.</div>
+    <div class="text-sm" style="opacity:.7">We copy. We never move. We never delete.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; WHAT YOU HAVE NOW</div>
+    <div class="two-col">
+      <div class="col-box">
+        <div class="col-title">On your PC</div>
+        <div class="col-item"><code>C:\AIMaker\</code> — AI Maker workspace, vault, settings</div>
+        <div class="col-item"><code>C:\AIWorkbench\</code> — AI Workbench workspace, vault</div>
+        <div class="col-item">Windows Terminal profiles (blue and red tabs)</div>
+        <div class="col-item">Desktop shortcut → launch.ps1</div>
+        <div class="col-item">GitHub Copilot CLI installed</div>
+      </div>
+      <div class="col-box">
+        <div class="col-title">On GitHub (Red Pill users)</div>
+        <div class="col-item">Private <code>pc-setup</code> repo with your machine config and vault backup</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; WHAT CHANGES</div>
+    <div class="two-col">
+      <div class="col-box">
+        <div class="col-title" style="color:var(--matrix-green)">What goes away</div>
+        <div class="col-item">Dual Terminal tabs (replaced by the Copilot App)</div>
+        <div class="col-item">Desktop shortcut (pin the App to taskbar instead)</div>
+        <div class="col-item">Dual <code>C:\AIMaker</code> + <code>C:\AIWorkbench</code> folder structure — consolidated into one project folder</div>
+        <div class="col-item">Old skills in <code>.github/skills/</code> — superseded by App-global skills in <code>~/.copilot/skills/</code></div>
+      </div>
+      <div class="col-box">
+        <div class="col-title" style="color:#4DFFFF">What stays the same</div>
+        <div class="col-item">Your vault — all your saved notes and context</div>
+        <div class="col-item">Your persona — <code>copilot-instructions.md</code> carries over</div>
+        <div class="col-item">Your GitHub repos — <code>pc-setup</code> is never touched</div>
+        <div class="col-item">Copilot CLI — still available for terminal-first work</div>
+        <div class="col-item">All your saved work — nothing is lost</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; WHAT YOU GAIN</div>
+    <div class="terminal">
+      <div class="terminal-body">
+        <div class="section-text text-base" style="margin-bottom:20px">The App does everything the CLI does. It's a better interface for the same work — plus capabilities you didn't have before.</div>
+        <div class="info-box">
+          <div class="info-title">Visual chat interface</div>
+          <div class="info-text">Talk to your AI in a real window. Formatted responses, inline code, rendered canvases. No more reading walls of terminal text.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Multiple parallel sessions</div>
+          <div class="info-text">Run research in one session, code review in another, writing in a third. All at the same time. No context switching, no losing your place.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Inter-agent messaging</div>
+          <div class="info-text">Sessions can talk to each other. One agent can hand off work to another mid-task. This is a new capability — the CLI had no equivalent.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Project awareness</div>
+          <div class="info-text">The AI can see and edit your files directly. Open a folder as a project and your agent reads, writes, and reasons about your actual work.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Skills always available</div>
+          <div class="info-text">All 11 (or 22) skills are active in every session, across every project. No more <code>cd</code>-ing to the right workspace folder first.</div>
+        </div>
+        <div class="info-box">
+          <div class="info-title">Built-in terminal</div>
+          <div class="info-text">Full PowerShell access in a side panel. Everything the CLI can do, right next to your chat.</div>
+        </div>
+        <div class="info-box" style="background:rgba(0,59,0,.4)">
+          <div class="info-title">Cross-machine setup (Red Pill)</div>
+          <div class="info-text">Your skills and vault sync via Git. Set up a new machine in minutes — authenticate with GitHub and the installer restores everything from your private repo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">&gt;&gt;&gt; READY TO MIGRATE? &lt;&lt;&lt;</div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; HOW TO MIGRATE</div>
+
+    <div class="step">
+      <div class="step-num text-base">1</div>
+      <div class="step-content">
+        <div class="step-title text-md">Preview what will change (optional but recommended)</div>
+        <div class="step-text text-sm" style="margin-bottom:10px">Open PowerShell and run:</div>
+        <div class="code-block">
+          <span id="whatifCmd">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/migrate.ps1 | iex -WhatIf</span>
+          <button class="copy-btn" onclick="copyCode('whatifCmd')">COPY</button>
+        </div>
+        <div class="step-text text-sm" style="margin-top:8px">This shows you exactly what the migration will copy, where it will go, and what will change — without touching anything. Use this to review before committing.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">2</div>
+      <div class="step-content">
+        <div class="step-title text-md">Run the migration script</div>
+        <div class="step-text text-sm" style="margin-bottom:10px">Or choose option 3 (Migrate) when you run <code>install.bat</code>:</div>
+        <div class="code-block">
+          <span id="migrateCmd">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/migrate.ps1 | iex</span>
+          <button class="copy-btn" onclick="copyCode('migrateCmd')">COPY</button>
+        </div>
+        <div class="step-text text-sm" style="margin-top:8px">The script detects your existing setup automatically — it handles all 14 known migration scenarios. It will show you a summary and ask for confirmation before copying anything.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">3</div>
+      <div class="step-content">
+        <div class="step-title text-md">Confirm the migration</div>
+        <div class="step-text text-sm">The script prints exactly what it will copy and where. Type Y to proceed. Your vault copies to <code>C:\GitHub\ai-workspace\vault\</code>, your persona copies to <code>C:\GitHub\ai-workspace\.github\copilot-instructions.md</code>. Your originals in <code>C:\AIMaker</code> and <code>C:\AIWorkbench</code> remain untouched.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">4</div>
+      <div class="step-content">
+        <div class="step-title text-md">Open the Copilot App</div>
+        <div class="step-text text-sm">Launch the GitHub Copilot App and add <code>C:\GitHub\ai-workspace</code> as a project. Open a new session. Your agents bootstrap themselves with your migrated vault and persona.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">5</div>
+      <div class="step-content">
+        <div class="step-title text-md">Verify everything looks right</div>
+        <div class="step-text text-sm">Ask your agent: <em>"What do you remember about me?"</em> and <em>"What's in my vault?"</em> Once you've confirmed everything is there, you can remove <code>C:\AIMaker</code> and <code>C:\AIWorkbench</code> at your own pace. There's no rush — they're just taking up disk space.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; QUESTIONS</div>
+    <div class="terminal">
+      <div class="terminal-body">
+
+        <div style="margin-bottom:24px">
+          <div class="text-md" style="color:var(--matrix-green);margin-bottom:8px">What if I have a custom <code>copilot-instructions.md</code>?</div>
+          <div class="text-sm" style="opacity:.8">The script checks if you've modified it. If you have, your version wins — it copies as-is. If you're still on the stock version, it upgrades to v3.</div>
+        </div>
+
+        <div style="margin-bottom:24px">
+          <div class="text-md" style="color:var(--matrix-green);margin-bottom:8px">What about my GitHub repo?</div>
+          <div class="text-sm" style="opacity:.8">Your existing <code>pc-setup</code> repo is never touched. The migration creates a new private <code>ai-workspace</code> repo (Red Pill users) — it does not rename, fork, or modify <code>pc-setup</code>.</div>
+        </div>
+
+        <div style="margin-bottom:24px">
+          <div class="text-md" style="color:var(--matrix-green);margin-bottom:8px">Can I go back?</div>
+          <div class="text-sm" style="opacity:.8">Yes. Your original folders are untouched. The Copilot CLI is still installed. You can keep using the terminal workflow alongside the App — there's no forced cutover.</div>
+        </div>
+
+        <div>
+          <div class="text-md" style="color:var(--matrix-green);margin-bottom:8px">Something went wrong. What do I do?</div>
+          <div class="text-sm" style="opacity:.8">The migration script logs every operation. If something fails, the log tells you exactly what happened and what to fix. Your original files are always intact because we copy, not move.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin:60px auto 0;padding:48px 20px 0;border-top:1px solid rgba(0,255,65,.15);max-width:640px">
+    <div style="font-family:'Courier New',monospace;font-size:14px;color:var(--matrix-green);opacity:.7;letter-spacing:.15em;margin-bottom:12px">NOT MIGRATING? FRESH INSTALL?</div>
+    <div style="font-size:16px;color:inherit;opacity:.85;margin-bottom:24px;line-height:1.6">Pick your path and get set up in minutes.</div>
+    <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+      <a href="https://marcusash.github.io/ai-maker/" style="display:inline-block;background:rgba(46,94,170,.1);border:1px solid var(--blue-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:14px;font-weight:700;padding:13px 28px;border-radius:4px;text-decoration:none;letter-spacing:.08em">BLUE PILL &#8594;</a>
+      <a href="https://marcusash.github.io/ai-maker/pro/" style="display:inline-block;background:rgba(206,17,38,.08);border:1px solid var(--red-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:14px;font-weight:700;padding:13px 28px;border-radius:4px;text-decoration:none;letter-spacing:.08em">RED PILL &#8594;</a>
+    </div>
+  </div>
+
+  <div class="footer text-sm">
+    <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
+  </div>
+
+</div>
+
+<div id="toast" style="position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(10px);background:#0078d4;color:#fff;padding:9px 22px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;font-family:'Courier New',monospace">Copied to clipboard</div>
+
+<script>
+function showToast(){
+  const t=document.getElementById('toast');
+  t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
+  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)'},2000);
+}
+function copyCode(id){
+  const text=document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(()=>showToast());
+}
+
+const canvas=document.getElementById('matrix');
+const ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+const cols=Math.floor(window.innerWidth/20);
+const drops=Array(cols).fill(1);
+function draw(){
+  ctx.fillStyle='rgba(0,0,0,.05)';ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#00FF41';ctx.font='15px monospace';
+  drops.forEach((y,i)=>{
+    const c=String.fromCharCode(0x30A0+Math.random()*96);
+    ctx.fillText(c,i*20,y*20);
+    if(y*20>canvas.height&&Math.random()>.975)drops[i]=0;
+    drops[i]++;
+  });
+}
+setInterval(draw,35);
+</script>
+</body>
+</html>
