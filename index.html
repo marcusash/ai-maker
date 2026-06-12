@@ -110,7 +110,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
         <div class="pill-label text-md">BLUE PILL</div>
         <div class="pill-sub text-sm">Stay comfortable</div>
       </div>
-      <a href="https://marcusash.github.io/gh-copilot-setup/" class="pill pill-red">
+      <a href="https://marcusash.github.io/ai-maker/matrix-install-guide.html" class="pill pill-red">
         <div class="pill-label text-md">RED PILL</div>
         <div class="pill-sub text-sm">See the truth</div>
       </a>
@@ -125,9 +125,9 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
       <span style="margin-left:auto;opacity:.6">AI-MAKER.EXE</span>
     </div>
     <div class="terminal-body">
-      <div class="text-lg" style="margin-bottom:20px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; INITIALIZING AI MAKER</div>
-      <div class="text-base" style="opacity:.8">One agent. Works everywhere. Five minutes to set up.</div>
-      <div class="text-base" style="margin-top:16px;opacity:.8">You stay in your world. Everything you know is still true. You just get an AI partner that makes your work better.</div>
+      <div class="text-lg" style="margin-bottom:20px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; INITIALIZING AI MAKER v3</div>
+      <div class="text-base" style="opacity:.8">One agent. Works everywhere. Five minutes to set up. Now powered by the <strong>GitHub Copilot App</strong>.</div>
+      <div class="text-base" style="margin-top:16px;opacity:.8">You stay in your world. Everything you know is still true. You just get an AI partner with 11 skills that makes your work better — in a real window, not a terminal.</div>
     </div>
   </div>
 
@@ -135,7 +135,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
     <div class="section-title text-lg">&gt; WHAT YOU GET</div>
     <div class="terminal">
       <div class="terminal-body">
-        <div class="section-text text-base">One AI agent for everything you do. Research, design, writing, data analysis, brainstorming, code review, and communication in one partner. No switching. No context loss.</div>
+        <div class="section-text text-base">One AI agent for everything you do. Research, design, writing, data analysis, brainstorming, code review, and communication in one partner. No switching. No context loss. Now with 11 dedicated skills in the GitHub Copilot App.</div>
         <div class="feature-grid">
           <div class="feature-card">
             <div class="feature-name">Canvas</div>
@@ -151,7 +151,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
           </div>
           <div class="feature-card">
             <div class="feature-name">Skills</div>
-            <div class="feature-desc">8 built-in skills: research, design, writing, code review, data analysis, brainstorming, user research, and communication. Just describe what you need.</div>
+            <div class="feature-desc">11 built-in skills: research, design, writing, code review, data analysis, brainstorming, user research, canvas, vault, ops, and WorkIQ. Just describe what you need.</div>
           </div>
         </div>
       </div>
@@ -188,29 +188,29 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
     <div class="step">
       <div class="step-num text-base">1</div>
       <div class="step-content">
-        <div class="step-title text-md">Open Windows Terminal</div>
-        <div class="step-text text-sm" style="margin-bottom:8px">Press <code>Win+X</code>, select "Terminal" (not Admin)</div>
-        <div class="step-text text-sm" style="opacity:.7">Or search "Terminal" in Start menu and open it normally. Do not run as administrator.</div>
+        <div class="step-title text-md">Open any terminal (or just double-click install.bat)</div>
+        <div class="step-text text-sm" style="margin-bottom:8px">Press <code>Win+X</code>, select "Terminal" — or open the extracted ZIP and double-click <code>install.bat</code></div>
+        <div class="step-text text-sm" style="opacity:.7">No admin required. The .bat handles everything including PowerShell installation.</div>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num text-base">2</div>
       <div class="step-content">
-        <div class="step-title text-md">Paste this command and press Enter</div>
+        <div class="step-title text-md">Download and run the installer</div>
         <div style="position:relative;margin-top:12px">
-          <code id="installCmd" style="display:block;padding:12px;background:rgba(0,255,65,.1);border:1px solid var(--matrix-green);border-radius:4px;font-size:14px;line-height:1.6;overflow-x:auto">irm https://raw.githubusercontent.com/marcusash/ai-maker/main/bootstrap.ps1 | iex</code>
+          <code id="installCmd" style="display:block;padding:12px;background:rgba(0,255,65,.1);border:1px solid var(--matrix-green);border-radius:4px;font-size:14px;line-height:1.6;overflow-x:auto">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install-blue.ps1 | iex</code>
           <button onclick="copyInstall()" style="position:absolute;top:8px;right:8px;background:var(--matrix-green);color:var(--black);border:none;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:14px;font-weight:700">COPY</button>
         </div>
-        <div class="step-text text-sm" style="opacity:.7;margin-top:12px">The script installs Git if needed, downloads AI Maker, and sets everything up. Troubleshooting: if you see "running scripts is disabled", run <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code> first.</div>
+        <div class="step-text text-sm" style="opacity:.7;margin-top:12px">Or download <a href="https://github.com/marcusash/ai-maker/releases/latest">ai-maker-v3.zip</a>, extract, and double-click <code>install.bat</code>. The installer handles PowerShell, the Copilot App, and all 11 skills automatically.</div>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num text-base">3</div>
       <div class="step-content">
-        <div class="step-title text-md">Follow the prompts</div>
-        <div class="step-text text-sm">The script asks for your name, signs you in to GitHub, and optionally sets up WorkIQ for M365. Answer each prompt and press Enter.</div>
+        <div class="step-title text-md">Open the Copilot App</div>
+        <div class="step-text text-sm">The app launches automatically after install. Add <code>C:\GitHub\ai-workspace</code> as a project, then open a new session. Your AI agents create themselves.</div>
       </div>
     </div>
   </div>
@@ -229,16 +229,16 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
           <div class="launch-icon">
             <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="8" fill="#24292f"/><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" fill="#ffffff"/></svg>
           </div>
-          <div class="launch-text">Double-click <strong>AI Agents</strong> on your desktop (uses this GitHub icon). The GitHub CLI opens with AI Maker ready.</div>
+          <div class="launch-text">Open the <strong>GitHub Copilot</strong> app (pinned to taskbar or search "GitHub Copilot" in Start). Add <code>C:\GitHub\ai-workspace</code> as a project.</div>
         </div>
 
         <div class="step-title text-md" style="margin-bottom:12px;margin-top:28px">Step 2: Start your first session</div>
-        <div class="section-text text-sm" style="opacity:.8;margin-bottom:8px">Copy this prompt, switch to the terminal window, paste it, and press Enter. AI Maker will introduce itself and ask you a few questions to get started.</div>
+        <div class="section-text text-sm" style="opacity:.8;margin-bottom:8px">Open a new session in the App. Your AI Maker and AI Workbench agents create themselves automatically. Then paste this prompt to get started:</div>
         <div class="prompt-block">
           <div class="prompt-text" id="firstPrompt">I'm new here. Please introduce yourself, then ask me a few questions to learn my name, my role, my team, and what I'm working on right now.</div>
           <button class="prompt-copy" id="firstPromptBtn" onclick="copyPrompt('firstPrompt','firstPromptBtn')">COPY THIS PROMPT</button>
         </div>
-        <div class="section-text text-sm" style="opacity:.7;margin-top:8px">After the onboarding, AI Maker greets you by name from session two onward. It knows your preferences, your biggest time drains, and how you want feedback delivered.</div>
+        <div class="section-text text-sm" style="opacity:.7;margin-top:8px">After the onboarding, AI Maker greets you by name from session two onward. It knows your preferences, your priorities, and how you want feedback delivered. All 11 skills are always active — just describe what you need.</div>
 
         <div class="step-title text-md" style="margin-bottom:12px;margin-top:28px">Step 3: Try these prompts</div>
         <div class="chip-grid">
@@ -271,7 +271,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
   </div>
 
   <div class="footer text-sm">
-    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="https://marcusash.github.io/gh-copilot-setup/">Take the red pill</a>.</div>
+    <div style="margin-bottom:12px">Ready to see how deep the rabbit hole goes? <a href="https://marcusash.github.io/ai-maker/matrix-install-guide.html">Take the red pill</a>.</div>
     <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
   </div>
 
@@ -330,3 +330,4 @@ window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.heig
 
 </body>
 </html>
+
