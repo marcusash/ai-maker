@@ -33,9 +33,9 @@ body{font-family:'Courier New',Courier,monospace;background:var(--black);color:v
 #matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.18}
 .content{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 20px}
 
-.terminal{background:rgba(0,20,0,.95);border:2px solid var(--red-pill);box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
-.terminal-header{background:#1a0000;border-bottom:1px solid var(--red-pill);padding:8px 12px;display:flex;align-items:center;gap:8px}
-.terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--red-pill)}
+.terminal{background:rgba(0,20,0,.95);border:2px solid var(--matrix-green);box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
+.terminal-header{background:var(--matrix-green-dark);border-bottom:1px solid var(--matrix-green);padding:8px 12px;display:flex;align-items:center;gap:8px}
+.terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--matrix-green)}
 .terminal-body{padding:30px}
 
 .choice{text-align:center;margin-bottom:60px}
@@ -52,13 +52,13 @@ body{font-family:'Courier New',Courier,monospace;background:var(--black);color:v
 .pill-current::after{content:'>>> YOU ARE HERE';position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);color:var(--red-pill-light);text-shadow:0 0 8px var(--red-glow);animation:blink 1.5s infinite}
 
 .section{margin-bottom:50px}
-.section-title{margin-bottom:20px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--red-pill);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
+.section-title{margin-bottom:20px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--matrix-green);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
 .section-text{margin-bottom:16px;opacity:.9}
-.prereq{background:rgba(0,59,0,.3);border:1px solid var(--red-pill);padding:20px;margin-bottom:20px;border-radius:4px}
+.prereq{background:rgba(0,59,0,.3);border:1px solid var(--matrix-green);padding:20px;margin-bottom:20px;border-radius:4px}
 .prereq-title{margin-bottom:12px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green)}
 .prereq-text{opacity:.8}
-.step{background:rgba(0,59,0,.2);border-left:3px solid var(--red-pill);padding:20px;margin-bottom:16px;position:relative;padding-left:60px}
-.step-num{position:absolute;left:15px;top:20px;width:30px;height:30px;border-radius:50%;background:var(--red-pill);color:#FFF;display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 0 10px var(--red-glow)}
+.step{background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:20px;margin-bottom:16px;position:relative;padding-left:60px}
+.step-num{position:absolute;left:15px;top:20px;width:30px;height:30px;border-radius:50%;background:var(--matrix-green);color:var(--black);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 0 10px var(--red-glow)}
 .step-title{margin-bottom:8px;color:var(--matrix-green)}
 .step-text{opacity:.8}
 code{background:rgba(0,255,65,.1);padding:3px 8px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(0,255,65,.3);font-family:'Courier New',monospace}
@@ -67,7 +67,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
 
 .complete-divider{text-align:center;margin:60px 0;padding:20px;border-top:1px solid rgba(0,255,65,.3);border-bottom:1px solid rgba(0,255,65,.3);letter-spacing:4px;text-shadow:0 0 10px var(--matrix-green);font-size:14px}
 
-.prompt-block{background:rgba(0,20,0,.9);border:2px solid var(--red-pill);border-radius:4px;overflow:hidden;margin:20px 0}
+.prompt-block{background:rgba(0,20,0,.9);border:2px solid var(--matrix-green);border-radius:4px;overflow:hidden;margin:20px 0}
 .prompt-text{padding:20px;font-size:16px;opacity:.9;font-style:italic;line-height:1.7}
 .prompt-copy{width:100%;padding:12px 20px;background:rgba(0,255,65,.15);border:none;border-top:1px solid var(--matrix-green);color:var(--matrix-green);font-size:14px;font-weight:700;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:1px;transition:background .15s}
 .prompt-copy:hover{background:rgba(0,255,65,.3)}
@@ -80,12 +80,12 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
 
 .chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
 .chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
-.chip:hover{border-color:var(--red-pill)}
+.chip:hover{border-color:var(--matrix-green)}
 .chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
 .chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green)}
 .chip.copied{border-color:#4DAAFF}
 
-.launch-box{background:rgba(0,30,0,.8);border:1px solid var(--red-pill);border-radius:4px;padding:20px;display:flex;align-items:center;gap:16px;margin:16px 0}
+.launch-box{background:rgba(0,30,0,.8);border:1px solid var(--matrix-green);border-radius:4px;padding:20px;display:flex;align-items:center;gap:16px;margin:16px 0}
 .launch-icon{flex-shrink:0}
 .launch-text{font-size:16px;opacity:.9}
 .launch-text strong{color:var(--matrix-green)}
@@ -140,7 +140,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
 
   <div class="terminal">
     <div class="terminal-header text-sm">
-      <div class="terminal-dot" style="background:var(--red-pill)"></div>
+      <div class="terminal-dot" style="background:var(--matrix-green)"></div>
       <div class="terminal-dot"></div>
       <div class="terminal-dot"></div>
       <span style="margin-left:auto;opacity:.6">AI-MAKER-PRO.EXE</span>
@@ -173,6 +173,10 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
           <div class="feature-card">
             <div class="feature-name">Cross-Machine Restore</div>
             <div class="feature-desc">New PC? Run the Red Pill installer, authenticate with GitHub, and your vault and settings restore from your private repo. No manual file transfers.</div>
+          </div>
+          <div class="feature-card" style="border-color:rgba(206,17,38,.5);background:rgba(59,0,0,.15)">
+            <div class="feature-name">Agency <span class="plus-badge">BUILT-IN</span></div>
+            <div class="feature-desc">Entra auth, WorkIQ, Teams, email, calendar, and Planner — all connected, no extra config. Launch Agency mode from the built-in terminal: <code>agency gh-app</code></div>
           </div>
         </div>
       </div>
@@ -378,22 +382,28 @@ const canvas=document.getElementById('matrix');
 const ctx=canvas.getContext('2d');
 function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
 resize();window.addEventListener('resize',resize);
-const cols=Math.floor(window.innerWidth/20);
-const drops=Array(cols).fill(1);
+let cols=Math.floor(window.innerWidth/10);
+let drops=Array(cols).fill(1);
 function draw(){
-  ctx.fillStyle='rgba(0,0,0,.05)';ctx.fillRect(0,0,canvas.width,canvas.height);
-  ctx.fillStyle='#CE1126';ctx.font='15px monospace';
+  ctx.fillStyle='rgba(0,0,0,.04)';ctx.fillRect(0,0,canvas.width,canvas.height);
   drops.forEach((y,i)=>{
+    const r=Math.random();
+    if(r>.97){ctx.fillStyle='#FFFFFF';ctx.font='14px monospace';}
+    else if(r>.78){ctx.fillStyle='#00FF41';ctx.font='13px monospace';}
+    else if(r>.45){ctx.fillStyle='#00CC33';ctx.font='12px monospace';}
+    else{ctx.fillStyle='#004D15';ctx.font='11px monospace';}
     const c=String.fromCharCode(0x30A0+Math.random()*96);
-    ctx.fillText(c,i*20,y*20);
-    if(y*20>canvas.height&&Math.random()>.975)drops[i]=0;
+    ctx.fillText(c,i*10,y*10);
+    if(y*10>canvas.height&&Math.random()>.96)drops[i]=0;
     drops[i]++;
   });
 }
-setInterval(draw,35);
+setInterval(draw,15);
 </script>
 </body>
 </html>
+
+
 
 
 
