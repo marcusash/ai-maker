@@ -30,10 +30,10 @@ body{font-family:'Courier New',Courier,monospace;background:var(--black);color:v
 .text-base{font-size:16px;line-height:1.6}
 .text-sm{font-size:14px;line-height:1.6}
 
-#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.12}
+#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.18}
 .content{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 20px}
 
-.terminal{background:rgba(20,0,0,.95);border:2px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 100px rgba(206,17,38,.05);margin-bottom:40px;overflow:hidden}
+.terminal{background:rgba(0,20,0,.95);border:2px solid var(--red-pill);box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
 .terminal-header{background:#1a0000;border-bottom:1px solid var(--red-pill);padding:8px 12px;display:flex;align-items:center;gap:8px}
 .terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--red-pill)}
 .terminal-body{padding:30px}
@@ -54,48 +54,50 @@ body{font-family:'Courier New',Courier,monospace;background:var(--black);color:v
 .section{margin-bottom:50px}
 .section-title{margin-bottom:20px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--red-pill);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
 .section-text{margin-bottom:16px;opacity:.9}
-.prereq{background:rgba(59,0,0,.3);border:1px solid var(--red-pill);padding:20px;margin-bottom:20px;border-radius:4px}
+.prereq{background:rgba(0,59,0,.3);border:1px solid var(--red-pill);padding:20px;margin-bottom:20px;border-radius:4px}
 .prereq-title{margin-bottom:12px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green)}
 .prereq-text{opacity:.8}
-.step{background:rgba(59,0,0,.2);border-left:3px solid var(--red-pill);padding:20px;margin-bottom:16px;position:relative;padding-left:60px}
+.step{background:rgba(0,59,0,.2);border-left:3px solid var(--red-pill);padding:20px;margin-bottom:16px;position:relative;padding-left:60px}
 .step-num{position:absolute;left:15px;top:20px;width:30px;height:30px;border-radius:50%;background:var(--red-pill);color:#FFF;display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 0 10px var(--red-glow)}
 .step-title{margin-bottom:8px;color:var(--matrix-green)}
 .step-text{opacity:.8}
-code{background:rgba(206,17,38,.1);padding:3px 8px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(206,17,38,.3);font-family:'Courier New',monospace}
+code{background:rgba(0,255,65,.1);padding:3px 8px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(0,255,65,.3);font-family:'Courier New',monospace}
 a{color:#00D9FF;text-decoration:underline;text-shadow:0 0 8px rgba(0,217,255,.8);font-weight:600}
 a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
 
-.complete-divider{text-align:center;margin:60px 0;padding:20px;border-top:1px solid rgba(206,17,38,.3);border-bottom:1px solid rgba(206,17,38,.3);letter-spacing:4px;text-shadow:0 0 10px var(--matrix-green);font-size:14px}
+.complete-divider{text-align:center;margin:60px 0;padding:20px;border-top:1px solid rgba(0,255,65,.3);border-bottom:1px solid rgba(0,255,65,.3);letter-spacing:4px;text-shadow:0 0 10px var(--matrix-green);font-size:14px}
 
-.prompt-block{background:rgba(20,0,0,.9);border:2px solid var(--red-pill);border-radius:4px;overflow:hidden;margin:20px 0}
+.prompt-block{background:rgba(0,20,0,.9);border:2px solid var(--red-pill);border-radius:4px;overflow:hidden;margin:20px 0}
 .prompt-text{padding:20px;font-size:16px;opacity:.9;font-style:italic;line-height:1.7}
-.prompt-copy{width:100%;padding:12px 20px;background:rgba(206,17,38,.15);border:none;border-top:1px solid var(--red-pill);color:var(--matrix-green);font-size:14px;font-weight:700;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:1px;transition:background .15s}
-.prompt-copy:hover{background:rgba(206,17,38,.3)}
+.prompt-copy{width:100%;padding:12px 20px;background:rgba(0,255,65,.15);border:none;border-top:1px solid var(--matrix-green);color:var(--matrix-green);font-size:14px;font-weight:700;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:1px;transition:background .15s}
+.prompt-copy:hover{background:rgba(0,255,65,.3)}
 .prompt-copy.copied{background:rgba(0,100,255,.3);color:#4DAAFF}
 
 .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
-.feature-card{background:rgba(59,0,0,.2);border:1px solid rgba(206,17,38,.3);padding:20px;border-radius:4px}
+.feature-card{background:rgba(0,59,0,.2);border:1px solid rgba(0,255,65,.3);padding:20px;border-radius:4px}
 .feature-name{color:var(--matrix-green);font-weight:700;margin-bottom:8px;font-size:16px;text-shadow:0 0 6px var(--matrix-green)}
 .feature-desc{font-size:14px;opacity:.8;line-height:1.6}
 
 .chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-.chip{background:rgba(20,0,0,.9);border:1px solid rgba(206,17,38,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
 .chip:hover{border-color:var(--red-pill)}
 .chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
-.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(206,17,38,.2);color:var(--matrix-green)}
+.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green)}
 .chip.copied{border-color:#4DAAFF}
 
-.launch-box{background:rgba(30,0,0,.8);border:1px solid var(--red-pill);border-radius:4px;padding:20px;display:flex;align-items:center;gap:16px;margin:16px 0}
+.launch-box{background:rgba(0,30,0,.8);border:1px solid var(--red-pill);border-radius:4px;padding:20px;display:flex;align-items:center;gap:16px;margin:16px 0}
 .launch-icon{flex-shrink:0}
 .launch-text{font-size:16px;opacity:.9}
 .launch-text strong{color:var(--matrix-green)}
 
 .plus-badge{display:inline-block;background:rgba(206,17,38,.2);border:1px solid var(--red-pill);color:var(--matrix-green);font-size:12px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:3px;margin-left:8px;vertical-align:middle}
 
-.footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(206,17,38,.2);opacity:.6}
+.footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6}
 .footer a{color:var(--matrix-green)}
 
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
+@keyframes termglow{0%,100%{box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05)}50%{box-shadow:0 0 70px var(--matrix-green-glow),inset 0 0 140px rgba(0,255,65,.1)}}
+.terminal{animation:termglow 3s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -163,7 +165,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
   <div class="section">
     <div class="section-title text-lg">&gt; PREREQUISITES</div>
 
-    <div class="prereq" style="background:rgba(59,0,0,.5);border:2px solid var(--red-pill)">
+    <div class="prereq" style="background:rgba(0,59,0,.5);border:2px solid var(--matrix-green)">
       <div class="prereq-title text-md">Microsoft Employees</div>
       <div class="prereq-text text-sm" style="margin-bottom:12px">
         <strong>1. Personal GitHub account:</strong> If you don't have one, create at <a href="https://github.com/signup" target="_blank">github.com/signup</a>
@@ -206,7 +208,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
       <div class="step-content">
         <div class="step-title text-md">Download and run the Red Pill installer</div>
         <div style="position:relative;margin-top:12px">
-          <code id="installCmd" style="display:block;padding:12px;background:rgba(206,17,38,.1);border:1px solid var(--red-pill);border-radius:4px;font-size:14px;line-height:1.6;overflow-x:auto">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install-red.ps1 | iex</code>
+          <code id="installCmd" style="display:block;padding:12px;background:rgba(0,255,65,.1);border:1px solid rgba(0,255,65,.4);border-radius:4px;font-size:14px;line-height:1.6;overflow-x:auto">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install-red.ps1 | iex</code>
           <button onclick="copyInstall()" style="position:absolute;top:8px;right:8px;background:var(--red-pill);color:#FFF;border:none;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:14px;font-weight:700">COPY</button>
         </div>
         <div class="step-text text-sm" style="opacity:.7;margin-top:12px">Or download <a href="https://github.com/marcusash/ai-maker/releases/latest">ai-maker-v3.zip</a>, extract, and double-click <code>install.bat</code> — then choose option 2 (Red Pill). The installer handles Git, GitHub CLI, the Copilot App, and all 22 skills automatically.</div>
@@ -284,21 +286,21 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
     <div class="terminal">
       <div class="terminal-body">
         <div class="section-text text-base" style="margin-bottom:20px">Your <code>ai-workspace</code> folder is a private GitHub repo. Your vault, persona, and workspace files are committed and pushed automatically during setup. To restore on a new machine:</div>
-        <div class="step" style="background:rgba(59,0,0,.2)">
+        <div class="step" style="background:rgba(0,59,0,.2)">
           <div class="step-num text-base">1</div>
           <div class="step-content">
             <div class="step-title text-md">Run the Red Pill installer on your new machine</div>
             <div class="step-text text-sm">Same command as above. The installer detects your existing <code>ai-workspace</code> repo on GitHub and restores everything automatically.</div>
           </div>
         </div>
-        <div class="step" style="background:rgba(59,0,0,.2)">
+        <div class="step" style="background:rgba(0,59,0,.2)">
           <div class="step-num text-base">2</div>
           <div class="step-content">
             <div class="step-title text-md">Authenticate with GitHub</div>
             <div class="step-text text-sm">Sign in when prompted. The installer clones your private repo, installs all 22 skills, and puts everything back where it belongs.</div>
           </div>
         </div>
-        <div class="step" style="background:rgba(59,0,0,.2)">
+        <div class="step" style="background:rgba(0,59,0,.2)">
           <div class="step-num text-base">3</div>
           <div class="step-content">
             <div class="step-title text-md">Open the App and pick up where you left off</div>
@@ -309,10 +311,10 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
     </div>
   </div>
 
-  <div style="text-align:center;margin:60px auto 0;padding:48px 20px 0;border-top:1px solid rgba(206,17,38,.15);max-width:640px">
+  <div style="text-align:center;margin:60px auto 0;padding:48px 20px 0;border-top:1px solid rgba(0,255,65,.15);max-width:640px">
     <div style="font-family:'Courier New',monospace;font-size:14px;color:var(--matrix-green);opacity:.7;letter-spacing:.15em;margin-bottom:12px">MIGRATING FROM THE CLI SETUP?</div>
     <div style="font-size:16px;color:inherit;opacity:.85;margin-bottom:24px;line-height:1.6">If you have an existing AI Maker or AI Workbench install, the migration guide walks you through upgrading to the App-first model. Your vault and settings are preserved.</div>
-    <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html" style="display:inline-block;background:rgba(206,17,38,.08);border:1px solid rgba(206,17,38,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:14px;font-weight:700;padding:13px 32px;border-radius:4px;text-decoration:none;letter-spacing:.08em;transition:background .15s" onmouseover="this.style.background='rgba(206,17,38,.15)'" onmouseout="this.style.background='rgba(206,17,38,.08)'">MIGRATION GUIDE &#8594;</a>
+    <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html" style="display:inline-block;background:rgba(0,255,65,.05);border:1px solid rgba(206,17,38,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:14px;font-weight:700;padding:13px 32px;border-radius:4px;text-decoration:none;letter-spacing:.08em;transition:background .15s" onmouseover="this.style.background='rgba(0,255,65,.1)'" onmouseout="this.style.background='rgba(0,255,65,.05)'">MIGRATION GUIDE &#8594;</a>
   </div>
 
   <div class="footer text-sm">
@@ -375,3 +377,7 @@ setInterval(draw,35);
 </script>
 </body>
 </html>
+
+
+
+
