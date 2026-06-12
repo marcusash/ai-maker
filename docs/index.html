@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Maker — Your AI Agent Setup</title>
+<style>
+  :root {
+    --bg-deep: #0a0a0a;
+    --bg-card: rgba(16, 20, 24, 0.85);
+    --border: rgba(40, 50, 60, 0.6);
+    --text-primary: #e8ece8;
+    --text-secondary: #8a9a8a;
+    --text-muted: #4a5a4a;
+    --green: #00cc66;
+    --green-dim: rgba(0, 204, 102, 0.08);
+    --red: #CE1126;
+    --red-dim: rgba(206, 17, 38, 0.08);
+    --blue: #2a6fff;
+    --blue-dim: rgba(42, 111, 255, 0.08);
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0, 204, 102, 0.03) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 20% 90%, rgba(206, 17, 38, 0.02) 0%, transparent 50%),
+      radial-gradient(ellipse 40% 30% at 80% 90%, rgba(42, 111, 255, 0.02) 0%, transparent 50%);
+  }
+
+  .page { max-width: 700px; margin: 0 auto; padding: 4rem 1.5rem; }
+
+  /* Header */
+  .header { text-align: center; margin-bottom: 3rem; }
+  .header h1 {
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+  .header h1 span { color: var(--green); }
+  .header p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+  .version-badge {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--green);
+    border: 1px solid rgba(0, 204, 102, 0.3);
+    background: var(--green-dim);
+  }
+
+  /* Choice section */
+  .choice-intro {
+    text-align: center;
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+  .choice-intro strong { color: var(--text-primary); }
+
+  .pills {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+  @media (max-width: 600px) { .pills { grid-template-columns: 1fr; } }
+
+  .pill-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .pill-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  }
+  .pill-card.blue:hover { border-color: var(--blue); box-shadow: 0 8px 32px rgba(42, 111, 255, 0.15); }
+  .pill-card.red:hover { border-color: var(--red); box-shadow: 0 8px 32px rgba(206, 17, 38, 0.15); }
+
+  .pill-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+  .pill-card.blue .pill-icon { background: var(--blue-dim); border: 2px solid rgba(42, 111, 255, 0.4); }
+  .pill-card.red .pill-icon { background: var(--red-dim); border: 2px solid rgba(206, 17, 38, 0.4); }
+
+  .pill-card h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .pill-card.blue h2 { color: var(--blue); }
+  .pill-card.red h2 { color: var(--red); }
+
+  .pill-card p {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .pill-features {
+    list-style: none;
+    text-align: left;
+    width: 100%;
+    padding: 0;
+  }
+  .pill-features li {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    padding: 4px 0;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+  .pill-features li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    font-weight: 700;
+  }
+  .pill-card.blue .pill-features li::before { color: var(--blue); }
+  .pill-card.red .pill-features li::before { color: var(--red); }
+
+  .pill-time {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+  .footer a { color: var(--green); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+
+  /* Existing users */
+  .existing-users {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  .existing-users h3 {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+  .existing-users p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+  }
+  .existing-users code {
+    background: rgba(0, 204, 102, 0.1);
+    border: 1px solid rgba(0, 204, 102, 0.2);
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-family: 'Cascadia Code', 'Consolas', monospace;
+    font-size: 0.78rem;
+    color: var(--green);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <h1>AI <span>Maker</span></h1>
+    <p>Your personal AI agent — powered by GitHub Copilot. Choose your path.</p>
+    <span class="version-badge">v3.0.0</span>
+  </div>
+
+  <p class="choice-intro">
+    <strong>Two paths. Same destination.</strong><br>
+    Both give you a personal AI assistant in the GitHub Copilot App.<br>
+    The difference is whether your work is backed up to GitHub.
+  </p>
+
+  <div class="pills">
+    <a href="blue.html" class="pill-card blue">
+      <div class="pill-icon">💊</div>
+      <h2>Blue Pill</h2>
+      <p>Simple setup. No git. Just your AI.</p>
+      <ul class="pill-features">
+        <li>GitHub Copilot App</li>
+        <li>11 AI Maker skills</li>
+        <li>Local workspace</li>
+        <li>No terminal required</li>
+        <li>No GitHub account setup</li>
+      </ul>
+      <span class="pill-time">~5 minutes</span>
+    </a>
+
+    <a href="pro/index.html" class="pill-card red">
+      <div class="pill-icon">💊</div>
+      <h2>Red Pill</h2>
+      <p>Full power. Git backup. Cross-machine sync.</p>
+      <ul class="pill-features">
+        <li>Everything in Blue, plus:</li>
+        <li>22 skills (Maker + Workbench)</li>
+        <li>GitHub repo backup</li>
+        <li>Cross-machine restore</li>
+        <li>Copilot CLI for terminal</li>
+      </ul>
+      <span class="pill-time">~10 minutes</span>
+    </a>
+  </div>
+
+  <div class="existing-users">
+    <h3>Already using AI Maker / AI Workbench (CLI)?</h3>
+    <p>Your data is safe. Run the migration tool to bring it into the App:<br>
+    <code>migrate.ps1 -WhatIf</code> to preview, then <code>migrate.ps1</code> to execute.</p>
+  </div>
+
+  <div class="footer">
+    <p>Built by <a href="https://github.com/marcusash">Marcus Ash</a> · Powered by GitHub Copilot</p>
+  </div>
+</div>
+</body>
+</html>

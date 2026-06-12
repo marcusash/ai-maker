@@ -1,0 +1,259 @@
+#Requires -Version 5.1
+<#
+.SYNOPSIS
+    AI Maker v3 — Blue Pill Installer
+.DESCRIPTION
+    Installs the GitHub Copilot App + 11 AI Maker skills. No git required.
+    Target: non-technical managers. Install time: < 5 minutes.
+.PARAMETER WhatIf
+    Preview all changes without executing.
+.PARAMETER Doctor
+    Run health check diagnostics.
+.PARAMETER SkillsOnly
+    Update skills without reinstalling components.
+.PARAMETER SkillsSource
+    Path to skills source directory (default: downloads from release).
+#>
+[CmdletBinding()]
+param(
+    [switch]$WhatIf,
+    [switch]$Doctor,
+    [switch]$SkillsOnly,
+    [string]$SkillsSource
+)
+
+$ErrorActionPreference = "Stop"
+
+# ═══════════════════════════════════════════════════════════════
+# BANNER
+# ═══════════════════════════════════════════════════════════════
+
+function Show-Banner {
+    Write-Host ""
+    Write-Host "  +------------------------------------------+" -ForegroundColor Blue
+    Write-Host "  |       AI Maker v3 - Blue Pill            |" -ForegroundColor Blue
+    Write-Host "  |   Your AI assistant in 5 minutes         |" -ForegroundColor Blue
+    Write-Host "  +------------------------------------------+" -ForegroundColor Blue
+    Write-Host ""
+}
+
+# ═══════════════════════════════════════════════════════════════
+# LOAD LIBRARY
+# ═══════════════════════════════════════════════════════════════
+
+$libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
+if (-not (Test-Path $libPath)) {
+    # If running from irm | iex, download the lib
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.0/ai-maker-lib.ps1"
+    $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
+    Write-Host "  Downloading core library..." -ForegroundColor Gray
+    Invoke-RestMethod -Uri $libUrl -OutFile $libPath
+}
+. $libPath
+
+# ═══════════════════════════════════════════════════════════════
+# MODES
+# ═══════════════════════════════════════════════════════════════
+
+Show-Banner
+
+if ($Doctor) {
+    Invoke-HealthCheck
+    return
+}
+
+if ($WhatIf) {
+    Write-Host "  ── DRY RUN MODE ── Nothing will be modified.`n" -ForegroundColor Cyan
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 1: PREREQUISITES
+# ═══════════════════════════════════════════════════════════════
+
+Write-Host "Step 1: Checking prerequisites..." -ForegroundColor White
+
+# Windows version
+$osVersion = [System.Environment]::OSVersion.Version
+if ($osVersion.Major -lt 10) {
+    Write-Host "  ✗ Windows 10 or later required." -ForegroundColor Red
+    return
+}
+Write-Host "  ✓ Windows $($osVersion.Major).$($osVersion.Build)" -ForegroundColor Green
+
+# winget
+$hasWinget = (Get-Command winget -EA Silent) -ne $null
+if (-not $hasWinget) {
+    Write-Host "  ✗ winget not found. Install App Installer from the Microsoft Store." -ForegroundColor Red
+    Write-Host "    https://aka.ms/getwinget" -ForegroundColor Gray
+    return
+}
+Write-Host "  ✓ winget available" -ForegroundColor Green
+
+# Disk space
+$diskCheck = Get-DiskSpaceCheck
+if (-not $diskCheck.ok) {
+    Write-Host "  ✗ $($diskCheck.message)" -ForegroundColor Red
+    return
+}
+Write-Host "  ✓ Disk space OK" -ForegroundColor Green
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 2: DETECT EXISTING STATE
+# ═══════════════════════════════════════════════════════════════
+
+Write-Host "`nStep 2: Detecting existing setup..." -ForegroundColor White
+
+$scenario = Get-InstallScenario -SkipRemoteChecks
+Write-Host "  Scenario: $($scenario.scenario)" -ForegroundColor Gray
+Write-Host "  Action: $($scenario.action)" -ForegroundColor Gray
+
+# Handle migration scenarios
+if ($scenario.scenario -match "^legacy") {
+    Write-Host "`n  ⚠ Existing CLI installation detected." -ForegroundColor Yellow
+    Write-Host "  After this install completes, run migrate.ps1 to move your data to the new setup." -ForegroundColor Yellow
+    Write-Host "  Your existing files will NOT be touched by this installer.`n" -ForegroundColor Yellow
+}
+
+if ($scenario.scenario -eq "partial-install") {
+    Write-Host "  ⚠ Previous partial install detected. Resuming..." -ForegroundColor Yellow
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 3: INSTALL COPILOT APP
+# ═══════════════════════════════════════════════════════════════
+
+if (-not $SkillsOnly) {
+    Write-Host "`nStep 3: Installing GitHub Copilot App..." -ForegroundColor White
+
+    $appInstalled = (winget list --id GitHub.CopilotApp --accept-source-agreements 2>$null) -match "GitHub.CopilotApp"
+
+    if ($appInstalled) {
+        Write-Host "  ✓ Already installed" -ForegroundColor Green
+    }
+    else {
+        Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub Copilot App" `
+            -Path "GitHub.CopilotApp" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
+            winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
+            if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.CopilotApp (exit: $LASTEXITCODE)" }
+        }
+        Write-Host "  ✓ Copilot App installed" -ForegroundColor Green
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 4: INSTALL SKILLS
+# ═══════════════════════════════════════════════════════════════
+
+Write-Host "`nStep 4: Installing AI Maker skills (11)..." -ForegroundColor White
+
+# Determine skills source
+if (-not $SkillsSource) {
+    # Check for local skills folder first (e.g., extracted from ZIP)
+    $localSkills = Join-Path $PSScriptRoot "skills"
+    if (Test-Path $localSkills) {
+        $SkillsSource = $localSkills
+        Write-Host "  Using local skills from: $localSkills" -ForegroundColor Gray
+    }
+    else {
+        # Download from release
+        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.0/skills.zip"
+        $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
+        $extractPath = Join-Path $env:TEMP "ai-maker-skills"
+
+        if (-not $WhatIf) {
+            Write-Host "  Downloading skills..." -ForegroundColor Gray
+            Invoke-RestMethod -Uri $releaseUrl -OutFile $zipPath
+            Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+            $SkillsSource = Join-Path $extractPath "skills"
+        }
+        else {
+            Write-Host "  [WhatIf] Would download skills from $releaseUrl" -ForegroundColor Cyan
+            $SkillsSource = "DOWNLOAD"
+        }
+    }
+}
+
+if (-not $WhatIf) {
+    $existingManifest = Read-AIMakerManifest
+    $installedSkills = Install-Skills -Pill "blue" -SourcePath $SkillsSource -Manifest $existingManifest -WhatIf:$WhatIf
+
+    Write-Host "  ✓ $($installedSkills.Count) skills installed" -ForegroundColor Green
+}
+else {
+    Write-Host "  [WhatIf] Would install 11 ai-maker-* skills to ~/.copilot/skills/" -ForegroundColor Cyan
+    $installedSkills = @()
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 5: CREATE WORKSPACE
+# ═══════════════════════════════════════════════════════════════
+
+if (-not $SkillsOnly) {
+    Write-Host "`nStep 5: Creating workspace..." -ForegroundColor White
+
+    if (Test-Path (Join-Path $script:AIMakerConfig.WorkspacePath $script:AIMakerConfig.ManifestFile)) {
+        Write-Host "  ✓ Workspace already exists" -ForegroundColor Green
+    }
+    else {
+        New-WorkspaceScaffold -WhatIf:$WhatIf
+        Write-Host "  ✓ Workspace created at $($script:AIMakerConfig.WorkspacePath)" -ForegroundColor Green
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 6: WRITE MANIFEST
+# ═══════════════════════════════════════════════════════════════
+
+Write-Host "`nStep 6: Writing manifest..." -ForegroundColor White
+
+$manifest = New-AIMakerManifest -Pill "blue" -Skills $installedSkills
+Write-AIMakerManifest -Manifest $manifest -WhatIf:$WhatIf
+
+Write-Host "  ✓ Manifest written" -ForegroundColor Green
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 7: CLEANUP + INSTRUCTIONS
+# ═══════════════════════════════════════════════════════════════
+
+# Clean up temp files
+if (-not $WhatIf) {
+    Remove-Item (Join-Path $env:TEMP "ai-maker-skills.zip") -EA Silent
+    Remove-Item (Join-Path $env:TEMP "ai-maker-skills") -Recurse -EA Silent
+}
+
+Write-Host ""
+Write-Host "  +------------------------------------------+" -ForegroundColor Green
+Write-Host "  |       Installation complete!             |" -ForegroundColor Green
+Write-Host "  +------------------------------------------+" -ForegroundColor Green
+Write-Host ""
+Write-Host "  Opening the Copilot App..." -ForegroundColor White
+Write-Host "  When it opens, add C:\GitHub\ai-workspace as a project." -ForegroundColor Gray
+Write-Host "  Then open a new session and say anything — it will" -ForegroundColor Gray
+Write-Host "  automatically create your AI Maker and AI Workbench agents." -ForegroundColor Gray
+Write-Host "  Close the setup session when done." -ForegroundColor Gray
+Write-Host ""
+
+# Launch the Copilot App
+if (-not $WhatIf) {
+    $appPath = Get-Command "GitHub Copilot" -EA Silent
+    if (-not $appPath) {
+        $appExe = Join-Path $env:LOCALAPPDATA "Programs\GitHub Copilot\GitHub Copilot.exe"
+        if (Test-Path $appExe) { Start-Process $appExe }
+    }
+    else {
+        Start-Process $appPath.Source
+    }
+}
+
+if ($scenario.scenario -match "^legacy") {
+    Write-Host "  ─── Migration available ───" -ForegroundColor Yellow
+    Write-Host "  You have an existing CLI setup. To migrate your vault and settings:" -ForegroundColor Yellow
+    Write-Host "  Run: migrate.ps1" -ForegroundColor Cyan
+    Write-Host "  Preview first: migrate.ps1 -WhatIf" -ForegroundColor Gray
+    Write-Host ""
+}
+
+Write-Host "  Want GitHub backup? Upgrade to Red Pill:" -ForegroundColor Gray
+Write-Host "  irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install-red.ps1 | iex" -ForegroundColor Blue
+Write-Host ""
+
