@@ -49,6 +49,7 @@ body{font-family:'Courier New',Courier,monospace;background:var(--black);color:v
 .pill-red:hover{opacity:1;transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
 .pill-label{font-weight:700;margin-bottom:12px;color:#FFF;text-shadow:0 2px 4px rgba(0,0,0,.8);font-size:24px;letter-spacing:2px}
 .pill-sub{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.7);font-size:18px}
+.pill-detail{color:rgba(255,255,255,.65);font-size:11px;letter-spacing:.12em;margin-top:10px;text-transform:uppercase;text-shadow:0 1px 3px rgba(0,0,0,.7)}
 .pill-current::after{content:'>>> YOU ARE HERE';position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);color:var(--matrix-green);text-shadow:0 0 8px var(--matrix-green);animation:blink 1.5s infinite}
 
 .section{margin-bottom:50px}
@@ -109,11 +110,17 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
       <div class="pill pill-blue pill-current">
         <div class="pill-label text-md">BLUE PILL</div>
         <div class="pill-sub text-sm">Stay comfortable</div>
+        <div class="pill-detail">1 agent · local · 5 min</div>
       </div>
       <a href="https://marcusash.github.io/ai-maker/pro/" class="pill pill-red">
         <div class="pill-label text-md">RED PILL</div>
         <div class="pill-sub text-sm">See the truth</div>
+        <div class="pill-detail">2 agents · GitHub backup · 10 min</div>
       </a>
+    </div>
+    <div style="text-align:center;margin-top:48px;font-family:'Courier New',monospace;font-size:12px;color:var(--matrix-green);opacity:.5;letter-spacing:.08em;line-height:2">
+      BLUE — fastest setup, no GitHub required &nbsp;·&nbsp; RED — backup, restore anywhere, AI Workbench included<br>
+      <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html" style="color:var(--matrix-green);opacity:.8;text-decoration:none">Upgrading from the old CLI setup? Migration guide &#8594;</a>
     </div>
   </div>
 
@@ -207,6 +214,7 @@ a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
           <button onclick="copyInstall()" style="position:absolute;top:8px;right:8px;background:var(--matrix-green);color:var(--black);border:none;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:14px;font-weight:700">COPY</button>
         </div>
         <div class="step-text text-sm" style="opacity:.7;margin-top:12px">Or download <a href="https://github.com/marcusash/ai-maker/releases/latest">ai-maker-v3.zip</a>, extract, and double-click <code>install.bat</code>. The installer handles PowerShell, the Copilot App, and all 11 skills automatically.</div>
+        <div class="step-text text-sm" style="opacity:.5;margin-top:8px;font-size:12px">&#9432; Nothing is pushed to GitHub. Your workspace stays local in <code>C:\GitHub\ai-workspace</code>.</div>
       </div>
     </div>
 
