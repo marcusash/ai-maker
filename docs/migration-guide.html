@@ -173,10 +173,10 @@ a:hover{color:#4DFFFF}
         <div class="step-title text-md">Preview what will change (optional but recommended)</div>
         <div class="step-text text-sm" style="margin-bottom:10px">Open PowerShell and run:</div>
         <div class="code-block">
-          <span id="whatifCmd">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/migrate.ps1 | iex -WhatIf</span>
+          <span id="whatifCmd">$f="$env:TEMP\migrate.ps1"; irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/migrate.ps1 -OutFile $f; &amp; $f -WhatIf</span>
           <button class="copy-btn" onclick="copyCode('whatifCmd')">COPY</button>
         </div>
-        <div class="step-text text-sm" style="margin-top:8px">This shows you exactly what the migration will copy, where it will go, and what will change — without touching anything. Use this to review before committing.</div>
+        <div class="step-text text-sm" style="margin-top:8px">This downloads the script and runs it in preview mode — shows exactly what will copy and where, without touching anything. Review before committing.</div>
       </div>
     </div>
 
@@ -189,7 +189,7 @@ a:hover{color:#4DFFFF}
           <span id="migrateCmd">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/migrate.ps1 | iex</span>
           <button class="copy-btn" onclick="copyCode('migrateCmd')">COPY</button>
         </div>
-        <div class="step-text text-sm" style="margin-top:8px">The script detects your existing setup automatically — it handles all 14 known migration scenarios. It will show you a summary and ask for confirmation before copying anything.</div>
+        <div class="step-text text-sm" style="margin-top:8px">The script detects your existing setup automatically. It shows you a summary of what will change and asks for confirmation before copying anything.</div>
       </div>
     </div>
 
