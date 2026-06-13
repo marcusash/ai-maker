@@ -2,417 +2,339 @@
 <html lang="en">
 <head>
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RED PILL: AI Maker Pro</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RED PILL: AI Maker Pro</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-
 :root{
-  --matrix-green:#00FF41;
-  --matrix-green-dark:#003B00;
-  --matrix-green-glow:rgba(0,255,65,.6);
-  --blue-pill:#2E5EAA;
-  --blue-pill-light:#4A90D9;
-  --blue-pill-dark:#1A3D7C;
-  --blue-glow:rgba(74,144,217,.8);
-  --red-pill:#CE1126;
-  --red-pill-light:#FF1A1A;
-  --red-pill-dark:#990000;
-  --red-glow:rgba(206,17,38,.6);
+  --matrix-green:#00FF41;--matrix-green-dark:#003B00;--matrix-green-glow:rgba(0,255,65,.6);
+  --blue-pill:#2E5EAA;--blue-pill-light:#4A90D9;--blue-pill-dark:#1A3D7C;--blue-glow:rgba(74,144,217,.8);
+  --red-pill:#CE1126;--red-pill-light:#FF1A1A;--red-pill-dark:#990000;--red-glow:rgba(206,17,38,.6);
   --black:#000;
 }
-
 body{font-family:'Courier New',Courier,monospace;background:var(--black);color:var(--matrix-green);overflow-x:hidden;min-height:100vh;font-size:16px;line-height:1.6}
-.text-xl{font-size:32px;line-height:1.2}
-.text-lg{font-size:24px;line-height:1.3}
-.text-md{font-size:18px;line-height:1.4}
-.text-base{font-size:16px;line-height:1.6}
-.text-sm{font-size:14px;line-height:1.6}
-
-#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;opacity:.18}
+.text-xl{font-size:32px;line-height:1.2}.text-lg{font-size:24px;line-height:1.3}.text-md{font-size:18px;line-height:1.4}.text-base{font-size:16px;line-height:1.6}.text-sm{font-size:14px;line-height:1.6}
+#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
 .content{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 20px}
-
 .terminal{background:rgba(0,20,0,.95);border:2px solid var(--matrix-green);box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
 .terminal-header{background:var(--matrix-green-dark);border-bottom:1px solid var(--matrix-green);padding:8px 12px;display:flex;align-items:center;gap:8px}
 .terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--matrix-green)}
 .terminal-body{padding:30px}
-
 .choice{text-align:center;margin-bottom:60px}
 .choice-title{text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 10px var(--matrix-green);margin-bottom:10px}
 .choice-sub{opacity:.6;margin-bottom:40px}
 .pills{display:flex;gap:30px;justify-content:center;flex-wrap:wrap}
 .pill{width:280px;height:280px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;text-decoration:none;position:relative}
-.pill-blue{background:radial-gradient(circle at 30% 30%,var(--blue-pill-light),var(--blue-pill) 50%,var(--blue-pill-dark));border:3px solid var(--blue-pill);box-shadow:0 0 40px var(--blue-glow),inset 0 0 60px rgba(255,255,255,.2);opacity:.5}
-.pill-blue:hover{opacity:1;transform:scale(1.05);box-shadow:0 0 60px var(--blue-glow)}
+.pill-blue{background:radial-gradient(circle at 30% 30%,var(--blue-pill-light),var(--blue-pill) 50%,var(--blue-pill-dark));border:3px solid var(--blue-pill);box-shadow:0 0 40px var(--blue-glow),inset 0 0 60px rgba(255,255,255,.2)}
+.pill-blue:hover{transform:scale(1.05);box-shadow:0 0 60px var(--blue-glow),inset 0 0 80px rgba(255,255,255,.3)}
 .pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2)}
 .pill-red:hover{transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
 .pill-label{font-weight:700;margin-bottom:12px;color:#FFF;text-shadow:0 2px 4px rgba(0,0,0,.8);font-size:24px;letter-spacing:2px}
 .pill-sub{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.7);font-size:18px}
 .pill-detail{color:rgba(255,255,255,.65);font-size:11px;letter-spacing:.12em;margin-top:10px;text-transform:uppercase;text-shadow:0 1px 3px rgba(0,0,0,.7)}
-.pill-current::after{content:'>>> YOU ARE HERE';position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);color:var(--red-pill-light);text-shadow:0 0 8px var(--red-glow);animation:blink 1.5s infinite}
-
 .section{margin-bottom:50px}
-.section-title{margin-bottom:20px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--matrix-green);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
-.section-text{margin-bottom:16px;opacity:.9}
-.prereq{background:rgba(0,59,0,.3);border:1px solid var(--matrix-green);padding:20px;margin-bottom:20px;border-radius:4px}
-.prereq-title{margin-bottom:12px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green)}
-.prereq-text{opacity:.8}
-.step{background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:20px;margin-bottom:16px;position:relative;padding-left:60px}
-.step-num{position:absolute;left:15px;top:20px;width:30px;height:30px;border-radius:50%;background:var(--matrix-green);color:var(--black);display:flex;align-items:center;justify-content:center;font-weight:700;box-shadow:0 0 10px var(--red-glow)}
-.step-title{margin-bottom:8px;color:var(--matrix-green)}
-.step-text{opacity:.8}
+.section-title{margin-bottom:24px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--matrix-green);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
 code{background:rgba(0,255,65,.1);padding:3px 8px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(0,255,65,.3);font-family:'Courier New',monospace}
 a{color:#00D9FF;text-decoration:underline;text-shadow:0 0 8px rgba(0,217,255,.8);font-weight:600}
-a:hover{color:#4DFFFF;text-shadow:0 0 12px rgba(77,255,255,.9)}
-
-.complete-divider{text-align:center;margin:60px 0;padding:20px;border-top:1px solid rgba(0,255,65,.3);border-bottom:1px solid rgba(0,255,65,.3);letter-spacing:4px;text-shadow:0 0 10px var(--matrix-green);font-size:14px}
-
-.prompt-block{background:rgba(0,20,0,.9);border:2px solid var(--matrix-green);border-radius:4px;overflow:hidden;margin:20px 0}
+a:hover{color:#4DFFFF}
+.prompt-block{background:rgba(0,20,0,.9);border:2px solid var(--matrix-green);border-radius:4px;overflow:hidden;margin:16px 0}
 .prompt-text{padding:20px;font-size:16px;opacity:.9;font-style:italic;line-height:1.7}
 .prompt-copy{width:100%;padding:12px 20px;background:rgba(0,255,65,.15);border:none;border-top:1px solid var(--matrix-green);color:var(--matrix-green);font-size:14px;font-weight:700;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:1px;transition:background .15s}
-.prompt-copy:hover{background:rgba(0,255,65,.3)}
-.prompt-copy.copied{background:rgba(0,100,255,.3);color:#4DAAFF}
-
+.prompt-copy:hover{background:rgba(0,255,65,.3)}.prompt-copy.copied{background:rgba(0,100,255,.3);color:#4DAAFF}
 .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
 .feature-card{background:rgba(0,59,0,.2);border:1px solid rgba(0,255,65,.3);padding:20px;border-radius:4px}
 .feature-name{color:var(--matrix-green);font-weight:700;margin-bottom:8px;font-size:16px;text-shadow:0 0 6px var(--matrix-green)}
 .feature-desc{font-size:14px;opacity:.8;line-height:1.6}
-
-.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
 .chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
-.chip:hover{border-color:var(--matrix-green)}
+.chip:hover{border-color:var(--matrix-green)}.chip.copied{border-color:#4DAAFF}
 .chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
 .chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green)}
-.chip.copied{border-color:#4DAAFF}
-
-.launch-box{background:rgba(0,30,0,.8);border:1px solid var(--matrix-green);border-radius:4px;padding:20px;display:flex;align-items:center;gap:16px;margin:16px 0}
-.launch-icon{flex-shrink:0}
-.launch-text{font-size:16px;opacity:.9}
-.launch-text strong{color:var(--matrix-green)}
-
-.plus-badge{display:inline-block;background:rgba(206,17,38,.2);border:1px solid var(--red-pill);color:var(--matrix-green);font-size:12px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:3px;margin-left:8px;vertical-align:middle}
-
-.footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6}
+.footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6;font-size:14px}
 .footer a{color:var(--matrix-green)}
-
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
-
-/* Bottled-up intensity — irregular tremor, questioning the choice */
-@keyframes pillshake{
-  0%,100%{transform:translate(0,0) rotate(0deg)}
-  8%{transform:translate(-2px,1px) rotate(-0.5deg)}
-  16%{transform:translate(3px,-1px) rotate(0.4deg)}
-  24%{transform:translate(-1px,2px) rotate(-0.3deg)}
-  33%{transform:translate(2px,-2px) rotate(0.6deg)}
-  42%{transform:translate(-3px,1px) rotate(-0.4deg)}
-  50%{transform:translate(1px,0px) rotate(0.2deg)}
-  58%{transform:translate(-2px,-2px) rotate(-0.5deg)}
-  66%{transform:translate(3px,1px) rotate(0.5deg)}
-  75%{transform:translate(-1px,2px) rotate(-0.2deg)}
-  83%{transform:translate(2px,-1px) rotate(0.4deg)}
-  91%{transform:translate(-2px,0px) rotate(-0.3deg)}
-}
+.pill-blue{opacity:.5}
+.pill-blue:hover{opacity:1;transform:scale(1.05)}
+.pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2)}
+.pill-red:hover{transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
+.pill-current::after{content:">>> YOU ARE HERE";position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);color:var(--red-pill-light);text-shadow:0 0 8px var(--red-glow);animation:blink 1.5s infinite;font-size:12px;letter-spacing:.1em;white-space:nowrap}
+.plus-badge{display:inline-block;background:rgba(206,17,38,.2);border:1px solid var(--red-pill);color:var(--matrix-green);font-size:12px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:3px;margin-left:8px;vertical-align:middle}
+@keyframes pillshake{0%,100%{transform:translate(0,0) rotate(0deg)}8%{transform:translate(-2px,1px) rotate(-.5deg)}16%{transform:translate(3px,-1px) rotate(.4deg)}24%{transform:translate(-1px,2px) rotate(-.3deg)}33%{transform:translate(2px,-2px) rotate(.6deg)}42%{transform:translate(-3px,1px) rotate(-.4deg)}50%{transform:translate(1px,0) rotate(.2deg)}58%{transform:translate(-2px,-2px) rotate(-.5deg)}66%{transform:translate(3px,1px) rotate(.5deg)}75%{transform:translate(-1px,2px) rotate(-.2deg)}83%{transform:translate(2px,-1px) rotate(.4deg)}91%{transform:translate(-2px,0) rotate(-.3deg)}}
 .pill-red.pill-current{animation:pillshake 2.8s ease-in-out infinite}
-@keyframes termglow{0%,100%{box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05)}50%{box-shadow:0 0 70px var(--matrix-green-glow),inset 0 0 140px rgba(0,255,65,.1)}}
-.terminal{animation:termglow 3s ease-in-out infinite}
+.flow-step{display:flex;gap:24px;margin-bottom:36px;align-items:flex-start}
+.flow-num{flex-shrink:0;width:48px;height:48px;border-radius:50%;background:var(--matrix-green);color:var(--black);font-weight:700;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px var(--matrix-green-glow);margin-top:4px}
+.flow-content{flex:1;min-width:0}
+.flow-title{font-size:20px;font-weight:700;color:var(--matrix-green);margin-bottom:10px;text-shadow:0 0 8px var(--matrix-green)}
+.flow-desc{opacity:.85;font-size:15px;line-height:1.7;margin-bottom:12px}
+.flow-req{background:rgba(0,40,0,.5);border:1px solid rgba(0,255,65,.2);padding:16px 20px;border-radius:4px;font-size:14px;line-height:1.8}
+.flow-req li{margin:4px 0 4px 20px;list-style:disc;opacity:.9}
+.install-hero{background:rgba(0,30,0,.98);border:3px solid var(--matrix-green);box-shadow:0 0 80px var(--matrix-green-glow);padding:28px;margin:16px 0;border-radius:4px}
+.install-label{font-size:11px;letter-spacing:.22em;opacity:.65;margin-bottom:14px;text-transform:uppercase}
+.install-cmd-wrap{position:relative;background:rgba(0,0,0,.95);border:1px solid var(--matrix-green);border-radius:4px;padding:18px 150px 18px 20px;margin-bottom:14px}
+.install-cmd{font-size:15px;line-height:1.7;color:var(--matrix-green);word-break:break-all;display:block}
+.install-copy-btn{position:absolute;top:50%;right:14px;transform:translateY(-50%);background:var(--matrix-green);color:var(--black);border:none;padding:11px 20px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:.08em;border-radius:3px;white-space:nowrap}
+.install-copy-btn:hover{background:#4DFF7C}
+.install-note{font-size:13px;opacity:.6;line-height:1.7}
+.trouble-box{background:rgba(0,20,0,.8);border:1px solid rgba(0,255,65,.2);border-radius:4px;overflow:hidden}
+.trouble-item{padding:20px 24px;border-bottom:1px solid rgba(0,255,65,.1)}
+.trouble-item:last-child{border-bottom:none}
+.trouble-label{font-weight:700;color:var(--matrix-green);margin-bottom:10px;font-size:15px;text-shadow:0 0 6px var(--matrix-green)}
+.reset-cmd-wrap{position:relative;background:rgba(0,0,0,.8);border:1px solid rgba(0,255,65,.25);border-radius:4px;padding:12px 120px 12px 16px;margin:10px 0 4px}
+.reset-cmd{font-size:13px;color:var(--matrix-green);word-break:break-all}
+.reset-copy-btn{position:absolute;top:50%;right:10px;transform:translateY(-50%);background:rgba(0,255,65,.15);color:var(--matrix-green);border:1px solid var(--matrix-green);padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:12px;font-weight:700}
+@media(max-width:640px){
+  .pill{width:150px;height:150px}
+  .pill-label{font-size:16px}.pill-sub{font-size:13px}.pill-detail{font-size:10px}
+  .pill-current::after{font-size:10px;bottom:-22px;letter-spacing:.05em}
+  .pills{gap:20px}.flow-step{gap:14px}
+  .flow-num{width:38px;height:38px;font-size:18px}.flow-title{font-size:17px}
+  .install-cmd-wrap{padding:14px 14px 58px}
+  .install-copy-btn{top:auto;right:12px;bottom:10px;transform:none;width:calc(100% - 24px);text-align:center}
+  .reset-cmd-wrap{padding:12px 12px 44px}
+  .reset-copy-btn{top:auto;right:8px;bottom:8px;transform:none}
+  .feature-grid,.chip-grid{grid-template-columns:1fr}
+  .content{padding:24px 16px}.text-xl{font-size:22px}.text-lg{font-size:19px}
+}
 </style>
 </head>
 <body>
-
-<canvas id="matrix"></canvas>
-
+<canvas id="matrix" style="opacity:.18"></canvas>
 <div class="content">
-
-  <div class="choice">
-    <div class="choice-title text-xl">CHOOSE YOUR REALITY</div>
-    <div class="choice-sub text-sm">The story you tell yourself about what you are capable of.</div>
-    <div class="pills">
-      <a href="https://marcusash.github.io/ai-maker/" class="pill pill-blue">
-        <div class="pill-label text-md">BLUE PILL</div>
-        <div class="pill-sub text-sm">Stay comfortable</div>
-        <div class="pill-detail">1 agent · local · 5 min</div>
-      </a>
-      <div class="pill pill-red pill-current">
-        <div class="pill-label text-md">RED PILL</div>
-        <div class="pill-sub text-sm">See the truth</div>
-        <div class="pill-detail">2 agents · GitHub backup · 10 min</div>
-      </div>
-    </div>
-    <div style="text-align:center;margin-top:48px;font-family:'Courier New',monospace;font-size:12px;color:var(--matrix-green);opacity:.5;letter-spacing:.08em;line-height:2">
-      BLUE — fastest setup, no GitHub required &nbsp;·&nbsp; RED — backup, restore anywhere, AI Workbench included<br>
-      <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html" style="color:var(--matrix-green);opacity:.8;text-decoration:none">Upgrading from the old CLI setup? Migration guide &#8594;</a>
+<div class="choice">
+  <div class="choice-title text-xl">CHOOSE YOUR REALITY</div>
+  <div class="choice-sub text-sm">The story you tell yourself about what you are capable of.</div>
+  <div class="pills">
+    <a href="https://marcusash.github.io/ai-maker/" class="pill pill-blue">
+      <div class="pill-label">BLUE PILL</div>
+      <div class="pill-sub">Stay comfortable</div>
+      <div class="pill-detail">1 agent &middot; local &middot; 5 min</div>
+    </a>
+    <div class="pill pill-red pill-current">
+      <div class="pill-label">RED PILL</div>
+      <div class="pill-sub">See the truth</div>
+      <div class="pill-detail">2 agents &middot; GitHub backup &middot; 10 min</div>
     </div>
   </div>
-
-  <div class="terminal">
-    <div class="terminal-header text-sm">
-      <div class="terminal-dot" style="background:var(--matrix-green)"></div>
-      <div class="terminal-dot"></div>
-      <div class="terminal-dot"></div>
-      <span style="margin-left:auto;opacity:.6">AI-MAKER-PRO.EXE</span>
-    </div>
-    <div class="terminal-body">
-      <div class="text-lg" style="margin-bottom:20px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; INITIALIZING AI MAKER PRO</div>
-      <div class="text-base" style="opacity:.8">Two agents. 22 skills. Backed by GitHub. Ten minutes to set up.</div>
-      <div class="text-base" style="margin-top:16px;opacity:.8">Everything the Blue Pill gives you — plus AI Workbench, a private GitHub repo that backs up your work, and the ability to restore everything on a new machine in minutes.</div>
-    </div>
+  <div style="text-align:center;margin-top:48px;font-size:12px;color:var(--matrix-green);opacity:.5;letter-spacing:.08em;line-height:2">
+    BLUE &mdash; fastest setup, no GitHub required &nbsp;&middot;&nbsp; RED &mdash; backup, restore anywhere, AI Workbench included<br>
+    <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html" style="color:var(--matrix-green);opacity:.8;text-decoration:none">Upgrading from the old CLI setup? Migration guide &rarr;</a>
   </div>
-
-  <div class="section">
-    <div class="section-title text-lg">&gt; WHAT YOU GET</div>
-    <div class="terminal">
-      <div class="terminal-body">
-        <div class="section-text text-base">Two AI agents. All 22 skills. Your work backed up to a private GitHub repo — and restorable from any machine.</div>
-        <div class="feature-grid">
-          <div class="feature-card">
-            <div class="feature-name">AI Maker <span class="plus-badge">11 SKILLS</span></div>
-            <div class="feature-desc">Research, design, writing, code review, data analysis, brainstorming, user research, canvas, vault, ops, and WorkIQ (read M365). Everything a manager needs.</div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-name">AI Workbench <span class="plus-badge">+11 SKILLS</span></div>
-            <div class="feature-desc">Deep research, PowerShell automation, CI/CD, security audits, prompt engineering, testing, design audit, data pipelines, debugging, vision, and GitHub ops. For when you need to go deeper.</div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-name">GitHub Backup</div>
-            <div class="feature-desc">Your vault, instructions, and workspace files commit to a private GitHub repo automatically. Your work is safe even if your PC isn't.</div>
-          </div>
-          <div class="feature-card">
-            <div class="feature-name">Cross-Machine Restore</div>
-            <div class="feature-desc">New PC? Run the Red Pill installer, authenticate with GitHub, and your vault and settings restore from your private repo. No manual file transfers.</div>
-          </div>
-          <div class="feature-card" style="border-color:rgba(206,17,38,.5);background:rgba(0,30,0,.15)">
-            <div class="feature-name">Agency <span class="plus-badge">BUILT-IN</span> <span style="opacity:.6;font-size:12px;font-weight:400">/ act on M365</span></div>
-            <div class="feature-desc">Act on your Microsoft 365. Send emails, create meetings, post to Teams, add Planner tasks — all with your approval. Launch Agency mode: <code>agency gh-app</code></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title text-lg">&gt; PREREQUISITES</div>
-
-    <div class="prereq" style="background:rgba(0,59,0,.5);border:2px solid var(--matrix-green)">
-      <div class="prereq-title text-md">Microsoft Employees</div>
-      <div class="prereq-text text-sm" style="margin-bottom:12px">
-        <strong>1. Personal GitHub account:</strong> If you don't have one, create at <a href="https://github.com/signup" target="_blank">github.com/signup</a>
-      </div>
-      <div class="prereq-text text-sm">
-        <strong>2. Enterprise account:</strong> Use format <code>yourAlias_microsoft</code> (e.g., <code>marcusash_microsoft</code>). GitHub Copilot is included.
-      </div>
-    </div>
-
-    <div class="prereq">
-      <div class="prereq-title text-md">External Users</div>
-      <div class="prereq-text text-sm">GitHub Copilot Pro required ($10/month). <a href="https://github.com/features/copilot/plans" target="_blank">Subscribe here</a>.</div>
-    </div>
-
-    <div class="prereq">
-      <div class="prereq-title text-md">WorkIQ + Agency (Optional: Microsoft 365 users only)</div>
-      <div class="prereq-text text-sm">WorkIQ reads M365 (calendar, tasks, email). Agency acts on M365 (send emails, create meetings, post to Teams). Both require an organizational M365 account. IT admin consent in Entra ID may be required. Personal Outlook.com accounts do not qualify.</div>
-    </div>
-
-    <div class="prereq">
-      <div class="prereq-title text-md">Everything else is installed for you</div>
-      <div class="prereq-text text-sm">Git, GitHub CLI, and the GitHub Copilot App are all installed automatically. No pre-setup required. No admin rights needed.</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title text-lg">&gt; INSTALLATION</div>
-
-    <div class="step">
-      <div class="step-num text-base">1</div>
-      <div class="step-content">
-        <div class="step-title text-md">Open any terminal (or just double-click install.bat)</div>
-        <div class="step-text text-sm" style="margin-bottom:8px">Press <code>Win+X</code>, select "Terminal" — or open the extracted ZIP and double-click <code>install.bat</code></div>
-        <div class="step-text text-sm" style="opacity:.7">No admin required. The .bat handles everything including PowerShell installation.</div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num text-base">2</div>
-      <div class="step-content">
-        <div class="step-title text-md">Download and run the Red Pill installer</div>
-        <div style="position:relative;margin-top:12px">
-          <code id="installCmd" style="display:block;padding:12px;background:rgba(0,255,65,.1);border:1px solid rgba(0,255,65,.4);border-radius:4px;font-size:14px;line-height:1.6;overflow-x:auto">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install-red.ps1 | iex</code>
-          <button onclick="copyInstall()" style="position:absolute;top:8px;right:8px;background:var(--red-pill);color:#FFF;border:none;padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'Courier New',monospace;font-size:14px;font-weight:700">COPY</button>
-        </div>
-        <div class="step-text text-sm" style="opacity:.7;margin-top:12px">Or download <a href="https://github.com/marcusash/ai-maker/releases/latest">ai-maker-v3.zip</a>, extract, and double-click <code>install.bat</code> — then choose option 2 (Red Pill). The installer handles Git, GitHub CLI, the Copilot App, and all 22 skills automatically.</div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num text-base">3</div>
-      <div class="step-content">
-        <div class="step-title text-md">Authenticate with GitHub</div>
-        <div class="step-text text-sm">The installer will open a browser window and prompt you to sign in to GitHub. This creates your private <code>ai-workspace</code> repo and pushes your first backup. One-time step.</div>
-      </div>
-    </div>
-
-    <div class="step">
-      <div class="step-num text-base">4</div>
-      <div class="step-content">
-        <div class="step-title text-md">Open the Copilot App</div>
-        <div class="step-text text-sm">The app launches automatically after install. Sign in with your GitHub account if prompted. Add <code>C:\GitHub\ai-workspace</code> as a project, then open a new session. Your AI Maker and AI Workbench agents create themselves automatically.</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="complete-divider text-sm">&gt;&gt;&gt; SETUP COMPLETE. YOU ARE IN. &lt;&lt;&lt;</div>
-
-  <div class="section">
-    <div class="section-title text-lg">&gt; YOU'RE SET UP. HERE'S WHAT TO DO.</div>
-
-    <div class="terminal">
-      <div class="terminal-body">
-        <div class="section-text text-base" style="margin-bottom:20px">AI Maker and AI Workbench learn through the work. After 3-5 sessions, they adapt to your tone, your decision-making style, your priorities. Start here.</div>
-
-        <div class="step-title text-md" style="margin-bottom:12px">Step 1: Launch your agents</div>
-        <div class="launch-box">
-          <div class="launch-icon">
-            <svg width="32" height="32" viewBox="0 0 16 16" fill="currentColor"><circle cx="8" cy="8" r="8" fill="#24292f"/><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" fill="#ffffff"/></svg>
-          </div>
-          <div class="launch-text">Open the <strong>GitHub Copilot</strong> app (pinned to taskbar or search "GitHub Copilot" in Start). Add <code>C:\GitHub\ai-workspace</code> as a project.</div>
-        </div>
-
-        <div class="step-title text-md" style="margin-bottom:12px;margin-top:28px">Step 2: Start your first session</div>
-        <div class="section-text text-sm" style="opacity:.8;margin-bottom:8px">Open a new session in the App. Your AI Maker and AI Workbench agents create themselves automatically. Then paste this prompt to get started:</div>
-        <div class="prompt-block">
-          <div class="prompt-text" id="firstPrompt">I'm new here. Please introduce yourself, then ask me a few questions to learn my name, my role, my team, and what I'm working on right now.</div>
-          <button class="prompt-copy" id="firstPromptBtn" onclick="copyPrompt('firstPrompt','firstPromptBtn')">COPY THIS PROMPT</button>
-        </div>
-        <div class="section-text text-sm" style="opacity:.7;margin-top:8px">After the onboarding, your agents greet you by name from session two onward. They know your preferences, your priorities, and how you want feedback delivered. All 22 skills are always active — just describe what you need.</div>
-
-        <div class="step-title text-md" style="margin-bottom:12px;margin-top:28px">Step 2: Try these prompts</div>
-        <div class="chip-grid">
-          <div class="chip" onclick="copyChip(this,'Open a canvas and build me a simple project status dashboard for what I\'m working on.')">
-            <div class="chip-quote">"Open a canvas with a project status dashboard."</div>
-            <div class="chip-tag">CANVAS</div>
-          </div>
-          <div class="chip" onclick="copyChip(this,'Write a PowerShell script that lists all the files modified in the last 7 days in my GitHub folder.')">
-            <div class="chip-quote">"Write a PowerShell script to list recently modified files."</div>
-            <div class="chip-tag">WORKBENCH</div>
-          </div>
-          <div class="chip" onclick="copyChip(this,'Review the last thing I saved to my vault and suggest three follow-up actions.')">
-            <div class="chip-quote">"Review my vault and suggest follow-up actions."</div>
-            <div class="chip-tag">VAULT</div>
-          </div>
-          <div class="chip" onclick="copyChip(this,'Audit my latest project document for clarity, completeness, and any gaps in the argument.')">
-            <div class="chip-quote">"Audit my project doc for gaps."</div>
-            <div class="chip-tag">DESIGN AUDIT</div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title text-lg">&gt; BACKUP AND RESTORE</div>
-    <div class="terminal">
-      <div class="terminal-body">
-        <div class="section-text text-base" style="margin-bottom:20px">Your <code>ai-workspace</code> folder is a private GitHub repo. Your vault, persona, and workspace files are committed and pushed automatically during setup. To restore on a new machine:</div>
-        <div class="step" style="background:rgba(0,59,0,.2)">
-          <div class="step-num text-base">1</div>
-          <div class="step-content">
-            <div class="step-title text-md">Run the Red Pill installer on your new machine</div>
-            <div class="step-text text-sm">Same command as above. The installer detects your existing <code>ai-workspace</code> repo on GitHub and restores everything automatically.</div>
-          </div>
-        </div>
-        <div class="step" style="background:rgba(0,59,0,.2)">
-          <div class="step-num text-base">2</div>
-          <div class="step-content">
-            <div class="step-title text-md">Authenticate with GitHub</div>
-            <div class="step-text text-sm">Sign in when prompted. The installer clones your private repo, installs all 22 skills, and puts everything back where it belongs.</div>
-          </div>
-        </div>
-        <div class="step" style="background:rgba(0,59,0,.2)">
-          <div class="step-num text-base">3</div>
-          <div class="step-content">
-            <div class="step-title text-md">Open the App and pick up where you left off</div>
-            <div class="step-text text-sm">Your vault, persona, and workspace files are exactly as you left them. Your agents remember everything.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div style="text-align:center;margin:60px auto 0;padding:48px 20px 0;border-top:1px solid rgba(0,255,65,.15);max-width:640px">
-    <div style="font-family:'Courier New',monospace;font-size:14px;color:var(--matrix-green);opacity:.7;letter-spacing:.15em;margin-bottom:12px">MIGRATING FROM THE CLI SETUP?</div>
-    <div style="font-size:16px;color:inherit;opacity:.85;margin-bottom:24px;line-height:1.6">If you have an existing AI Maker or AI Workbench install, the migration guide walks you through upgrading to the App-first model. Your vault and settings are preserved.</div>
-    <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html" style="display:inline-block;background:rgba(0,255,65,.05);border:1px solid rgba(206,17,38,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:14px;font-weight:700;padding:13px 32px;border-radius:4px;text-decoration:none;letter-spacing:.08em;transition:background .15s" onmouseover="this.style.background='rgba(0,255,65,.1)'" onmouseout="this.style.background='rgba(0,255,65,.05)'">MIGRATION GUIDE &#8594;</a>
-  </div>
-
-  <div class="footer text-sm">
-    <div style="margin-bottom:12px">Comfortable with the basics? <a href="https://marcusash.github.io/ai-maker/">Take the blue pill instead</a>.</div>
-    <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
-  </div>
-
 </div>
 
-<div id="toast" style="position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(10px);background:#CE1126;color:#fff;padding:9px 22px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;font-family:'Courier New',monospace">Copied to clipboard</div>
+<div class="terminal" style="margin-bottom:50px">
+  <div class="terminal-header text-sm">
+    <div class="terminal-dot" style="background:var(--matrix-green)"></div>
+    <div class="terminal-dot"></div><div class="terminal-dot"></div>
+    <span style="margin-left:auto;opacity:.6">AI-MAKER-PRO.EXE</span>
+  </div>
+  <div class="terminal-body">
+    <div class="text-lg" style="margin-bottom:16px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; WHAT IS AI MAKER PRO?</div>
+    <div class="text-base" style="opacity:.9">For power users who want version control and the full technical skill set. Two AI agents, 22 skills, private GitHub repo that backs up your work &mdash; and restores it on any machine in minutes.</div>
+    <div class="text-sm" style="margin-top:12px;opacity:.6">Everything the Blue Pill gives you, plus <strong style="color:var(--matrix-green)">AI Workbench</strong>, <strong style="color:var(--matrix-green)">GitHub backup</strong>, and <strong style="color:var(--matrix-green)">cross-machine restore</strong>.</div>
+  </div>
+</div>
 
-<script>
-function showToast(){
-  const t=document.getElementById('toast');
-  t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';
-  setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(-50%) translateY(10px)'},2000);
+<div class="section">
+  <div class="section-title text-lg">&gt; SETUP GUIDE</div>
+
+  <div class="flow-step">
+    <div class="flow-num">1</div>
+    <div class="flow-content">
+      <div class="flow-title">What you need</div>
+      <div class="flow-req">
+        <ul>
+          <li>Windows 10 or 11</li>
+          <li>Internet connection</li>
+          <li>GitHub account (free) &mdash; <a href="https://github.com/signup" target="_blank">create one at github.com/signup</a></li>
+        </ul>
+        <div style="margin-top:12px;font-size:13px;opacity:.65">Microsoft employees: use your <code>alias_microsoft</code> enterprise account. Git, GitHub CLI, and VS Code are installed automatically by the Red Pill installer.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">2</div>
+    <div class="flow-content">
+      <div class="flow-title">Install</div>
+      <div class="flow-desc">Open PowerShell (<code>Win+X</code> &rarr; Terminal) and paste this command. When prompted, choose <strong style="color:var(--red-pill-light)">option 2 (Red Pill)</strong>:</div>
+<div class="install-hero">
+  <div class="install-label">&gt;&gt; PASTE INTO POWERSHELL</div>
+  <div class="install-cmd-wrap">
+    <span id="installCmd" class="install-cmd">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install.bat -OutFile $env:TEMP\install.bat; &amp; $env:TEMP\install.bat</span>
+    <button onclick="copyInstall()" id="installBtn" class="install-copy-btn" style="background:#CE1126">COPY</button>
+  </div>
+</div>
+      <div class="install-note">&#9432;&nbsp; Installs the GitHub Copilot App, 22 AI skills (AI Maker + AI Workbench), Agency, Git, and GitHub CLI. Takes ~10 minutes.<br>&#9432;&nbsp; Creates a private <code>{username}/ai-workspace</code> repo on GitHub. Your vault and settings back up there automatically.</div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">3</div>
+    <div class="flow-content">
+      <div class="flow-title">Authenticate with GitHub</div>
+      <div class="flow-desc">The installer opens a browser window and prompts you to sign in to GitHub. This creates your private <code>ai-workspace</code> repo and pushes your first backup. One-time step.</div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">4</div>
+    <div class="flow-content">
+      <div class="flow-title">Open the GitHub Copilot App</div>
+      <div class="flow-desc">The app opens automatically after install. Or search <strong style="color:var(--matrix-green)">&ldquo;GitHub Copilot&rdquo;</strong> in Start. Sign in with your GitHub account when prompted.</div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">5</div>
+    <div class="flow-content">
+      <div class="flow-title">Add your project folder</div>
+      <div class="flow-desc">In the App, add <code>C:\GitHub\ai-workspace</code> as a project. This is where both AI agents live.</div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">6</div>
+    <div class="flow-content">
+      <div class="flow-title">Start your first session</div>
+      <div class="flow-desc">Open a new session in the App and paste this prompt:</div>
+      <div class="prompt-block">
+        <div class="prompt-text" id="firstPrompt">I'm new here. Please introduce yourself, then ask me a few questions to learn my name, my role, my team, and what I'm working on right now.</div>
+        <button class="prompt-copy" id="firstPromptBtn" onclick="copyPrompt('firstPrompt','firstPromptBtn')">COPY THIS PROMPT</button>
+      </div>
+      <div style="font-size:13px;opacity:.55;margin-top:4px">After onboarding, your agents greet you by name each session. All 22 skills are always active &mdash; just describe what you need.</div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">7</div>
+    <div class="flow-content">
+      <div class="flow-title">Try these to get started</div>
+      <div class="chip-grid">
+        <div class="chip" onclick="copyChip(this,'Open a canvas and build me a simple project status dashboard for what I am working on.')">
+          <div class="chip-quote">&ldquo;Open a canvas with a project status dashboard.&rdquo;</div>
+          <div class="chip-tag">CANVAS</div>
+        </div>
+        <div class="chip" onclick="copyChip(this,'Write a PowerShell script that lists all files modified in the last 7 days in my GitHub folder.')">
+          <div class="chip-quote">&ldquo;Write a PowerShell script for recently modified files.&rdquo;</div>
+          <div class="chip-tag">WORKBENCH</div>
+        </div>
+        <div class="chip" onclick="copyChip(this,'Review my latest project document for clarity, completeness, and any gaps in the argument.')">
+          <div class="chip-quote">&ldquo;Audit my project doc for gaps.&rdquo;</div>
+          <div class="chip-tag">DESIGN AUDIT</div>
+        </div>
+        <div class="chip" onclick="copyChip(this,'Review the last thing I saved to my vault and suggest three follow-up actions.')">
+          <div class="chip-quote">&ldquo;Review my vault and suggest follow-up actions.&rdquo;</div>
+          <div class="chip-tag">VAULT</div>
+        </div>
+      </div>
+      <div style="margin-top:16px;font-size:13px;opacity:.6">Agency mode: from the built-in terminal, run <code>agency gh-app</code> to enable M365 write actions (send emails, create meetings, post to Teams).</div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title text-lg">&gt; WHAT YOU GET</div>
+  <div class="terminal"><div class="terminal-body">
+    <div style="opacity:.7;font-size:14px;margin-bottom:20px">Two AI agents, 22 skills, GitHub-backed workspace. Ask either agent anything &mdash; they coordinate automatically.</div>
+    <div class="feature-grid">
+      <div class="feature-card"><div class="feature-name">AI Maker <span class="plus-badge">11 SKILLS</span></div><div class="feature-desc">Research, design, writing, code review, data analysis, brainstorming, user research, canvas, vault, ops, and WorkIQ (read M365). Everything a manager needs.</div></div>
+      <div class="feature-card"><div class="feature-name">AI Workbench <span class="plus-badge">+11 SKILLS</span></div><div class="feature-desc">Deep research, PowerShell automation, CI/CD, security audits, prompt engineering, testing, design audit, data pipelines, debugging, vision, and GitHub ops. For when you need to go deeper.</div></div>
+      <div class="feature-card"><div class="feature-name">GitHub Backup</div><div class="feature-desc">Your vault, instructions, and workspace commit to a private GitHub repo automatically. Your work is safe even if your PC isn't.</div></div>
+      <div class="feature-card"><div class="feature-name">Cross-Machine Restore</div><div class="feature-desc">New PC? Run the installer, authenticate with GitHub, and everything restores from your private repo. No manual file transfers.</div></div>
+      <div class="feature-card" style="border-color:rgba(206,17,38,.5);background:rgba(0,30,0,.15)"><div class="feature-name">Agency <span class="plus-badge">BUILT-IN</span> <span style="opacity:.6;font-size:12px;font-weight:400">/ act on M365</span></div><div class="feature-desc">Act on your Microsoft 365. Send emails, create meetings, post to Teams, add Planner tasks &mdash; all with your approval. Launch Agency mode: <code>agency gh-app</code></div></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="section">
+  <div class="section-title text-lg">&gt; RESTORE ON A NEW MACHINE</div>
+  <div class="terminal"><div class="terminal-body">
+    <div style="opacity:.8;font-size:15px;margin-bottom:20px">Your <code>ai-workspace</code> folder is a private GitHub repo. To restore on a new PC:</div>
+    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">1.</strong> Run the installer on your new machine (same command). Choose option 2.</div>
+    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">2.</strong> Authenticate with GitHub. The installer detects your existing <code>ai-workspace</code> repo and restores everything automatically.</div>
+    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;font-size:14px"><strong style="color:var(--matrix-green)">3.</strong> Open the App, add <code>C:\GitHub\ai-workspace</code> as a project. Your agents remember everything.</div>
+  </div></div>
+</div>
+
+<div class="section">
+  <div class="section-title text-lg">&gt; SOMETHING WRONG?</div>
+<div class="trouble-box">
+  <div class="trouble-item">
+    <div class="trouble-label">The installer didn&rsquo;t finish or something looks off</div>
+    <div style="opacity:.8;font-size:14px;margin-bottom:12px">It&rsquo;s safe to run again &mdash; the installer detects what&rsquo;s already in place and skips those steps.</div>
+    <div class="reset-cmd-wrap">
+      <span id="resetCmd" class="reset-cmd">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/reset.bat -OutFile $env:TEMP\reset.bat; &amp; $env:TEMP\reset.bat</span>
+      <button onclick="copyReset()" id="resetBtn" class="reset-copy-btn">COPY</button>
+    </div>
+  </div>
+  <div class="trouble-item">
+    <div class="trouble-label">Still stuck?</div>
+    <div style="opacity:.8;font-size:14px">Open an issue at <a href="https://github.com/marcusash/ai-maker/issues" target="_blank">github.com/marcusash/ai-maker/issues</a> or message <a href="https://github.com/marcusash" target="_blank">@marcusash</a> on GitHub.</div>
+  </div>
+</div>
+</div>
+
+<div class="footer">
+  <div style="margin-bottom:12px">Want the simpler setup? <a href="https://marcusash.github.io/ai-maker/">Take the blue pill instead</a>. Upgrading from CLI? <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html">Migration guide</a>.</div>
+  <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
+</div>
+</div>
+<div id="toast" style="position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(10px);background:#CE1126;color:#fff;padding:9px 22px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;font-family:'Courier New',monospace">Copied to clipboard</div>
+<script>function showToast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg||"Copied to clipboard";
+  t.style.opacity="1";t.style.transform="translateX(-50%) translateY(0)";
+  setTimeout(function(){t.style.opacity="0";t.style.transform="translateX(-50%) translateY(10px)"},2000);
 }
 function copyInstall(){
-  const cmd=document.getElementById('installCmd').textContent;
-  navigator.clipboard.writeText(cmd).then(()=>{
-    const btn=event.target;btn.textContent='COPIED!';btn.style.background='#4DAAFF';
-    setTimeout(()=>{btn.textContent='COPY';btn.style.background='var(--red-pill)'},2000);
+  var cmd=document.getElementById("installCmd").textContent;
+  navigator.clipboard.writeText(cmd).then(function(){
+    var btn=document.getElementById("installBtn");
+    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
+  });
+}
+function copyReset(){
+  var cmd=document.getElementById("resetCmd").textContent;
+  navigator.clipboard.writeText(cmd).then(function(){
+    var btn=document.getElementById("resetBtn");
+    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
   });
 }
 function copyPrompt(id,btnId){
-  const text=document.getElementById(id).innerText;
-  navigator.clipboard.writeText(text).then(()=>{
-    const btn=document.getElementById(btnId);
-    btn.textContent='COPIED!';btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='COPY THIS PROMPT';btn.classList.remove('copied')},2000);
+  var text=document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(function(){
+    var btn=document.getElementById(btnId);
+    btn.textContent="COPIED!";btn.classList.add("copied");
+    setTimeout(function(){btn.textContent="COPY THIS PROMPT";btn.classList.remove("copied")},2000);
     showToast();
   });
 }
 function copyChip(el,text){
-  navigator.clipboard.writeText(text).then(()=>{
-    el.classList.add('copied');
-    setTimeout(()=>el.classList.remove('copied'),2000);
-    showToast();
+  navigator.clipboard.writeText(text).then(function(){
+    el.classList.add("copied");setTimeout(function(){el.classList.remove("copied")},2000);showToast();
   });
 }
-
-// Matrix rain
-const canvas=document.getElementById('matrix');
-const ctx=canvas.getContext('2d');
-function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
-resize();window.addEventListener('resize',resize);
-let cols=Math.floor(window.innerWidth/10);
-let drops=Array(cols).fill(1);
+var canvas=document.getElementById("matrix");
+var ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+window.addEventListener("resize",function(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+var chars="アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴ01";
+var fontSize=10;var cols=Math.floor(canvas.width/fontSize);var drops=[];
+for(var i=0;i<cols;i++)drops[i]=1;
+var bright=["#FFFFFF","#80FF40","#00FF41","#00CC33","#004D15"];
 function draw(){
-  ctx.fillStyle='rgba(0,0,0,.04)';ctx.fillRect(0,0,canvas.width,canvas.height);
-  drops.forEach((y,i)=>{
-    const r=Math.random();
-    if(r>.97){ctx.fillStyle='#FFFFFF';ctx.font='14px monospace';}
-    else if(r>.78){ctx.fillStyle='#00FF41';ctx.font='13px monospace';}
-    else if(r>.45){ctx.fillStyle='#00CC33';ctx.font='12px monospace';}
-    else{ctx.fillStyle='#004D15';ctx.font='11px monospace';}
-    const c=String.fromCharCode(0x30A0+Math.random()*96);
-    ctx.fillText(c,i*10,y*10);
-    if(y*10>canvas.height&&Math.random()>.96)drops[i]=0;
+  ctx.fillStyle="rgba(0,0,0,.06)";ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.font=fontSize+"px monospace";
+  for(var i=0;i<drops.length;i++){
+    var r=Math.random();
+    ctx.fillStyle=r>.97?bright[0]:r>.9?bright[1]:r>.6?bright[2]:r>.3?bright[3]:bright[4];
+    var text=chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+    if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
     drops[i]++;
-  });
+  }
 }
-setInterval(draw,15);
-</script>
+setInterval(draw,15);</script>
 </body>
 </html>
-
-
-
-
-
-
-
