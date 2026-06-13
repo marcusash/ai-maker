@@ -92,7 +92,7 @@ a:hover{color:#4DFFFF}
       <div class="col-box">
         <div class="col-title">On your PC</div>
         <div class="col-item"><code>C:\AIMaker\</code> — AI Maker workspace, vault, settings</div>
-        <div class="col-item"><code>C:\AIWorkbench\</code> — AI Workbench workspace, vault</div>
+        <div class="col-item"><code>C:\AIWorkbench\</code> — only if you ran a custom setup (most users don't have this)</div>
         <div class="col-item">Windows Terminal profiles (blue and red tabs)</div>
         <div class="col-item">Desktop shortcut → launch.ps1</div>
         <div class="col-item">GitHub Copilot CLI installed</div>
@@ -111,7 +111,7 @@ a:hover{color:#4DFFFF}
         <div class="col-title" style="color:var(--matrix-green)">What goes away</div>
         <div class="col-item">Dual Terminal tabs (replaced by the Copilot App)</div>
         <div class="col-item">Desktop shortcut (pin the App to taskbar instead)</div>
-        <div class="col-item">Dual <code>C:\AIMaker</code> + <code>C:\AIWorkbench</code> folder structure — consolidated into one project folder</div>
+        <div class="col-item"><code>C:\AIMaker\</code> folder — consolidated into one project folder at <code>C:\GitHub\ai-workspace</code></div>
         <div class="col-item">Old skills in <code>.github/skills/</code> — superseded by App-global skills in <code>~/.copilot/skills/</code></div>
       </div>
       <div class="col-box">
@@ -197,7 +197,7 @@ a:hover{color:#4DFFFF}
       <div class="step-num text-base">3</div>
       <div class="step-content">
         <div class="step-title text-md">Confirm the migration</div>
-        <div class="step-text text-sm">The script prints exactly what it will copy and where. Type Y to proceed. Your vault copies to <code>C:\GitHub\ai-workspace\vault\</code>, your persona copies to <code>C:\GitHub\ai-workspace\.github\copilot-instructions.md</code>. Your originals in <code>C:\AIMaker</code> and <code>C:\AIWorkbench</code> remain untouched.</div>
+        <div class="step-text text-sm">The script prints exactly what it will copy and where. Type Y to proceed. Your vault copies to <code>C:\GitHub\ai-workspace\vault\</code>, your persona copies to <code>C:\GitHub\ai-workspace\.github\copilot-instructions.md</code>. Your original <code>C:\AIMaker</code> folder remains untouched. <code>C:\AIWorkbench</code> is not required — if you don't have it, the script skips it automatically.</div>
       </div>
     </div>
 
