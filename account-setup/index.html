@@ -1,183 +1,214 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="/ai-maker/favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GitHub Account Setup &mdash; AI Maker</title>
-  <style>
-    :root {
-      --bg: #0d0d0d;
-      --surface: #111;
-      --border: #222;
-      --text: #e8e8e8;
-      --muted: #888;
-      --green: #00c853;
-      --green-dim: #00c85333;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 15px;
-      line-height: 1.6;
-      padding: 48px 24px 80px;
-    }
-    .wrap { max-width: 680px; margin: 0 auto; }
-    .back {
-      display: inline-block;
-      font-size: 13px;
-      color: var(--muted);
-      text-decoration: none;
-      margin-bottom: 36px;
-    }
-    .back:hover { color: var(--text); }
-    h1 {
-      font-size: 26px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      letter-spacing: -.3px;
-    }
-    .subtitle {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 48px;
-    }
-
-    /* Path cards */
-    .path {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 28px 28px 24px;
-      margin-bottom: 20px;
-      position: relative;
-    }
-    .path.primary { border-color: var(--green); }
-    .path-badge {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      padding: 3px 9px;
-      border-radius: 4px;
-      margin-bottom: 14px;
-    }
-    .path.primary .path-badge { background: var(--green-dim); color: var(--green); }
-    .path.optional .path-badge { background: #1a1a1a; color: var(--muted); }
-    .path.external .path-badge { background: #1a1a1a; color: var(--muted); }
-    .path h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
-    .path .desc { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
-
-    /* Steps within a path */
-    .steps { list-style: none; counter-reset: steps; }
-    .steps li {
-      counter-increment: steps;
-      display: flex;
-      gap: 14px;
-      margin-bottom: 14px;
-      font-size: 14px;
-      align-items: flex-start;
-    }
-    .steps li::before {
-      content: counter(steps);
-      flex-shrink: 0;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #1e1e1e;
-      border: 1px solid #333;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--muted);
-      margin-top: 1px;
-    }
-    .steps li a { color: var(--green); text-decoration: none; }
-    .steps li a:hover { text-decoration: underline; }
-    code {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 4px;
-      padding: 1px 6px;
-      font-size: 13px;
-      font-family: 'Cascadia Code', 'Fira Code', monospace;
-      color: var(--green);
-    }
-
-    .note {
-      margin-top: 16px;
-      padding: 12px 14px;
-      background: #111;
-      border-left: 3px solid #2a2a2a;
-      border-radius: 4px;
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.55;
-    }
-    .divider {
-      text-align: center;
-      color: var(--border);
-      font-size: 12px;
-      letter-spacing: .1em;
-      margin: 6px 0;
-    }
-  </style>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --matrix-green:#00FF41;--matrix-green-dark:#003B00;--matrix-green-glow:rgba(0,255,65,.6);
+  --black:#000;
+}
+body{font-family:'Courier New',Courier,monospace;background:var(--black);color:var(--matrix-green);overflow-x:hidden;min-height:100vh;font-size:16px;line-height:1.6}
+#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+.content{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:40px 20px 80px}
+.back{display:inline-block;font-size:13px;color:#00D9FF;text-shadow:0 0 8px rgba(0,217,255,.8);opacity:.7;text-decoration:none;letter-spacing:.08em;margin-bottom:36px}
+.back:hover{opacity:1}
+.page-title{font-size:28px;font-weight:700;letter-spacing:2px;text-transform:uppercase;text-shadow:0 0 20px var(--matrix-green);margin-bottom:8px}
+.page-sub{font-size:14px;opacity:.6;margin-bottom:48px;letter-spacing:.04em}
+.terminal{background:rgba(0,20,0,.95);border:2px solid var(--matrix-green);box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:32px;overflow:hidden}
+.terminal-header{background:var(--matrix-green-dark);border-bottom:1px solid var(--matrix-green);padding:8px 12px;display:flex;align-items:center;gap:8px}
+.terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--matrix-green)}
+.terminal-body{padding:28px 30px 30px}
+.section-title{margin-bottom:20px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--matrix-green);padding-left:12px;text-shadow:0 0 8px var(--matrix-green);font-size:13px}
+.path-heading{font-size:20px;font-weight:700;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green);margin-bottom:8px}
+.path-desc{font-size:14px;opacity:.8;line-height:1.7;margin-bottom:24px}
+.flow-step{display:flex;gap:24px;margin-bottom:28px;align-items:flex-start}
+.terminal-body > .flow-step:last-child{margin-bottom:0}
+.flow-num{flex-shrink:0;width:48px;height:48px;border-radius:50%;background:var(--matrix-green);color:var(--black);font-weight:700;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px var(--matrix-green-glow);margin-top:4px}
+.flow-content{flex:1;min-width:0}
+.flow-title{font-size:16px;font-weight:700;color:var(--matrix-green);margin-bottom:6px;text-shadow:0 0 6px var(--matrix-green)}
+.flow-desc{font-size:14px;opacity:.85;line-height:1.7}
+.flow-req{background:rgba(0,40,0,.5);border:1px solid rgba(0,255,65,.2);padding:14px 18px;border-radius:4px;font-size:13px;line-height:1.8;margin-top:10px;opacity:.9}
+code{background:rgba(0,255,65,.1);padding:2px 7px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(0,255,65,.3);font-family:'Courier New',monospace;font-size:13px}
+a{color:#00D9FF;text-decoration:underline;text-shadow:0 0 8px rgba(0,217,255,.8);font-weight:600}
+a:hover{color:#4DFFFF}
+.divider{text-align:center;color:rgba(0,255,65,.2);font-size:20px;letter-spacing:.2em;margin:8px 0 32px;opacity:.5}
+.primary-badge{display:inline-block;background:var(--matrix-green);color:var(--black);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:2px 8px;border-radius:2px;margin-left:10px;vertical-align:middle}
+.footer{text-align:center;margin-top:60px;padding:30px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.5;font-size:13px;letter-spacing:.04em}
+.footer a{color:var(--matrix-green);text-decoration:none}
+@media(max-width:640px){
+  .flow-step{gap:14px}
+  .flow-num{width:38px;height:38px;font-size:18px}
+  .content{padding:24px 16px 60px}
+  .page-title{font-size:20px}
+}
+</style>
 </head>
 <body>
-  <div class="wrap">
+<canvas id="matrix" style="opacity:.12"></canvas>
+<div class="content">
 
-    <a class="back" href="/ai-maker/">&larr; Back to install guide</a>
+  <a class="back" href="/ai-maker/">&larr; BACK TO INSTALL GUIDE</a>
 
-    <h1>GitHub Account Setup</h1>
-    <p class="subtitle">Three paths. Most Microsoft employees only need Path 1.</p>
+  <div class="page-title">GitHub Account Setup</div>
+  <p class="page-sub">Three paths. Most Microsoft employees only need Path 1.</p>
 
-    <!-- PATH 1 -->
-    <div class="path primary">
-      <span class="path-badge">Path 1 &mdash; Default (everyone)</span>
-      <h2>Use your Microsoft enterprise account</h2>
-      <p class="desc">Your <code>alias_microsoft</code> account is already provisioned. The AI Maker install guide works with this account out of the box. Nothing extra to do.</p>
-      <ol class="steps">
-        <li>Sign in to <a href="https://github.com" target="_blank">github.com</a> with your Microsoft credentials. Your account looks like <code>marcusash_microsoft</code>.</li>
-        <li>Run the AI Maker installer. Done &mdash; GitHub Copilot is included with your Microsoft license.</li>
-      </ol>
+  <!-- PATH 1 -->
+  <div class="terminal">
+    <div class="terminal-header" style="font-size:13px;letter-spacing:.1em">
+      <div class="terminal-dot" style="background:var(--matrix-green)"></div>
+      <div class="terminal-dot"></div><div class="terminal-dot"></div>
+      <span style="margin-left:auto;opacity:.6">PATH-1.EXE</span>
     </div>
+    <div class="terminal-body">
+      <div class="section-title">Path 1 &mdash; Default (everyone) <span class="primary-badge">Start here</span></div>
+      <div class="path-heading">Use your Microsoft enterprise account</div>
+      <p class="path-desc">Your <code>alias_microsoft</code> account is already provisioned. The AI Maker installer works with this account out of the box. Nothing extra to do.</p>
 
-    <div class="divider">&#8942;</div>
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content">
+          <div class="flow-title">Sign in to GitHub</div>
+          <div class="flow-desc">Go to <a href="https://github.com" target="_blank">github.com</a> and sign in with your Microsoft credentials. Your account looks like <code>&lt;alias&gt;_microsoft</code>.</div>
+        </div>
+      </div>
 
-    <!-- PATH 2 -->
-    <div class="path optional">
-      <span class="path-badge">Path 2 &mdash; Optional (Microsoft employees)</span>
-      <h2>Also link a personal GitHub account</h2>
-      <p class="desc">Want to use AI Maker for personal projects, open source, or side work? You can link a personal GitHub account to your Microsoft identity &mdash; at no cost to you &mdash; and switch between the two freely.</p>
-      <ol class="steps">
-        <li>Create a personal GitHub account at <a href="https://github.com/signup" target="_blank">github.com/signup</a> if you don&rsquo;t have one. Use your personal email, not your Microsoft email.</li>
-        <li>Go to <a href="https://copilot.github.microsoft.com/link" target="_blank">copilot.github.microsoft.com/link</a> and sign in with your Microsoft corporate account.</li>
-        <li>Authorize your personal GitHub account when prompted. This creates the link between your Entra ID and your personal GitHub.</li>
-        <li>You&rsquo;ll see a confirmation: &ldquo;You are linked to [your personal account].&rdquo; Done.</li>
-        <li>In the GitHub Copilot app, sign out and sign back in with your personal account to switch between them.</li>
-      </ol>
-      <div class="note">
-        <strong>What linking does:</strong> Your personal GitHub account joins the Microsoft Copilot org. This grants GitHub Copilot on your personal account, centrally funded by Microsoft. Your personal account stays yours &mdash; if you leave Microsoft, the license is removed but your account and repos are unaffected.
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content">
+          <div class="flow-title">Run the AI Maker installer</div>
+          <div class="flow-desc">Follow the install guide. When prompted to authorize GitHub Copilot, sign in with this account. Done.</div>
+        </div>
       </div>
     </div>
-
-    <div class="divider">&#8942;</div>
-
-    <!-- PATH 3 -->
-    <div class="path external">
-      <span class="path-badge">Path 3 &mdash; Not at Microsoft</span>
-      <h2>Create a personal account</h2>
-      <p class="desc">Using this public repo outside of Microsoft? You can still run AI Maker with a personal GitHub account.</p>
-      <ol class="steps">
-        <li>Create a free account at <a href="https://github.com/signup" target="_blank">github.com/signup</a>.</li>
-        <li>Sign up for GitHub Copilot at <a href="https://github.com/features/copilot" target="_blank">github.com/features/copilot</a>.</li>
-        <li>Run the AI Maker installer and sign in with your personal account.</li>
-      </ol>
-    </div>
-
   </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- PATH 2 -->
+  <div class="terminal">
+    <div class="terminal-header" style="font-size:13px;letter-spacing:.1em">
+      <div class="terminal-dot" style="background:var(--matrix-green)"></div>
+      <div class="terminal-dot"></div><div class="terminal-dot"></div>
+      <span style="margin-left:auto;opacity:.6">PATH-2.EXE</span>
+    </div>
+    <div class="terminal-body">
+      <div class="section-title">Path 2 &mdash; Optional (Microsoft employees)</div>
+      <div class="path-heading">Also link a personal GitHub account</div>
+      <p class="path-desc">Want to use AI Maker for personal projects, open source, or side work? You can link a personal GitHub account to your Microsoft identity and switch between the two freely.</p>
+
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content">
+          <div class="flow-title">Create a personal GitHub account</div>
+          <div class="flow-desc">Go to <a href="https://github.com/signup" target="_blank">github.com/signup</a> if you don&rsquo;t have one. Use your personal email &mdash; not your Microsoft email.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content">
+          <div class="flow-title">Open the Microsoft link portal</div>
+          <div class="flow-desc">Go to <a href="https://copilot.github.microsoft.com/link" target="_blank">copilot.github.microsoft.com/link</a> and sign in with your Microsoft corporate account.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content">
+          <div class="flow-title">Authorize your personal account</div>
+          <div class="flow-desc">When prompted, authorize your personal GitHub account. This creates the link between your Entra ID and your personal GitHub.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">4</div>
+        <div class="flow-content">
+          <div class="flow-title">Confirm the link</div>
+          <div class="flow-desc">You&rsquo;ll see a confirmation: &ldquo;You are linked to [your personal account].&rdquo; Done.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">5</div>
+        <div class="flow-content">
+          <div class="flow-title">Switch between accounts</div>
+          <div class="flow-desc">In the GitHub Copilot app, sign out and sign back in with your personal account to switch. Both accounts work with AI Maker.</div>
+          <div class="flow-req"><strong>What linking does:</strong> Your personal GitHub account joins the Microsoft Copilot org. Your personal account stays yours &mdash; your repos and history are unaffected by your employment status.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider">&middot; &middot; &middot;</div>
+
+  <!-- PATH 3 -->
+  <div class="terminal">
+    <div class="terminal-header" style="font-size:13px;letter-spacing:.1em">
+      <div class="terminal-dot" style="background:var(--matrix-green)"></div>
+      <div class="terminal-dot"></div><div class="terminal-dot"></div>
+      <span style="margin-left:auto;opacity:.6">PATH-3.EXE</span>
+    </div>
+    <div class="terminal-body">
+      <div class="section-title">Path 3 &mdash; Not at Microsoft</div>
+      <div class="path-heading">Create a personal account</div>
+      <p class="path-desc">Using this public repo outside of Microsoft? You can still run AI Maker with a personal GitHub account.</p>
+
+      <div class="flow-step">
+        <div class="flow-num">1</div>
+        <div class="flow-content">
+          <div class="flow-title">Create a GitHub account</div>
+          <div class="flow-desc">Go to <a href="https://github.com/signup" target="_blank">github.com/signup</a> and create a GitHub account.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">2</div>
+        <div class="flow-content">
+          <div class="flow-title">Set up GitHub Copilot</div>
+          <div class="flow-desc">Visit <a href="https://github.com/features/copilot" target="_blank">github.com/features/copilot</a> to choose a plan and set up Copilot on your account.</div>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-num">3</div>
+        <div class="flow-content">
+          <div class="flow-title">Run the AI Maker installer</div>
+          <div class="flow-desc">Follow the install guide and sign in with your personal account when prompted.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="/ai-maker/">&larr; Back to install guide</a>
+  </div>
+
+</div>
+
+<script>
+const canvas=document.getElementById('matrix');
+const ctx=canvas.getContext('2d');
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+const cols=Math.floor(canvas.width/20);
+const drops=Array(cols).fill(1);
+function draw(){
+  ctx.fillStyle='rgba(0,0,0,0.05)';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle='#00FF41';
+  ctx.font='14px Courier New';
+  for(let i=0;i<drops.length;i++){
+    const c=String.fromCharCode(0x30A0+Math.random()*96);
+    ctx.fillText(c,i*20,drops[i]*20);
+    if(drops[i]*20>canvas.height&&Math.random()>.975)drops[i]=0;
+    drops[i]++;
+  }
+}
+setInterval(draw,33);
+</script>
 </body>
 </html>
