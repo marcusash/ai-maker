@@ -47,6 +47,8 @@ a:hover{color:#4DFFFF}
 .feature-name{color:var(--matrix-green);font-weight:700;margin-bottom:8px;font-size:16px;text-shadow:0 0 6px var(--matrix-green)}
 .feature-desc{font-size:14px;opacity:.8;line-height:1.6}
 .chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.chip-row-label{font-size:11px;font-weight:700;letter-spacing:2px;opacity:.5;text-transform:uppercase;margin:18px 0 0 2px}
+.chip-row-label:first-of-type{margin-top:8px}
 .chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
 .chip:hover{border-color:var(--matrix-green)}.chip.copied{border-color:#4DAAFF}
 .chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
@@ -209,39 +211,58 @@ a:hover{color:#4DFFFF}
   <div class="flow-step">
     <div class="flow-num">7</div>
     <div class="flow-content">
-      <div class="flow-title">Try these to get started</div>
+      <div class="flow-title">Your skills, by example.</div>
+      <div class="chip-row-label">Start here</div>
       <div class="chip-grid">
         <div class="chip" onclick="copyChip(this,'Read my emails and calendar from this week. Build me a one-page HTML status canvas I can share with my manager — what I shipped, what is blocked, and what is coming next. Make it clean enough to paste into a Teams message.')">
           <div class="chip-quote">&ldquo;My emails and calendar, turned into a status I can send.&rdquo;</div>
           <div class="chip-tag">CANVAS</div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Read my last 5 days of emails and find the three most significant decisions I made or was part of. Save them to my vault as a decision log entry dated today with a one-line summary of each. I want to be able to look this up in any future session.')">
+        <div class="chip" onclick="copyChip(this,'Look at my calendar for tomorrow. Send me a Teams message AND an Outlook email right now with my first 3 meetings — time, title, and one thing I should prepare for each. Send both directly to me.')">
+          <div class="chip-quote">&ldquo;Tomorrow&rsquo;s meetings, sent to me on Teams and Outlook right now.&rdquo;</div>
+          <div class="chip-tag">AGENCY</div>
+        </div>
+        <div class="chip" onclick="copyChip(this,'Read the last week of my sent emails and pull out the three biggest decisions I made. Save them to my vault as a decision log entry dated today — one-line summary per decision, plus who was affected. I want to look this up in future sessions.')">
           <div class="chip-quote">&ldquo;Pull my decisions from this week before I forget them.&rdquo;</div>
           <div class="chip-tag">VAULT</div>
         </div>
+        <div class="chip" onclick="copyChip(this,'Scan the most recent commits in the repo I have open for hardcoded secrets, API keys, or credentials. Show me exactly what you found and what to do about it.')">
+          <div class="chip-quote">&ldquo;Scan my repo for anything I shouldn&rsquo;t have committed.&rdquo;</div>
+          <div class="chip-tag">SECURITY</div>
+        </div>
+      </div>
+      <div class="chip-row-label">Also try &mdash; manager skills</div>
+      <div class="chip-grid">
         <div class="chip" onclick="copyChip(this,'I have a direct report who has been quietly disengaging — still delivering, but less energy, fewer ideas, going quiet in meetings. Help me prepare for my 1:1 with them: give me the exact words to open the conversation, three questions to ask, and what I should avoid saying.')">
           <div class="chip-quote">&ldquo;I have a hard 1:1 this week. Help me prepare.&rdquo;</div>
-          <div class="chip-tag">SKILLS</div>
+          <div class="chip-tag">OPS</div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Send me a Teams chat (note to self) with my top three things to focus on today. Then send me an Outlook email with the same three things so I have it in my inbox. This is to test that you can actually act on my Microsoft 365.')">
-          <div class="chip-quote">&ldquo;Send me a Teams note + Outlook email &mdash; prove it works.&rdquo;</div>
-          <div class="chip-tag">AGENCY</div>
+        <div class="chip" onclick="copyChip(this,'Give me a sharp 3-point brief on Microsoft&apos;s current position against Google Workspace in enterprise productivity. I have a business review this week and I need to speak to this confidently.')">
+          <div class="chip-quote">&ldquo;A competitive snapshot before my next VP review.&rdquo;</div>
+          <div class="chip-tag">RESEARCH</div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Write a PowerShell script that lists all files modified in the last 7 days in my GitHub folder.')">
-          <div class="chip-quote">&ldquo;Write a PowerShell script for recently modified files.&rdquo;</div>
-          <div class="chip-tag">WORKBENCH</div>
+        <div class="chip" onclick="copyChip(this,'My team has too much planned for next quarter. Make the case for cutting 20% of our work so we do the rest better. Then give me the 3 strongest objections my team will raise and how I should answer each one.')">
+          <div class="chip-quote">&ldquo;The case for cutting 20% of the roadmap &mdash; and the pushback I&rsquo;ll get.&rdquo;</div>
+          <div class="chip-tag">BRAINSTORM</div>
         </div>
-        <div class="chip" onclick="copyChip(this,'What is on my calendar tomorrow? Just titles and times.')">
-          <div class="chip-quote">&ldquo;What&rsquo;s on my calendar tomorrow?&rdquo;</div>
-          <div class="chip-tag">M365 / READ</div>
+        <div class="chip" onclick="copyChip(this,'My team shipped 47 features last half. Our peer team shipped 23. My skip-level is going to ask why. Help me think through what that ratio actually means — what context matters, what metrics would tell the real story, and what I should say.')">
+          <div class="chip-quote">&ldquo;What my team&rsquo;s output numbers actually mean.&rdquo;</div>
+          <div class="chip-tag">DATA</div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Find 30 minutes on my calendar this week for a focus block and put it on my calendar as Deep work.')">
-          <div class="chip-quote">&ldquo;Book a 30-minute focus block on my calendar.&rdquo;</div>
-          <div class="chip-tag">M365 / AGENCY</div>
+      </div>
+      <div class="chip-row-label">Also try &mdash; workbench skills</div>
+      <div class="chip-grid">
+        <div class="chip" onclick="copyChip(this,'My team wants to adopt GitHub Actions for CI/CD. Research the real benefits, hidden costs, and what I should watch out for in the rollout. Give me a one-page brief I can bring to the decision meeting.')">
+          <div class="chip-quote">&ldquo;A real technical brief on a stack decision my team is making.&rdquo;</div>
+          <div class="chip-tag">RESEARCHER</div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Review my latest project document for clarity, completeness, and any gaps in the argument.')">
-          <div class="chip-quote">&ldquo;Audit my project doc for gaps.&rdquo;</div>
-          <div class="chip-tag">DESIGN AUDIT</div>
+        <div class="chip" onclick="copyChip(this,'Find my GitHub repos with open pull requests that have not been updated in more than 3 days. For each stalled PR, tell me if it looks abandoned and what I should ask the owner.')">
+          <div class="chip-quote">&ldquo;Which PRs in my repos have gone quiet?&rdquo;</div>
+          <div class="chip-tag">GITHUB</div>
+        </div>
+        <div class="chip" onclick="copyChip(this,'I want a custom AI Maker skill for my weekly engineering review. Write me a skill file that helps me prepare: what to read, what questions to ask, and what to watch for. Follow the AI Maker skill format.')">
+          <div class="chip-quote">&ldquo;Build a custom skill for my weekly engineering review.&rdquo;</div>
+          <div class="chip-tag">SKILL BUILDER</div>
         </div>
       </div>
       <div style="margin-top:16px;font-size:13px;opacity:.6">Agency mode: from the built-in terminal, run <code>agency gh-app</code> to enable M365 write actions (send emails, create meetings, post to Teams).</div>
