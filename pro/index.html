@@ -161,7 +161,7 @@ a:hover{color:#4DFFFF}
 <div class="install-hero">
   <div class="install-label">&gt;&gt; PASTE INTO POWERSHELL</div>
   <div class="install-cmd-wrap">
-    <span id="installCmd" class="install-cmd">$ProgressPreference='SilentlyContinue'; irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install.bat -OutFile $env:TEMP\install.bat; &amp; $env:TEMP\install.bat</span>
+    <span id="installCmd" class="install-cmd">curl.exe -sSL -o $env:TEMP\install.bat https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install.bat; &amp; $env:TEMP\install.bat</span>
     <button onclick="copyInstall()" id="installBtn" class="install-copy-btn" style="background:#CE1126">COPY</button>
   </div>
 </div>
