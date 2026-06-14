@@ -1,6 +1,6 @@
 # AI Maker
 
-An AI assistant for Microsoft managers. Install in about 10 minutes. Works on any Windows 10/11 machine with a GitHub account.
+An AI assistant for Microsoft managers. Install in about 10 minutes. Works on any Windows 11 machine with a GitHub account.
 
 AI Maker installs GitHub Copilot CLI and WorkIQ, sets up a personal workspace, and gives you an AI assistant trained on your role — with skills for research, design feedback, code review, ops, data, brainstorming, user research, canvas work, and long-term memory.
 
@@ -56,7 +56,7 @@ To share AI Maker with someone, run `package.ps1` to build `ai-maker-safe.zip`. 
 
 ## Requirements
 
-- Windows 10 or 11
+- Windows 11
 - Internet connection
 - A GitHub.com account (Microsoft Enterprise: `alias_microsoft`)
 - About 10 minutes
