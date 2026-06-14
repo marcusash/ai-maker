@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Account Setup &mdash; AI Maker</title>
+  <style>
+    :root {
+      --bg: #0d0d0d;
+      --surface: #111;
+      --border: #222;
+      --text: #e8e8e8;
+      --muted: #888;
+      --green: #00c853;
+      --green-dim: #00c85333;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      padding: 48px 24px 80px;
+    }
+    .wrap { max-width: 680px; margin: 0 auto; }
+    .back {
+      display: inline-block;
+      font-size: 13px;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 36px;
+    }
+    .back:hover { color: var(--text); }
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -.3px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 48px;
+    }
+
+    /* Path cards */
+    .path {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px 28px 24px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .path.primary { border-color: var(--green); }
+    .path-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 4px;
+      margin-bottom: 14px;
+    }
+    .path.primary .path-badge { background: var(--green-dim); color: var(--green); }
+    .path.optional .path-badge { background: #1a1a1a; color: var(--muted); }
+    .path.external .path-badge { background: #1a1a1a; color: var(--muted); }
+    .path h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+    .path .desc { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+
+    /* Steps within a path */
+    .steps { list-style: none; counter-reset: steps; }
+    .steps li {
+      counter-increment: steps;
+      display: flex;
+      gap: 14px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      align-items: flex-start;
+    }
+    .steps li::before {
+      content: counter(steps);
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #1e1e1e;
+      border: 1px solid #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+    .steps li a { color: var(--green); text-decoration: none; }
+    .steps li a:hover { text-decoration: underline; }
+    code {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 4px;
+      padding: 1px 6px;
+      font-size: 13px;
+      font-family: 'Cascadia Code', 'Fira Code', monospace;
+      color: var(--green);
+    }
+
+    .note {
+      margin-top: 16px;
+      padding: 12px 14px;
+      background: #111;
+      border-left: 3px solid #2a2a2a;
+      border-radius: 4px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .divider {
+      text-align: center;
+      color: var(--border);
+      font-size: 12px;
+      letter-spacing: .1em;
+      margin: 6px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <a class="back" href="/ai-maker/">&larr; Back to install guide</a>
+
+    <h1>GitHub Account Setup</h1>
+    <p class="subtitle">Three paths. Most Microsoft employees only need Path 1.</p>
+
+    <!-- PATH 1 -->
+    <div class="path primary">
+      <span class="path-badge">Path 1 &mdash; Default (everyone)</span>
+      <h2>Use your Microsoft enterprise account</h2>
+      <p class="desc">Your <code>alias_microsoft</code> account is already provisioned. The AI Maker install guide works with this account out of the box. Nothing extra to do.</p>
+      <ol class="steps">
+        <li>Sign in to <a href="https://github.com" target="_blank">github.com</a> with your Microsoft credentials. Your account looks like <code>marcusash_microsoft</code>.</li>
+        <li>Run the AI Maker installer. Done &mdash; GitHub Copilot is included with your Microsoft license.</li>
+      </ol>
+    </div>
+
+    <div class="divider">&#8942;</div>
+
+    <!-- PATH 2 -->
+    <div class="path optional">
+      <span class="path-badge">Path 2 &mdash; Optional (Microsoft employees)</span>
+      <h2>Also link a personal GitHub account</h2>
+      <p class="desc">Want to use AI Maker for personal projects, open source, or side work? You can link a personal GitHub account to your Microsoft identity &mdash; at no cost to you &mdash; and switch between the two freely.</p>
+      <ol class="steps">
+        <li>Create a personal GitHub account at <a href="https://github.com/signup" target="_blank">github.com/signup</a> if you don&rsquo;t have one. Use your personal email, not your Microsoft email.</li>
+        <li>Go to <a href="https://copilot.github.microsoft.com/link" target="_blank">copilot.github.microsoft.com/link</a> and sign in with your Microsoft corporate account.</li>
+        <li>Authorize your personal GitHub account when prompted. This creates the link between your Entra ID and your personal GitHub.</li>
+        <li>You&rsquo;ll see a confirmation: &ldquo;You are linked to [your personal account].&rdquo; Done.</li>
+        <li>In the GitHub Copilot app, sign out and sign back in with your personal account to switch between them.</li>
+      </ol>
+      <div class="note">
+        <strong>What linking does:</strong> Your personal GitHub account joins the Microsoft Copilot org. This grants GitHub Copilot on your personal account, centrally funded by Microsoft. Your personal account stays yours &mdash; if you leave Microsoft, the license is removed but your account and repos are unaffected.
+      </div>
+    </div>
+
+    <div class="divider">&#8942;</div>
+
+    <!-- PATH 3 -->
+    <div class="path external">
+      <span class="path-badge">Path 3 &mdash; Not at Microsoft</span>
+      <h2>Create a personal account</h2>
+      <p class="desc">Using this public repo outside of Microsoft? You can still run AI Maker with a personal GitHub account.</p>
+      <ol class="steps">
+        <li>Create a free account at <a href="https://github.com/signup" target="_blank">github.com/signup</a>.</li>
+        <li>Sign up for GitHub Copilot at <a href="https://github.com/features/copilot" target="_blank">github.com/features/copilot</a>.</li>
+        <li>Run the AI Maker installer and sign in with your personal account.</li>
+      </ol>
+    </div>
+
+  </div>
+</body>
+</html>
