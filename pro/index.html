@@ -161,7 +161,7 @@ a:hover{color:#4DFFFF}
 <div class="install-hero">
   <div class="install-label">&gt;&gt; PASTE INTO POWERSHELL</div>
   <div class="install-cmd-wrap">
-    <span id="installCmd" class="install-cmd">curl.exe -sSL -o $env:TEMP\install.bat https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install.bat; &amp; $env:TEMP\install.bat</span>
+    <span id="installCmd" class="install-cmd">curl.exe -sSL -o $env:TEMP\install.bat https://github.com/marcusash/ai-maker/releases/download/v3.0.3/install.bat; &amp; $env:TEMP\install.bat</span>
     <button onclick="copyInstall()" id="installBtn" class="install-copy-btn" style="background:#CE1126">COPY</button>
   </div>
 </div>
@@ -197,12 +197,12 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">6</div>
     <div class="flow-content">
       <div class="flow-title">Start your first session</div>
-      <div class="flow-desc">Open a new session in the App and paste this prompt:</div>
+      <div class="flow-desc">Open a new session in the App (it will be named <strong>&ldquo;Getting started&rdquo;</strong> &mdash; right-click to rename it to <strong>&ldquo;AI Maker&rdquo;</strong>). Then type:</div>
       <div class="prompt-block">
-        <div class="prompt-text" id="firstPrompt">I'm new here. Please introduce yourself, then ask me a few questions to learn my name, my role, my team, and what I'm working on right now.</div>
+        <div class="prompt-text" id="firstPrompt">hi</div>
         <button class="prompt-copy" id="firstPromptBtn" onclick="copyPrompt('firstPrompt','firstPromptBtn')">COPY THIS PROMPT</button>
       </div>
-      <div style="font-size:13px;opacity:.55;margin-top:4px">After onboarding, your agents greet you by name each session. All 22 skills are always active &mdash; just describe what you need.</div>
+      <div style="font-size:13px;opacity:.55;margin-top:4px">AI Maker greets you on first turn. Ask anything &mdash; if it's technical, AI Maker spins up AI Workbench in a new session. All 22 skills are always active.</div>
     </div>
   </div>
 
@@ -264,7 +264,7 @@ a:hover{color:#4DFFFF}
     <div class="trouble-label">The installer didn&rsquo;t finish or something looks off</div>
     <div style="opacity:.8;font-size:14px;margin-bottom:12px">It&rsquo;s safe to run again &mdash; the installer detects what&rsquo;s already in place and skips those steps.</div>
     <div class="reset-cmd-wrap">
-      <span id="resetCmd" class="reset-cmd">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/reset.bat -OutFile $env:TEMP\reset.bat; &amp; $env:TEMP\reset.bat</span>
+      <span id="resetCmd" class="reset-cmd">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.3/reset.bat -OutFile $env:TEMP\reset.bat; &amp; $env:TEMP\reset.bat</span>
       <button onclick="copyReset()" id="resetBtn" class="reset-copy-btn">COPY</button>
     </div>
   </div>
