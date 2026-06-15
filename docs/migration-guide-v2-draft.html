@@ -102,38 +102,53 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
     <div class="text-sm" style="opacity:.7">We copy. We never move. We never rename. We never delete.</div>
   </div>
 
-  <!-- NEW: scenarios section so users land on the right path -->
+  <!-- 4 explicit paths, no ambiguity -->
   <div class="section">
-    <div class="section-title text-lg">&gt; WHICH PATH IS FOR ME?</div>
-    <div class="section-text text-sm">Three situations. Pick yours.</div>
-    <table class="scenarios">
-      <thead>
-        <tr><th style="width:8%">#</th><th style="width:42%">Your situation</th><th style="width:30%">Right tool</th><th style="width:20%">Why</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong style="color:var(--matrix-green)">A</strong></td>
-          <td>Same PC. You have the old CLI AI Maker installed here. You want the new App.</td>
-          <td><code>migrate.ps1</code><br><span style="opacity:.7;font-size:12px">(this guide)</span></td>
-          <td>Migrate in place</td>
-        </tr>
-        <tr>
-          <td><strong style="color:#4A90D9">B</strong></td>
-          <td>New PC. You were a Blue Pill user before. Nothing on this machine yet.</td>
-          <td><a href="https://marcusash.github.io/ai-maker/">Blue Pill install</a></td>
-          <td>Fresh install. Old vault was local-only.</td>
-        </tr>
-        <tr>
-          <td><strong style="color:#CE1126">C</strong></td>
-          <td>New PC. You were a Red Pill user. You have an <code>ai-workspace</code> repo on GitHub.</td>
-          <td><a href="https://marcusash.github.io/ai-maker/pro/">Red Pill install</a></td>
-          <td>The installer reconnects your GitHub repo, that IS your restore</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="section-title text-lg">&gt; PICK YOUR EXACT SITUATION</div>
+    <div class="section-text text-sm">Four paths. Find yours and follow it.</div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px">
+
+      <!-- Path 1: Blue, same PC -->
+      <div class="col-box" style="border-left:4px solid var(--blue-pill)">
+        <div class="col-title" style="color:#4A90D9">PATH 1 &mdash; BLUE / SAME PC</div>
+        <div style="font-size:14px;opacity:.9;margin-bottom:10px">"I'm a Blue Pill user. AI maker is installed on this PC. I want to migrate to the new App on this same machine."</div>
+        <div style="font-size:13px;opacity:.7;margin-bottom:12px">Your vault and persona are preserved. The script runs the full Blue Pill install over the top.</div>
+        <a href="#how-to-migrate" style="display:inline-block;background:rgba(46,94,170,.15);border:1px solid var(--blue-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;font-weight:700;padding:10px 18px;border-radius:3px;text-decoration:none;letter-spacing:.08em">USE THIS GUIDE &darr;</a>
+      </div>
+
+      <!-- Path 2: Red, same PC -->
+      <div class="col-box" style="border-left:4px solid var(--red-pill)">
+        <div class="col-title" style="color:#CE1126">PATH 2 &mdash; RED / SAME PC</div>
+        <div style="font-size:14px;opacity:.9;margin-bottom:10px">"I'm a Red Pill user. AI maker (and maybe AI workbench) is installed on this PC. I want to migrate on this same machine."</div>
+        <div style="font-size:13px;opacity:.7;margin-bottom:12px">Your vault, persona, and dev tools are preserved. The script runs the full Red Pill install over the top.</div>
+        <a href="#how-to-migrate" style="display:inline-block;background:rgba(206,17,38,.15);border:1px solid var(--red-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;font-weight:700;padding:10px 18px;border-radius:3px;text-decoration:none;letter-spacing:.08em">USE THIS GUIDE &darr;</a>
+      </div>
+
+      <!-- Path 3: Blue, new PC -->
+      <div class="col-box" style="border-left:4px solid var(--blue-pill);opacity:.95">
+        <div class="col-title" style="color:#4A90D9">PATH 3 &mdash; BLUE / NEW PC</div>
+        <div style="font-size:14px;opacity:.9;margin-bottom:10px">"I was a Blue Pill user before. I'm on a new PC. Nothing is installed here yet. I want to start fresh."</div>
+        <div style="font-size:13px;opacity:.7;margin-bottom:12px">There's nothing on this machine to migrate. Run the regular Blue Pill install. Your old vault was local-only on the previous PC.</div>
+        <a href="https://marcusash.github.io/ai-maker/" style="display:inline-block;background:rgba(46,94,170,.15);border:1px solid var(--blue-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;font-weight:700;padding:10px 18px;border-radius:3px;text-decoration:none;letter-spacing:.08em">BLUE PILL INSTALL &rarr;</a>
+      </div>
+
+      <!-- Path 4: Red, new PC -->
+      <div class="col-box" style="border-left:4px solid var(--red-pill);opacity:.95">
+        <div class="col-title" style="color:#CE1126">PATH 4 &mdash; RED / NEW PC</div>
+        <div style="font-size:14px;opacity:.9;margin-bottom:10px">"I was a Red Pill user before. I'm on a new PC. I have my <code>ai-workspace</code> repo on GitHub from the previous machine."</div>
+        <div style="font-size:13px;opacity:.7;margin-bottom:12px">Run the regular Red Pill install. It detects your existing GitHub repo and reconnects it, that IS your restore. No migration needed.</div>
+        <a href="https://marcusash.github.io/ai-maker/pro/" style="display:inline-block;background:rgba(206,17,38,.15);border:1px solid var(--red-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;font-weight:700;padding:10px 18px;border-radius:3px;text-decoration:none;letter-spacing:.08em">RED PILL INSTALL &rarr;</a>
+      </div>
+
+    </div>
+
+    <div style="margin-top:20px;padding:12px 16px;background:rgba(0,59,0,.2);border:1px solid rgba(0,255,65,.2);border-radius:4px;font-size:13px;opacity:.75">
+      <strong style="color:var(--matrix-green)">Not sure if you have AI maker on this PC?</strong> Open File Explorer and look for <code>C:\AIMaker</code> or <code>C:\AIWorkbench</code>. If either exists, you're on Path 1 or Path 2. If not, you're on Path 3 or Path 4.
+    </div>
   </div>
 
-  <div class="divider">&gt;&gt;&gt; SCENARIO A: HOW IT WORKS &lt;&lt;&lt;</div>
+  <div class="divider">&gt;&gt;&gt; PATH 1 AND PATH 2 CONTINUE BELOW &lt;&lt;&lt;</div>
 
   <!-- NEW: the redesign concept explained -->
   <div class="section">
@@ -197,8 +212,8 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
 
   <div class="divider">&gt;&gt;&gt; READY TO MIGRATE? &lt;&lt;&lt;</div>
 
-  <div class="section">
-    <div class="section-title text-lg">&gt; HOW TO MIGRATE</div>
+  <div class="section" id="how-to-migrate">
+    <div class="section-title text-lg">&gt; HOW TO MIGRATE (Path 1 and Path 2)</div>
 
     <div class="step">
       <div class="step-num text-base">1</div>
