@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+﻿#Requires -Version 7.0
 <#
 .SYNOPSIS
     AI Maker v3 — CLI-to-App Migration Script
