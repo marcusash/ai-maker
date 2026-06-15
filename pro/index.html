@@ -50,7 +50,7 @@ a:hover{color:#4DFFFF}
 .chip-row-label{font-size:11px;font-weight:700;letter-spacing:2px;opacity:.5;text-transform:uppercase;margin:18px 0 0 2px}
 .chip-row-label:first-of-type{margin-top:8px}
 .chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
-.chip:hover{border-color:var(--matrix-green)}.chip.copied{border-color:#4DAAFF}
+.chip:hover{border-color:var(--matrix-green)}
 .chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
 .chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green)}
 .footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6;font-size:14px}
@@ -345,7 +345,11 @@ function copyPrompt(id,btnId){
 }
 function copyChip(el,text){
   navigator.clipboard.writeText(text).then(function(){
-    el.classList.add("copied");setTimeout(function(){el.classList.remove("copied")},2000);showToast();
+    var tag=el.querySelector('.chip-tag');
+    var orig=tag.textContent;
+    tag.textContent='COPIED!';
+    setTimeout(function(){tag.textContent=orig;},2000);
+    showToast();
   });
 }
 var canvas=document.getElementById("matrix");
