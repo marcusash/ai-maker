@@ -60,7 +60,7 @@ a:hover{color:#4DFFFF}
 .pill-blue:hover{opacity:1;transform:scale(1.05)}
 .pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2)}
 .pill-red:hover{transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
-.pill-current::after{content:">>> YOU ARE HERE";position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);color:var(--red-pill-light);text-shadow:0 0 8px var(--red-glow);animation:blink 1.5s infinite;font-size:12px;letter-spacing:.1em;white-space:nowrap}
+.pill-current::after{content:">>> YOU ARE HERE";position:absolute;bottom:-52px;left:50%;transform:translateX(-50%);color:var(--red-pill-light);text-shadow:0 0 8px var(--red-glow);animation:blink 1.5s infinite;font-size:12px;letter-spacing:.1em;white-space:nowrap}
 .plus-badge{display:inline-block;background:rgba(206,17,38,.2);border:1px solid var(--red-pill);color:var(--matrix-green);font-size:12px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:3px;margin-left:8px;vertical-align:middle}
 @keyframes pillshake{0%,100%{transform:translate(0,0) rotate(0deg)}8%{transform:translate(-2px,1px) rotate(-.5deg)}16%{transform:translate(3px,-1px) rotate(.4deg)}24%{transform:translate(-1px,2px) rotate(-.3deg)}33%{transform:translate(2px,-2px) rotate(.6deg)}42%{transform:translate(-3px,1px) rotate(-.4deg)}50%{transform:translate(1px,0) rotate(.2deg)}58%{transform:translate(-2px,-2px) rotate(-.5deg)}66%{transform:translate(3px,1px) rotate(.5deg)}75%{transform:translate(-1px,2px) rotate(-.2deg)}83%{transform:translate(2px,-1px) rotate(.4deg)}91%{transform:translate(-2px,0) rotate(-.3deg)}}
 .pill-red.pill-current{animation:pillshake 2.8s ease-in-out infinite}
@@ -118,7 +118,7 @@ a:hover{color:#4DFFFF}
 .skill-list{border-color:var(--accent-dim)}
 .skill-row{border-bottom-color:rgba(255,26,26,.1)}
 .skill-name{color:var(--accent);text-shadow:0 0 6px var(--accent-glow)}
-.reset-copy-btn{background:rgba(255,26,26,.15);color:var(--accent);border-color:var(--accent)}
+.pills{padding-bottom:56px}
 </style>
 </head>
 <body>
@@ -137,7 +137,7 @@ a:hover{color:#4DFFFF}
       <div class="pill-sub">See the truth</div>
     </div>
   </div>
-  <div style="display:flex;justify-content:center;gap:30px;margin-top:40px;font-size:12px;color:var(--matrix-green);letter-spacing:.08em">
+  <div style="display:flex;justify-content:center;gap:30px;margin-top:72px;font-size:12px;color:var(--matrix-green);letter-spacing:.08em">
     <div style="width:280px;text-align:center;opacity:.55">BLUE. Fastest setup. No GitHub required.</div>
     <div style="width:280px;text-align:center;opacity:.55">RED. Backup, restore anywhere, AI workbench included.</div>
   </div>
