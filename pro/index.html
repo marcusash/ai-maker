@@ -4,7 +4,7 @@
   <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RED PILL: AI maker Pro</title>
+  <title>RED PILL: AI maker</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -98,6 +98,35 @@ a:hover{color:#4DFFFF}
   .feature-grid,.chip-grid{grid-template-columns:1fr}
   .content{padding:24px 16px}.text-xl{font-size:22px}.text-lg{font-size:19px}
 }
+.skill-list{border:1px solid rgba(0,255,65,.2);border-radius:4px;overflow:hidden}
+.skill-row{display:flex;gap:20px;padding:14px 20px;border-bottom:1px solid rgba(0,255,65,.1);align-items:flex-start}
+.skill-row:last-child{border-bottom:none}
+.skill-name{flex-shrink:0;width:90px;font-weight:700;font-size:11px;letter-spacing:1px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green);padding-top:2px;text-transform:uppercase}
+.skill-body{flex:1;min-width:0}
+.skill-desc{font-size:13px;opacity:.85;line-height:1.6;margin-bottom:4px}
+.skill-trigger{font-size:12px;opacity:.5;font-style:italic}
+/* Red pill accent */
+:root{--accent:#FF1A1A;--accent-glow:rgba(255,26,26,.6);--accent-dim:rgba(255,26,26,.25)}
+.terminal{border-color:var(--accent);box-shadow:0 0 40px var(--accent-glow),inset 0 0 100px rgba(255,26,26,.04)}
+.terminal-header{background:rgba(206,17,38,.1);border-bottom-color:var(--accent)}
+.terminal-dot{border-color:var(--accent)}
+.section-title{color:var(--accent);border-left-color:var(--accent);text-shadow:0 0 8px var(--accent-glow)}
+.flow-num{background:var(--accent);color:#FFF;box-shadow:0 0 20px var(--accent-glow)}
+.flow-title{color:var(--accent);text-shadow:0 0 8px var(--accent-glow)}
+.install-hero{border-color:var(--accent);box-shadow:0 0 80px var(--accent-glow)}
+.install-cmd-wrap{border-color:var(--accent)}
+.install-copy-btn{background:var(--accent);color:#FFF}
+.install-copy-btn:hover{background:#FF5555}
+.chip{border-color:var(--accent-dim)}
+.chip:hover{border-color:var(--accent)}
+.chip-tag{color:var(--accent);border-top-color:var(--accent-dim)}
+.skill-list{border-color:var(--accent-dim)}
+.skill-row{border-bottom-color:rgba(255,26,26,.1)}
+.skill-name{color:var(--accent);text-shadow:0 0 6px var(--accent-glow)}
+.trouble-box{border-color:var(--accent-dim)}
+.trouble-item{border-bottom-color:rgba(255,26,26,.1)}
+.reset-cmd-wrap{border-color:var(--accent-dim)}
+.reset-copy-btn{background:rgba(255,26,26,.15);color:var(--accent);border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -110,17 +139,15 @@ a:hover{color:#4DFFFF}
     <a href="https://marcusash.github.io/ai-maker/" class="pill pill-blue">
       <div class="pill-label">BLUE PILL</div>
       <div class="pill-sub">Stay comfortable</div>
-      <div class="pill-detail">1 agent &middot; local &middot; 5 min</div>
     </a>
     <div class="pill pill-red pill-current">
       <div class="pill-label">RED PILL</div>
       <div class="pill-sub">See the truth</div>
-      <div class="pill-detail">2 agents &middot; GitHub backup &middot; 10 min</div>
     </div>
   </div>
-  <div style="text-align:center;margin-top:48px;font-size:12px;color:var(--matrix-green);opacity:.5;letter-spacing:.08em;line-height:2">
-    BLUE, fastest setup, no GitHub required &nbsp;&middot;&nbsp; RED, backup, restore anywhere, AI workbench included<br>
-    <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html" style="color:var(--matrix-green);opacity:.8;text-decoration:none">Upgrading from the old CLI setup? Migration guide &rarr;</a>
+  <div style="display:flex;justify-content:center;gap:30px;margin-top:40px;font-size:12px;color:var(--matrix-green);letter-spacing:.08em">
+    <div style="width:280px;text-align:center;opacity:.55">BLUE. Fastest setup. No GitHub required.</div>
+    <div style="width:280px;text-align:center;opacity:.55">RED. Backup, restore anywhere, AI workbench included.</div>
   </div>
 </div>
 
@@ -131,7 +158,7 @@ a:hover{color:#4DFFFF}
     <span style="margin-left:auto;opacity:.6">AI-MAKER-PRO.EXE</span>
   </div>
   <div class="terminal-body">
-    <div class="text-lg" style="margin-bottom:16px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; WHAT IS AI MAKER PRO?</div>
+    <div class="text-lg" style="margin-bottom:16px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; WHAT IS AI MAKER?</div>
     <div class="text-base" style="opacity:.9">For power users who want version control and the full technical skill set. Two AI agents, 22 skills, private GitHub repo that backs up your work, and restores it on any machine in minutes.</div>
     <div class="text-sm" style="margin-top:12px;opacity:.6">Everything the Blue Pill gives you, plus <strong style="color:var(--matrix-green)">AI workbench</strong>, <strong style="color:var(--matrix-green)">GitHub backup</strong>, and <strong style="color:var(--matrix-green)">cross-machine restore</strong>.</div>
   </div>
@@ -164,7 +191,7 @@ a:hover{color:#4DFFFF}
   <div class="install-label">&gt;&gt; PASTE INTO POWERSHELL</div>
   <div class="install-cmd-wrap">
     <span id="installCmd" class="install-cmd">curl.exe -sSL -o $env:TEMP\install.bat https://github.com/marcusash/ai-maker/releases/download/v3.0.5/install.bat; &amp; $env:TEMP\install.bat</span>
-    <button onclick="copyInstall()" id="installBtn" class="install-copy-btn" style="background:#CE1126">COPY</button>
+    <button onclick="copyInstall()" id="installBtn" class="install-copy-btn">COPY</button>
   </div>
 </div>
 
