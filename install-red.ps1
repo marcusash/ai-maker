@@ -99,7 +99,8 @@ if (-not $diskCheck.ok) {
     Write-Host "  ✗ $($diskCheck.message)" -ForegroundColor Red
     return
 }
-Write-Host "  ✓ Disk space OK ($($diskCheck.available) GB free)" -ForegroundColor Green
+$availableGb = [math]::Round($diskCheck.available / 1GB, 1)
+Write-Host "  ✓ Disk space OK ($availableGb GB free)" -ForegroundColor Green
 
 # ═══════════════════════════════════════════════════════════════
 # STEP 2: DETECT EXISTING STATE
