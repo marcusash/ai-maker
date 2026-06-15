@@ -102,8 +102,7 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
     <div class="text-sm" style="opacity:.7">We copy. We never move. We never rename. We never delete.</div>
   </div>
 
-  <!-- 4 explicit paths, no ambiguity -->
-  <div class="section">
+  <div class="section" id="path-picker">
     <div class="section-title text-lg">&gt; PICK YOUR EXACT SITUATION</div>
     <div class="section-text text-sm">Four paths. Find yours and follow it.</div>
 
@@ -114,7 +113,7 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
         <div class="col-title" style="color:#4A90D9">PATH 1 &mdash; BLUE / SAME PC</div>
         <div style="font-size:14px;opacity:.9;margin-bottom:10px">"I'm a Blue Pill user. AI maker is installed on this PC. I want to migrate to the new App on this same machine."</div>
         <div style="font-size:13px;opacity:.7;margin-bottom:12px">Your vault and persona are preserved. The script runs the full Blue Pill install over the top.</div>
-        <a href="#how-to-migrate" style="display:inline-block;background:rgba(46,94,170,.15);border:1px solid var(--blue-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;font-weight:700;padding:10px 18px;border-radius:3px;text-decoration:none;letter-spacing:.08em">USE THIS GUIDE &darr;</a>
+        <button onclick="choosePath('blue')" style="cursor:pointer;display:inline-block;background:rgba(46,94,170,.15);border:1px solid var(--blue-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;font-weight:700;padding:10px 18px;border-radius:3px;letter-spacing:.08em">SHOW ME THE STEPS &rarr;</button>
       </div>
 
       <!-- Path 2: Red, same PC -->
@@ -122,7 +121,7 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
         <div class="col-title" style="color:#CE1126">PATH 2 &mdash; RED / SAME PC</div>
         <div style="font-size:14px;opacity:.9;margin-bottom:10px">"I'm a Red Pill user. AI maker (and maybe AI workbench) is installed on this PC. I want to migrate on this same machine."</div>
         <div style="font-size:13px;opacity:.7;margin-bottom:12px">Your vault, persona, and dev tools are preserved. The script runs the full Red Pill install over the top.</div>
-        <a href="#how-to-migrate" style="display:inline-block;background:rgba(206,17,38,.15);border:1px solid var(--red-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;font-weight:700;padding:10px 18px;border-radius:3px;text-decoration:none;letter-spacing:.08em">USE THIS GUIDE &darr;</a>
+        <button onclick="choosePath('red')" style="cursor:pointer;display:inline-block;background:rgba(206,17,38,.15);border:1px solid var(--red-pill);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;font-weight:700;padding:10px 18px;border-radius:3px;letter-spacing:.08em">SHOW ME THE STEPS &rarr;</button>
       </div>
 
       <!-- Path 3: Blue, new PC -->
@@ -148,7 +147,13 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
     </div>
   </div>
 
-  <div class="divider">&gt;&gt;&gt; PATH 1 AND PATH 2 CONTINUE BELOW &lt;&lt;&lt;</div>
+  <div id="migration-flow" style="display:none">
+
+  <!-- Banner showing which path you chose, with back link -->
+  <div id="chosen-path-banner" style="background:rgba(0,59,0,.4);border:1px solid var(--matrix-green);padding:14px 20px;margin:30px 0;border-radius:4px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+    <div style="font-size:14px"><strong style="color:var(--matrix-green)" id="chosen-path-label">PATH 1: BLUE / SAME PC</strong> &mdash; <span style="opacity:.8">migration steps below</span></div>
+    <button onclick="resetPath()" style="cursor:pointer;background:transparent;border:1px solid rgba(0,255,65,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:12px;padding:6px 12px;border-radius:3px">&larr; PICK A DIFFERENT PATH</button>
+  </div>
 
   <!-- NEW: the redesign concept explained -->
   <div class="section">
@@ -392,6 +397,8 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
     </div>
   </div>
 
+  </div><!-- /migration-flow -->
+
   <div class="footer text-sm">
     <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
     <div style="margin-top:8px;color:#FFC800">DRAFT v2 for review. Live guide is at <a href="migration-guide.html" style="color:#FFC800">migration-guide.html</a>.</div>
@@ -433,6 +440,29 @@ function draw(){
   }
 }
 setInterval(draw,50);
+
+// Path branching: picker reveals migration content with right flavor
+function choosePath(flavor){
+  document.getElementById('path-picker').style.display='none';
+  document.getElementById('migration-flow').style.display='block';
+  var label=document.getElementById('chosen-path-label');
+  var banner=document.getElementById('chosen-path-banner');
+  if(flavor==='blue'){
+    label.textContent='PATH 1: BLUE / SAME PC';
+    banner.style.borderColor='#4A90D9';
+    label.style.color='#4A90D9';
+  } else {
+    label.textContent='PATH 2: RED / SAME PC';
+    banner.style.borderColor='#CE1126';
+    label.style.color='#CE1126';
+  }
+  window.scrollTo({top:document.getElementById('migration-flow').offsetTop-20,behavior:'smooth'});
+}
+function resetPath(){
+  document.getElementById('migration-flow').style.display='none';
+  document.getElementById('path-picker').style.display='block';
+  window.scrollTo({top:document.getElementById('path-picker').offsetTop-20,behavior:'smooth'});
+}
 </script>
 
 </body>
