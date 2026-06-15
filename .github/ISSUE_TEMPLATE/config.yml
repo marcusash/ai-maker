@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Browse the docs
-    url: https://marcusash.github.io/ai-maker/
-    about: Read the install guide, FAQ, and release notes before filing.
   - name: See existing issues
     url: https://github.com/marcusash/ai-maker/issues
     about: Someone may have already reported your problem or idea.
