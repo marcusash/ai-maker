@@ -1,24 +1,29 @@
-# AI Maker
+# AI maker
 
-An AI assistant for Microsoft managers. Installs in about 10 minutes on Windows 11.
+One AI assistant. Eleven skills. Five minutes to set up.
 
-## Install
+Works inside the [GitHub Copilot App](https://github.com/features/copilot) on Windows 11. No admin rights. No configuration. Describe what you need, it routes to the right skill automatically.
 
-Go to **[marcusash.github.io/ai-maker](https://marcusash.github.io/ai-maker/)** and follow the steps.
+## Get started
 
-Two flavors:
+**[marcusash.github.io/ai-maker](https://marcusash.github.io/ai-maker/)** — pick your path.
 
-- **Blue Pill** &mdash; AI Maker only. The fastest path. Most people start here.
-- **[Red Pill](https://marcusash.github.io/ai-maker/pro/)** &mdash; AI Maker + AI Workbench. Adds a technical agent for code, scripts, and GitHub.
+**Blue Pill.** Stay comfortable. One agent, 11 skills, fastest setup. Research, writing, brainstorming, design feedback, ops, data, calendar, memory. Start here.
+
+**Red Pill.** See the truth. Two agents, 22 skills, GitHub-backed workspace. Everything above plus a full technical workbench: code review, PowerShell, pipelines, debugging, security. Restores to any machine in minutes.
 
 ## What you get
 
-A personalized assistant with skills for research, design feedback, code review, ops, data, brainstorming, user research, canvas work, and long-term memory. It learns how you work and gets better over time.
+`Canvas` `Vault` `WorkIQ` `Agency` `Research` `Design` `Writing` `Code` `Data` `Brainstorm` `Ops`
+
+Red Pill adds: `Researcher` `PowerShell` `CI/CD` `Security` `Prompts` `Testing` `Design Audit` `Data Pipelines` `Debugging` `Vision` `GitHub`
+
+It learns how you work. Gets sharper over time.
 
 ## Feedback
 
-[Send feedback](https://github.com/marcusash/ai-maker/issues/new/choose) or [browse existing reports](https://github.com/marcusash/ai-maker/issues). Or reach Marcus on [Teams](https://teams.microsoft.com/l/chat/0/0?users=marcusash@microsoft.com) or [email](mailto:marcusash@microsoft.com).
+[Open an issue](https://github.com/marcusash/ai-maker/issues/new/choose) or [browse existing reports](https://github.com/marcusash/ai-maker/issues). Ping Marcus on [Teams](https://teams.microsoft.com/l/chat/0/0?users=marcusash@microsoft.com) or [email](mailto:marcusash@microsoft.com).
 
-## Owner
+---
 
-Marcus Ash, CVP of Design, Microsoft.
+Built by Marcus Ash, CVP of Design, Microsoft.
