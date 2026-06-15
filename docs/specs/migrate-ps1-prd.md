@@ -1,4 +1,4 @@
-# Migration PRD
+# migrate.ps1 PRD
 
 ## Report requirements
 

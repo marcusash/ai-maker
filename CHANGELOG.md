@@ -10,3 +10,4 @@
 - Ports FD/FS website polish into source, including the legacy CLI migration callout in the install guide and confirmed copy cleanup for onboarding and site wording.
 - Clarifies the migration PRD report requirement for legacy-install reassurance versus no-candidate rerun guidance.
 - Adds the FS-reviewed first-session onboarding guidance to the install guide with the current two-question interview copy.
+- Adds the FS-reviewed `existing-install-guide.html` artifact and the migrate.ps1 PRD §9b clarification to the release source.
