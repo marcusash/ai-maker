@@ -1,61 +1,12 @@
 name: Report a problem
-description: Something broke, didn't install, or didn't work the way you expected.
+description: Something broke or didn't work the way you expected.
 title: "[Bug] "
 labels: ["bug"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Thanks for taking a minute to report this. It makes AI Maker better for everyone.
-
-        You don't need to know any code. Just tell us what happened in your own words.
-  - type: input
-    id: what-happened
-    attributes:
-      label: What happened?
-      description: A short description of what went wrong.
-      placeholder: "e.g. The installer stopped with an error after step 3"
-    validations:
-      required: true
-  - type: input
-    id: what-expected
-    attributes:
-      label: What did you expect to happen instead?
-      placeholder: "e.g. The install should have completed and opened AI maker"
-    validations:
-      required: true
-  - type: dropdown
-    id: area
-    attributes:
-      label: Which part of AI Maker?
-      options:
-        - Blue Pill install (AI maker only)
-        - Red Pill install (AI maker + AI workbench)
-        - The AI maker agent itself (replies, persona, behavior)
-        - The website (marcusash.github.io/ai-maker)
-        - Account setup / GitHub sign-in
-        - Reset / uninstall script
-        - Something else
-    validations:
-      required: true
   - type: textarea
-    id: steps
+    id: what
     attributes:
-      label: Steps to reproduce (if you can)
-      description: Optional. What did you do right before it broke?
-      placeholder: |
-        1. Ran reset.bat
-        2. Opened the install page
-        3. Clicked "Install Blue Pill"
-        4. Saw error: ...
-  - type: input
-    id: version
-    attributes:
-      label: AI Maker version + Windows version
-      description: You can find the AI Maker version on the website (footer). Windows version is in Settings → System → About.
-      placeholder: "e.g. AI Maker v3.0.5, Windows 11 23H2"
-  - type: textarea
-    id: extra
-    attributes:
-      label: Anything else?
-      description: Screenshots, error text, or context. Drag images right into this box.
+      label: What's wrong?
+      description: Tell us what happened in your own words. Screenshots welcome (drag them in).
+    validations:
+      required: true

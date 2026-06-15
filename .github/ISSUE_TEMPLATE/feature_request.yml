@@ -1,35 +1,11 @@
 name: Suggest an improvement
-description: An idea, a copy change, a new skill, a polish item, anything you'd like to see.
+description: An idea, a copy change, a polish item, anything you'd like to see.
 title: "[Idea] "
 labels: ["enhancement"]
 body:
-  - type: markdown
-    attributes:
-      value: |
-        Got an idea for AI Maker? Drop it here. No format pressure. Just tell us what you're thinking.
   - type: textarea
     id: idea
     attributes:
       label: What would you like to see?
-      placeholder: "e.g. I wish AI maker could draft a Teams message in my voice"
-    validations:
-      required: true
-  - type: textarea
-    id: why
-    attributes:
-      label: Why does this matter to you?
-      description: Optional. Helps us prioritize.
-      placeholder: "e.g. I write the same status update every Friday and it would save me 15 min"
-  - type: dropdown
-    id: area
-    attributes:
-      label: Which part of AI Maker?
-      options:
-        - The AI maker agent (skills, persona, behavior)
-        - The AI workbench agent (Red Pill technical agent)
-        - Install / setup experience
-        - The website
-        - Documentation
-        - Something else
     validations:
       required: true
