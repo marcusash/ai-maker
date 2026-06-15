@@ -229,32 +229,84 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
     <div class="step">
       <div class="step-num text-base">3</div>
       <div class="step-content">
-        <div class="step-title text-md">Backup phase</div>
-        <div class="step-text text-sm">Your vault and persona are copied to a safe location at <code>%TEMP%\ai-maker-migration-backup\</code>. Your original folder is not touched.</div>
+        <div class="step-title text-md">Confirm and let it run</div>
+        <div class="step-text text-sm" style="margin-bottom:10px">The script prints what it detected and what will happen, then asks for confirmation. Type Y to proceed.</div>
+        <div class="step-text text-sm" style="margin-bottom:10px"><strong style="color:var(--matrix-green)">From this point everything is automatic:</strong></div>
+        <div class="flow-diagram" style="margin:10px 0">
+          <div class="flow-step"><strong style="color:var(--matrix-green)">a.</strong> Your vault and persona copy to <code>%TEMP%\ai-maker-migration-backup\</code></div>
+          <div class="flow-arrow">v</div>
+          <div class="flow-step"><strong style="color:var(--matrix-green)">b.</strong> The full installer runs (App, all skills, WorkIQ, Agency, workspace, GitHub repo for Red Pill)</div>
+          <div class="flow-arrow">v</div>
+          <div class="flow-step"><strong style="color:var(--matrix-green)">c.</strong> Your vault and persona restore into <code>C:\GitHub\ai-workspace\</code></div>
+          <div class="flow-arrow">v</div>
+          <div class="flow-step"><strong style="color:var(--matrix-green)">d.</strong> Script prints "DONE" and exits</div>
+        </div>
+        <div class="step-text text-sm" style="margin-top:10px;opacity:.7">Takes 5 to 10 minutes depending on your connection. Your old folder is not touched.</div>
       </div>
     </div>
+  </div>
+
+  <div class="divider">&gt;&gt;&gt; AFTER THE SCRIPT FINISHES &lt;&lt;&lt;</div>
+
+  <div class="section">
+    <div class="section-title text-lg">&gt; FIRST RUN IN THE APP</div>
+    <div class="section-text text-sm">Same steps a fresh user takes, with your migrated content already in place.</div>
 
     <div class="step">
       <div class="step-num text-base">4</div>
       <div class="step-content">
-        <div class="step-title text-md">Install phase</div>
-        <div class="step-text text-sm">The migration script hands off to the regular installer (<code>install-blue.ps1</code> or <code>install-red.ps1</code>, depending on your flavor). This installs the GitHub Copilot App, all skills, WorkIQ, Agency MCP servers, the workspace folder, and (for Red Pill) creates your <code>ai-workspace</code> GitHub repo. Same exact install a fresh user gets.</div>
+        <div class="step-title text-md">Open the GitHub Copilot App</div>
+        <div class="step-text text-sm">The app opens automatically after install. Or search <strong style="color:var(--matrix-green)">"GitHub Copilot"</strong> in the Start menu.</div>
+        <div class="info-box" style="margin-top:12px">
+          <div class="info-title">When asked to sign in</div>
+          <div class="info-text">
+            <ul style="margin-top:6px;padding-left:20px">
+              <li style="margin-bottom:6px">Go to <a href="https://github.com" target="_blank">github.com</a> and sign in with your enterprise credentials, your <code>alias_microsoft</code> account</li>
+              <li style="margin-bottom:6px">The app will show you a code, enter it on GitHub when prompted to authorize the device</li>
+              <li>Follow the prompts to complete the connection</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num text-base">5</div>
       <div class="step-content">
-        <div class="step-title text-md">Restore phase</div>
-        <div class="step-text text-sm">Your vault and persona are copied from the backup into the new workspace at <code>C:\GitHub\ai-workspace\</code>. If your <code>copilot-instructions.md</code> was customized, your version wins. If it was stock, the new v3 version is used.</div>
+        <div class="step-title text-md">Add your project folder</div>
+        <div class="step-text text-sm">In the App's left rail, find the <strong>Sessions</strong> section and click the <strong>+</strong> button next to it. Choose <strong>Add local folder</strong> and select <code>C:\GitHub\ai-workspace</code>. This is where your AI agent lives, the folder was created during migration and already contains your vault and persona.</div>
       </div>
     </div>
 
     <div class="step">
       <div class="step-num text-base">6</div>
       <div class="step-content">
-        <div class="step-title text-md">Verify and clean up at your own pace</div>
-        <div class="step-text text-sm">Open the Copilot App. Add <code>C:\GitHub\ai-workspace</code> as a project. Ask your agent: <em>"What do you remember about me?"</em> Once you've confirmed everything is there, you can delete <code>C:\AIMaker</code> whenever you want. No rush. It's just taking up disk space.</div>
+        <div class="step-title text-md">Start your first session</div>
+        <div class="step-text text-sm">Open a new session in the App and say hello. AI maker greets you using your migrated persona, your old context and notes are right where you left them. All your skills are always active.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">7</div>
+      <div class="step-content">
+        <div class="step-title text-md">Verify your stuff is there</div>
+        <div class="step-text text-sm" style="margin-bottom:10px">Ask your agent these to confirm the migration worked:</div>
+        <div class="info-box" style="margin:8px 0">
+          <div class="info-text" style="opacity:.9">
+            <div style="margin-bottom:6px"><em>"What do you remember about me?"</em></div>
+            <div style="margin-bottom:6px"><em>"What's in my vault?"</em></div>
+            <div><em>"Read my latest decision from the vault and summarize it."</em></div>
+          </div>
+        </div>
+        <div class="step-text text-sm" style="margin-top:10px">If everything is there, you're done. If anything is missing, your old folder is still intact, your backup is in <code>%TEMP%\ai-maker-migration-backup\</code>, nothing was lost.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num text-base">8</div>
+      <div class="step-content">
+        <div class="step-title text-md">Clean up at your own pace</div>
+        <div class="step-text text-sm">Once you've confirmed everything is working, you can delete <code>C:\AIMaker</code> (and <code>C:\AIWorkbench</code> if you had it) whenever you want. No rush. They're just taking up disk space at this point.</div>
       </div>
     </div>
   </div>
