@@ -1,0 +1,10 @@
+name: Send feedback
+description: Report a bug, share an idea, or ask a question.
+body:
+  - type: textarea
+    id: feedback
+    attributes:
+      label: What's on your mind?
+      description: Bug, idea, question, anything. Screenshots welcome (drag them in).
+    validations:
+      required: true
