@@ -233,7 +233,8 @@ a:hover{color:#4DFFFF}
 </div>
 
 <div class="section">
-  <div class="section-title text-lg" onclick="toggleWYG()" style="cursor:pointer;user-select:none">&gt; WHAT YOU GET <span id="wyg-chevron" style="font-size:16px;margin-left:8px;opacity:.7">&#9654;</span></div>
+  <div class="section-title text-lg">&gt; WHAT YOU GET</div>
+  <button onclick="toggleWYG()" id="wyg-toggle-btn" style="background:transparent;border:1px solid rgba(0,255,65,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;letter-spacing:.1em;padding:8px 20px;cursor:pointer;margin-bottom:16px;display:block">+ SHOW ALL 11 SKILLS</button>
   <div id="wyg-body" style="display:none"><div class="terminal"><div class="terminal-body">
     <div style="opacity:.7;font-size:14px;margin-bottom:16px">One AI agent with 11 dedicated skills. Describe what you need, it routes automatically.</div>
     <div class="skill-list">
@@ -284,9 +285,9 @@ a:hover{color:#4DFFFF}
 }
 function toggleWYG(){
   var b=document.getElementById('wyg-body');
-  var c=document.getElementById('wyg-chevron');
-  if(b.style.display==='none'){b.style.display='block';c.innerHTML='&#9660;';}
-  else{b.style.display='none';c.innerHTML='&#9654;';}
+  var btn=document.getElementById('wyg-toggle-btn');
+  if(b.style.display==='none'){b.style.display='block';btn.textContent='- HIDE SKILL LIST';}
+  else{b.style.display='none';btn.textContent='+ SHOW ALL 11 SKILLS';}
 }
 function copyInstall(){
   var cmd=document.getElementById("installCmd").textContent;

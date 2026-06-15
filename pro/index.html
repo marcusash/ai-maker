@@ -240,7 +240,8 @@ a:hover{color:#4DFFFF}
 
 <div class="section">
   <div class="section-title text-lg">&gt; WHAT YOU GET</div>
-  <div class="terminal"><div class="terminal-body">
+  <button onclick="toggleWYG()" id="wyg-toggle-btn" style="background:transparent;border:1px solid rgba(0,255,65,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;letter-spacing:.1em;padding:8px 20px;cursor:pointer;margin-bottom:16px;display:block">+ SHOW ALL 22 SKILLS</button>
+  <div id="wyg-body" style="display:none"><div class="terminal"><div class="terminal-body">
     <div style="opacity:.7;font-size:14px;margin-bottom:16px">Two AI agents, 22 skills, GitHub-backed workspace. Describe what you need, they route automatically.</div>
     <div style="font-size:11px;font-weight:700;letter-spacing:2px;opacity:.5;text-transform:uppercase;margin-bottom:8px">AI maker, 11 skills</div>
     <div class="skill-list">
@@ -271,7 +272,7 @@ a:hover{color:#4DFFFF}
       <div class="skill-row"><div class="skill-name">GitHub</div><div class="skill-body"><div class="skill-desc">Repo operations, branch management, pull requests, GitHub Pages, git workflows.</div><div class="skill-trigger">Trigger: &ldquo;Create a repo.&rdquo; / &ldquo;Set up GitHub Pages.&rdquo; / &ldquo;Manage this PR.&rdquo;</div></div></div>
     </div>
   </div></div>
-</div>
+</div></div>
 
 <div class="section">
   <div class="section-title text-lg">&gt; RESTORE ON A NEW MACHINE</div>
@@ -312,6 +313,12 @@ a:hover{color:#4DFFFF}
   t.textContent=msg||"Copied to clipboard";
   t.style.opacity="1";t.style.transform="translateX(-50%) translateY(0)";
   setTimeout(function(){t.style.opacity="0";t.style.transform="translateX(-50%) translateY(10px)"},2000);
+}
+function toggleWYG(){
+  var b=document.getElementById('wyg-body');
+  var btn=document.getElementById('wyg-toggle-btn');
+  if(b.style.display==='none'){b.style.display='block';btn.textContent='- HIDE SKILL LIST';}
+  else{b.style.display='none';btn.textContent='+ SHOW ALL 22 SKILLS';}
 }
 function copyInstall(){
   var cmd=document.getElementById("installCmd").textContent;
