@@ -1,12 +1,12 @@
 name: Suggest an improvement
-description: An idea, a copy change, a new skill, a polish item — anything you'd like to see.
+description: An idea, a copy change, a new skill, a polish item, anything you'd like to see.
 title: "[Idea] "
 labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
       value: |
-        Got an idea for AI Maker? Drop it here. No format pressure — just tell us what you're thinking.
+        Got an idea for AI Maker? Drop it here. No format pressure. Just tell us what you're thinking.
   - type: textarea
     id: idea
     attributes:
@@ -18,7 +18,7 @@ body:
     id: why
     attributes:
       label: Why does this matter to you?
-      description: Optional — helps us prioritize.
+      description: Optional. Helps us prioritize.
       placeholder: "e.g. I write the same status update every Friday and it would save me 15 min"
   - type: dropdown
     id: area
