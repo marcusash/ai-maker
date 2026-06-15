@@ -11,3 +11,4 @@
 - Clarifies the migration PRD report requirement for legacy-install reassurance versus no-candidate rerun guidance.
 - Adds the FS-reviewed first-session onboarding guidance to the install guide with the current two-question interview copy.
 - Adds the FS-reviewed `existing-install-guide.html` artifact and the migrate.ps1 PRD §9b clarification to the release source.
+- Replaces the brittle individual M365 MCP `agency config set` installer step with the shared Agency MCP registration path for `workiq` and `bluebird`.

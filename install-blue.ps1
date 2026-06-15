@@ -167,19 +167,10 @@ if (-not $SkillsOnly) {
     }
     else { Write-Host "  [WhatIf] Would install Agency via aka.ms/InstallTool.ps1" -ForegroundColor Cyan }
 
-    # 3b. Enable M365 MCP set (teams/mail/calendar/etc). workiq + bluebird are preloaded by Agency defaults.
-    Write-Host "  → Enabling M365 MCP servers (teams, mail, calendar, ...)..." -ForegroundColor Gray
-    $agencyCmd = (Get-Command agency.exe -EA SilentlyContinue).Source
-    if (-not $agencyCmd) { $agencyCmd = $script:AIMakerConfig.AgencyBinaryFallback }
-    if (-not $WhatIf) {
-        & $agencyCmd config set `
-            --mcp teams --mcp mail --mcp calendar --mcp planner `
-            --mcp sharepoint --mcp onedrive --mcp m365-copilot `
-            --mcp m365-user --mcp engage --mcp word --global 2>&1 | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw "agency config set --mcp ... failed (exit: $LASTEXITCODE)" }
-        Write-Host "  ✓ M365 MCP servers configured (teams, mail, calendar, planner, sharepoint, onedrive, m365-copilot, m365-user, engage, word)" -ForegroundColor Green
-    }
-    else { Write-Host "  [WhatIf] Would configure M365 MCP set via agency config set" -ForegroundColor Cyan }
+    # 3b. Register Agency MCP servers. Agency exposes M365 through workiq; bluebird is the companion server.
+    Write-Host "  → Registering Agency MCP servers (workiq, bluebird)..." -ForegroundColor Gray
+    Register-AgencyMcpServers -WhatIf:$WhatIf
+    Write-Host "  ✓ Agency MCP servers registered" -ForegroundColor Green
 }
 
 # ═══════════════════════════════════════════════════════════════
@@ -279,11 +270,8 @@ Write-Host "  ✓ Manifest written" -ForegroundColor Green
 # ═══════════════════════════════════════════════════════════════
 # STEP 7: LAUNCH COPILOT APP via `agency gh-app`
 # This installs the GitHub Copilot App (from GitHub releases) on first run
-# and launches it with Agency mode enabled. Agency owns: Entra auth + all
-# MCP servers (workiq, bluebird, teams, mail, calendar, etc. — configured
-# in Step 3b). We do NOT write ~/.copilot/m-mcp-servers.json ourselves —
-# that was wrong in v3.0.1/v3.0.2; Agency uses its own config at
-# %LOCALAPPDATA%\agency\agency.toml which the App reads in Agency mode.
+# and launches it with Agency mode enabled. Agency owns Entra auth;
+# Step 3b registers workiq + bluebird for Copilot App MCP discovery.
 # ═══════════════════════════════════════════════════════════════
 
 if (-not $SkipAppLaunch) {

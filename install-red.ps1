@@ -220,19 +220,10 @@ if (-not $SkillsOnly) {
     }
     else { Write-Host "  [WhatIf] Would install Agency via aka.ms/InstallTool.ps1" -ForegroundColor Cyan }
 
-    # Enable M365 MCP set (teams/mail/calendar/etc). workiq + bluebird preloaded.
-    Write-Host "  → Enabling M365 MCP servers (teams, mail, calendar, ...)..." -ForegroundColor Gray
-    $agencyCmd = (Get-Command agency.exe -EA SilentlyContinue).Source
-    if (-not $agencyCmd) { $agencyCmd = $script:AIMakerConfig.AgencyBinaryFallback }
-    if (-not $WhatIf) {
-        & $agencyCmd config set `
-            --mcp teams --mcp mail --mcp calendar --mcp planner `
-            --mcp sharepoint --mcp onedrive --mcp m365-copilot `
-            --mcp m365-user --mcp engage --mcp word --global 2>&1 | Out-Null
-        if ($LASTEXITCODE -ne 0) { throw "agency config set --mcp ... failed (exit: $LASTEXITCODE)" }
-        Write-Host "  ✓ M365 MCP servers configured" -ForegroundColor Green
-    }
-    else { Write-Host "  [WhatIf] Would configure M365 MCP set via agency config set" -ForegroundColor Cyan }
+    # Register Agency MCP servers. Agency exposes M365 through workiq; bluebird is the companion server.
+    Write-Host "  → Registering Agency MCP servers (workiq, bluebird)..." -ForegroundColor Gray
+    Register-AgencyMcpServers -WhatIf:$WhatIf
+    Write-Host "  ✓ Agency MCP servers registered" -ForegroundColor Green
 
     # GitHub Copilot CLI extension
     $hasCopilotExt = (gh extension list 2>$null) -match "copilot"
@@ -487,10 +478,7 @@ if (-not $SkillsOnly) {
 # STEP 10: CLEANUP + INSTRUCTIONS
 # ═══════════════════════════════════════════════════════════════
 
-# MCP registration is owned by Agency itself (configured in Step 3 via
-# `agency config set --mcp ...`). We no longer write ~/.copilot/m-mcp-servers.json
-# — Agency reads from %LOCALAPPDATA%\agency\agency.toml and the Copilot App
-# inherits that config when launched via `agency gh-app`.
+# Step 3 registers workiq + bluebird for Copilot App MCP discovery.
 
 if (-not $SkipAppLaunch) {
     Write-Host "`nStep 9b: Launching Copilot App in Agency mode..." -ForegroundColor White
