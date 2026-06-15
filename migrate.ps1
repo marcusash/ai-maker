@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.0
+﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
     AI Maker v3 — CLI-to-App Migration Script
@@ -419,7 +419,7 @@ else {
 Write-Host "`nStep 8: Creating workspace and copying data..." -ForegroundColor White
 
 # Create scaffold (idempotent)
-New-WorkspaceScaffold -Pill "red" -WhatIf:$WhatIf
+New-WorkspaceScaffold -Pill $pillTarget -WhatIf:$WhatIf
 Write-Host "  ✓ Workspace scaffold ready" -ForegroundColor Green
 
 # Copy vault data
