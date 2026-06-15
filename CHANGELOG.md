@@ -9,3 +9,4 @@
 - Includes the validated post-v3.0.5 site and documentation updates already merged to `main`: Matrix-themed README, pill selector copy and spacing fixes, feedback issue templates, account setup refresh, migration guide draft updates, install/reset link updates, and copy-button styling fixes.
 - Ports FD/FS website polish into source, including the legacy CLI migration callout in the install guide and confirmed copy cleanup for onboarding and site wording.
 - Clarifies the migration PRD report requirement for legacy-install reassurance versus no-candidate rerun guidance.
+- Adds the FS-reviewed first-session onboarding guidance to the install guide with the current two-question interview copy.
