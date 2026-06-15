@@ -95,6 +95,13 @@ a:hover{color:#4DFFFF}
   .feature-grid,.chip-grid{grid-template-columns:1fr}
   .content{padding:24px 16px}.text-xl{font-size:22px}.text-lg{font-size:19px}
 }
+.skill-list{border:1px solid rgba(0,255,65,.2);border-radius:4px;overflow:hidden}
+.skill-row{display:flex;gap:20px;padding:14px 20px;border-bottom:1px solid rgba(0,255,65,.1);align-items:flex-start}
+.skill-row:last-child{border-bottom:none}
+.skill-name{flex-shrink:0;width:90px;font-weight:700;font-size:11px;letter-spacing:1px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green);padding-top:2px;text-transform:uppercase}
+.skill-body{flex:1;min-width:0}
+.skill-desc{font-size:13px;opacity:.85;line-height:1.6;margin-bottom:4px}
+.skill-trigger{font-size:12px;opacity:.5;font-style:italic}
 </style>
 </head>
 <body>
@@ -165,7 +172,7 @@ a:hover{color:#4DFFFF}
     <button onclick="copyInstall()" id="installBtn" class="install-copy-btn">COPY</button>
   </div>
 </div>
-      <div class="install-note">&#9432;&nbsp; Installs the GitHub Copilot App, 11 AI skills, and Agency. Takes ~5 minutes. No admin rights required.<br>&#9432;&nbsp; Nothing is pushed to GitHub &mdash; your workspace stays local in <code>C:\GitHub\ai-workspace</code>.</div>
+
     </div>
   </div>
 
@@ -181,7 +188,7 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">4</div>
     <div class="flow-content">
       <div class="flow-title">Add your project folder</div>
-      <div class="flow-desc">In the App's left rail, find the <strong>Sessions</strong> section and click the <strong>+</strong> button next to it. Choose <strong>Add local folder</strong> and select <code>C:\GitHub\ai-workspace</code>. This is where your AI agent lives &mdash; the folder was created during install.</div>
+      <div class="flow-desc">In the App's left rail, find the <strong>Sessions</strong> section and click the <strong>+</strong> button next to it. Choose <strong>Add local folder</strong> and select <code style="white-space:nowrap">C:\GitHub\ai-workspace</code>. This is where your AI agent lives &mdash; the folder was created during install.</div>
     </div>
   </div>
 
@@ -196,55 +203,23 @@ a:hover{color:#4DFFFF}
   <div class="flow-step">
     <div class="flow-num">6</div>
     <div class="flow-content">
-      <div class="flow-title">Your skills, by example.</div>
-      <div class="chip-row-label">Start here</div>
-      <div class="chip-grid">
+      <div class="flow-title">Try these. Click to copy, then paste into AI maker.</div>
+      <div class="chip-grid" style="margin-top:12px">
         <div class="chip" onclick="copyChip(this,'Read my emails, calendar entries that have transcripts or meeting notes, and Teams messages. Write a status report for the last 3 days that I can send to my team. Display it in a canvas for me to review and edit.')">
-          <div class="chip-quote">&ldquo;My emails, meetings, and Teams &mdash; status report for the last 3 days, in a canvas.&rdquo;</div>
+          <div class="chip-quote">Read my emails, meetings, and Teams. Write a status report for the last 3 days in a canvas.</div>
           <div class="chip-tag">CANVAS</div>
         </div>
         <div class="chip" onclick="copyChip(this,'Write a Teams message to me that summarizes tomorrow\'s meetings and gives me advice on key things to prepare.')">
-          <div class="chip-quote">&ldquo;Tomorrow&rsquo;s meetings with prep advice, sent to me on Teams.&rdquo;</div>
+          <div class="chip-quote">Write a Teams message to me with tomorrow&rsquo;s meetings and prep advice.</div>
           <div class="chip-tag">AGENCY</div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Read the last week of my sent emails and pull out the three biggest decisions I made. Save them to my vault as a decision log entry dated today — one-line summary per decision, plus who was affected. I want to look this up in future sessions.')">
-          <div class="chip-quote">&ldquo;Pull my decisions from this week before I forget them.&rdquo;</div>
-          <div class="chip-tag">VAULT</div>
+        <div class="chip" onclick="copyChip(this,'Take the actions from my last meeting that I should follow up on and create a canvas where I can review them, then store the ones I decide to keep in the vault.')">
+          <div class="chip-quote">Take my meeting actions, show them in a canvas, save the ones I keep to my vault.</div>
+          <div class="chip-tag">CANVAS + VAULT</div>
         </div>
         <div class="chip" onclick="copyChip(this,'I have a direct report who has been quietly disengaging — still delivering, but less energy, fewer ideas, going quiet in meetings. Help me prepare for my 1:1 with them: give me the exact words to open the conversation, three questions to ask, and what I should avoid saying.')">
-          <div class="chip-quote">&ldquo;I have a hard 1:1 this week. Help me prepare.&rdquo;</div>
+          <div class="chip-quote">I have a hard 1:1 this week. Help me prepare &mdash; what to say, what to ask, what to avoid.</div>
           <div class="chip-tag">OPS</div>
-        </div>
-      </div>
-      <div class="chip-row-label">Also try</div>
-      <div class="chip-grid">
-        <div class="chip" onclick="copyChip(this,'Give me a sharp 3-point brief on Microsoft&apos;s current position against Google Workspace in enterprise productivity. I have a business review this week and I need to speak to this confidently.')">
-          <div class="chip-quote">&ldquo;A competitive snapshot before my next VP review.&rdquo;</div>
-          <div class="chip-tag">RESEARCH</div>
-        </div>
-        <div class="chip" onclick="copyChip(this,'My team has too much planned for next quarter. Make the case for cutting 20% of our work so we do the rest better. Then give me the 3 strongest objections my team will raise and how I should answer each one.')">
-          <div class="chip-quote">&ldquo;The case for cutting 20% of the roadmap &mdash; and the pushback I&rsquo;ll get.&rdquo;</div>
-          <div class="chip-tag">BRAINSTORM</div>
-        </div>
-        <div class="chip" onclick="copyChip(this,'My team shipped 47 features last half. Our peer team shipped 23. My skip-level is going to ask why. Help me think through what that ratio actually means — what context matters, what metrics would tell the real story, and what I should say.')">
-          <div class="chip-quote">&ldquo;What my team&rsquo;s output numbers actually mean.&rdquo;</div>
-          <div class="chip-tag">DATA</div>
-        </div>
-        <div class="chip" onclick="copyChip(this,'I am presenting to 50 people next week. Give me the 5 most important design rules for a PowerPoint deck that actually looks polished — with a concrete example of how each rule gets broken.')">
-          <div class="chip-quote">&ldquo;5 rules for a deck that doesn&rsquo;t look like everyone else&rsquo;s.&rdquo;</div>
-          <div class="chip-tag">DESIGN</div>
-        </div>
-        <div class="chip" onclick="copyChip(this,'My engineer just showed me a PR and said the refactoring is done. I do not code. Tell me what a good PR looks like, what I should ask them to show me, and what red flags mean the refactoring made things worse.')">
-          <div class="chip-quote">&ldquo;My engineer says the refactor is done. What should I ask?&rdquo;</div>
-          <div class="chip-tag">CODE</div>
-        </div>
-        <div class="chip" onclick="copyChip(this,'My team says the feature is done. Write me 5 acceptance criteria questions I should ask before signing off on any new feature — with examples of what a good answer looks like vs. a bad one.')">
-          <div class="chip-quote">&ldquo;5 questions to ask before I sign off on anything.&rdquo;</div>
-          <div class="chip-tag">QUALITY</div>
-        </div>
-        <div class="chip" onclick="copyChip(this,'I am running a feedback session with 8 enterprise customers next week. Write me a 45-minute interview guide to understand how they make software buying decisions — 5 core questions and 3 follow-up probes for each.')">
-          <div class="chip-quote">&ldquo;An interview guide for my customer session next week.&rdquo;</div>
-          <div class="chip-tag">USER RESEARCH</div>
         </div>
       </div>
     </div>
@@ -254,13 +229,19 @@ a:hover{color:#4DFFFF}
 <div class="section">
   <div class="section-title text-lg">&gt; WHAT YOU GET</div>
   <div class="terminal"><div class="terminal-body">
-    <div style="opacity:.7;font-size:14px;margin-bottom:20px">One AI agent with 11 dedicated skills. Ask it anything &mdash; it picks the right skill automatically.</div>
-    <div class="feature-grid">
-      <div class="feature-card"><div class="feature-name">Canvas</div><div class="feature-desc">Ask for "a canvas" and AI maker builds a live visual in your browser &mdash; dashboards, status reports, slide content. No PowerPoint required.</div></div>
-      <div class="feature-card"><div class="feature-name">Vault</div><div class="feature-desc">"Save this to my vault" &mdash; AI maker writes it to a file on your PC, organized and findable. Your context survives across sessions.</div></div>
-      <div class="feature-card"><div class="feature-name">WorkIQ <span style="opacity:.6;font-size:12px;font-weight:400">/ read M365</span></div><div class="feature-desc">Read your Microsoft 365. Ask "what's on my calendar?" or "what tasks are overdue?" AI maker reads and summarizes &mdash; no changes made.</div></div>
-      <div class="feature-card"><div class="feature-name">Skills</div><div class="feature-desc">11 built-in skills: research, design, writing, code review, data analysis, brainstorming, user research, canvas, vault, ops, and WorkIQ. Just describe what you need.</div></div>
-      <div class="feature-card" style="border-color:rgba(74,144,217,.5);background:rgba(0,30,60,.15)"><div class="feature-name">Agency <span style="opacity:.6;font-size:12px;font-weight:400">/ act on M365</span></div><div class="feature-desc">Act on your Microsoft 365. Send emails, create meetings, post to Teams, add Planner tasks &mdash; all with your approval. Entra auth built in, no extra config.</div></div>
+    <div style="opacity:.7;font-size:14px;margin-bottom:16px">One AI agent with 11 dedicated skills. Describe what you need &mdash; it routes automatically.</div>
+    <div class="skill-list">
+      <div class="skill-row"><div class="skill-name">Canvas</div><div class="skill-body"><div class="skill-desc">Generates a live HTML page in your browser &mdash; dashboards, status boards, trackers, comparison views.</div><div class="skill-trigger">Trigger: &ldquo;Build me a canvas that shows&hellip;&rdquo; / &ldquo;Display this in a canvas.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Vault</div><div class="skill-body"><div class="skill-desc">Writes notes, decisions, and context to a local file on your PC. Findable and reusable across future sessions.</div><div class="skill-trigger">Trigger: &ldquo;Save this to my vault as a [decision / note / log entry].&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">WorkIQ</div><div class="skill-body"><div class="skill-desc">Reads your Microsoft 365 &mdash; email, calendar, Teams, Planner tasks. Returns summaries and answers. Makes no changes.</div><div class="skill-trigger">Trigger: &ldquo;What&rsquo;s on my calendar this week?&rdquo; / &ldquo;Catch me up on what I missed in Teams.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Agency</div><div class="skill-body"><div class="skill-desc">Acts on your Microsoft 365 &mdash; sends emails, posts to Teams, creates meetings, adds Planner tasks. Your approval is required before anything sends.</div><div class="skill-trigger">Trigger: &ldquo;Send a Teams message to [person] that says&hellip;&rdquo; / &ldquo;Create a meeting with&hellip;&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Research</div><div class="skill-body"><div class="skill-desc">Analyzes a document, dataset, or topic and returns structured findings, key patterns, or a brief you can act on.</div><div class="skill-trigger">Trigger: &ldquo;Research [topic]&rdquo; / &ldquo;Analyze this document and tell me what stands out.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Design</div><div class="skill-body"><div class="skill-desc">Visual direction, deck structure, layout critique, brand review. Gets your work to a presentation-ready standard.</div><div class="skill-trigger">Trigger: &ldquo;Give me [N] rules for&hellip;&rdquo; / &ldquo;Review this design for&hellip;&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Writing</div><div class="skill-body"><div class="skill-desc">Drafts and edits that preserve your voice &mdash; emails, announcements, feedback, scripts, talking points.</div><div class="skill-trigger">Trigger: &ldquo;Write a [type] for [situation].&rdquo; / &ldquo;Help me say this better.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Code</div><div class="skill-body"><div class="skill-desc">Explains what engineers built in plain English. Helps non-coders evaluate PRs, ask the right questions, and spot red flags.</div><div class="skill-trigger">Trigger: &ldquo;Explain this PR.&rdquo; / &ldquo;What should I ask my engineer about this refactor?&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Data</div><div class="skill-body"><div class="skill-desc">Interprets metrics, charts, and spreadsheets. Tells you what the numbers mean and what to watch for in a decision.</div><div class="skill-trigger">Trigger: &ldquo;Analyze this spreadsheet and give me observations.&rdquo; / &ldquo;What does this data actually mean?&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Brainstorm</div><div class="skill-body"><div class="skill-desc">Generates ideas, red-teams plans, plays devil&rsquo;s advocate, runs pre-mortems. Stress-tests your thinking before you commit.</div><div class="skill-trigger">Trigger: &ldquo;Brainstorm ideas for&hellip;&rdquo; / &ldquo;Red-team this plan.&rdquo; / &ldquo;What could go wrong?&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Ops</div><div class="skill-body"><div class="skill-desc">Sprint planning, team communications, meeting prep, status updates, retrospectives. Runs the operational rhythm of your team.</div><div class="skill-trigger">Trigger: &ldquo;Help me plan this sprint.&rdquo; / &ldquo;Write a status update for my team.&rdquo; / &ldquo;Prepare me for this 1:1.&rdquo;</div></div></div>
     </div>
   </div></div>
 </div>
