@@ -6,7 +6,7 @@ Works inside the [GitHub Copilot App](https://github.com/features/copilot) on Wi
 
 ## Get started
 
-**[marcusash.github.io/ai-maker](https://marcusash.github.io/ai-maker/)** &mdash; pick your path.
+**[marcusash.github.io/ai-maker](https://marcusash.github.io/ai-maker/)**. Pick your path.
 
 **Blue Pill.** Stay comfortable. One agent, 11 skills, fastest setup. Research, writing, brainstorming, design feedback, ops, data, calendar, memory. Start here.
 
