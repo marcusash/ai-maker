@@ -15,17 +15,27 @@ if (Test-Path $cfg) {
 }
 
 Write-Section "2. Agency CLI"
-$agency = (Get-Command agency.exe -EA SilentlyContinue).Source
-if (-not $agency) {
-    $fb = "$env:LOCALAPPDATA\Microsoft\agency\agency.exe"
-    if (Test-Path $fb) { $agency = $fb }
+function Resolve-Agency {
+    $candidates = @(
+        (Get-Command agency.exe -EA SilentlyContinue).Source,
+        "$env:APPDATA\agency\CurrentVersion\agency.exe",
+        "$env:LOCALAPPDATA\Microsoft\agency\agency.exe",
+        "$env:LOCALAPPDATA\agency\CurrentVersion\agency.exe"
+    )
+    foreach ($c in $candidates) { if ($c -and (Test-Path $c)) { return $c } }
+    return $null
 }
+$agency = Resolve-Agency
 if (-not $agency) {
-    Write-Host "agency.exe NOT FOUND. Re-installing..." -ForegroundColor Yellow
+    Write-Host "agency.exe NOT FOUND. Installing via aka.ms/PathInstaller..." -ForegroundColor Yellow
     iex "& { $(irm https://aka.ms/InstallTool.ps1) } agency"
-    $agency = (Get-Command agency.exe -EA SilentlyContinue).Source
+    $agency = Resolve-Agency
 }
-Write-Host "agency: $agency"
+if (-not $agency) {
+    Write-Host "FATAL: agency still not found after install. Aborting." -ForegroundColor Red
+    return
+}
+Write-Host "agency: $agency" -ForegroundColor Green
 & $agency --version
 
 Write-Section "3. Re-register workiq + bluebird MCP servers"
