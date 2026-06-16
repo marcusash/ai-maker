@@ -38,41 +38,44 @@ if (-not $agency) {
 Write-Host "agency: $agency" -ForegroundColor Green
 & $agency --version
 
-Write-Section "3. Register full M365 MCP server set"
-Write-Host "Adding: mail, teams, planner, calendar, sharepoint, onedrive, m365-copilot, m365-user, word, graph" -ForegroundColor Gray
-
-$obj = if (Test-Path $cfg) { Get-Content $cfg -Raw | ConvertFrom-Json } else { [pscustomobject]@{ servers = @{} } }
-if (-not $obj.servers) { $obj | Add-Member -NotePropertyName servers -NotePropertyValue ([pscustomobject]@{}) -Force }
-
-$serverSet = @(
-    'workiq','bluebird',
-    'mail','teams','planner','calendar',
-    'sharepoint','onedrive','m365-copilot','m365-user',
-    'word','graph'
-)
-foreach ($name in $serverSet) {
-    $entry = [pscustomobject]@{
-        command = $agency
-        args    = @('mcp', $name)
-        tools   = @('*')
-    }
-    if ($obj.servers.PSObject.Properties.Name -contains $name) {
-        $obj.servers.$name = $entry
-    } else {
-        $obj.servers | Add-Member -NotePropertyName $name -NotePropertyValue $entry -Force
-    }
+Write-Section "3. Re-register workiq + bluebird MCP servers"
+$lib = "$env:USERPROFILE\.ai-maker\ai-maker-lib.ps1"
+if (-not (Test-Path $lib)) {
+    # Try common alternate location
+    $alt = "$env:LOCALAPPDATA\ai-maker\ai-maker-lib.ps1"
+    if (Test-Path $alt) { $lib = $alt }
+}
+if (Test-Path $lib) {
+    . $lib
+    Register-AgencyMcpServers
+    Write-Host "`nUpdated config:" -ForegroundColor Green
+    Get-Content $cfg -Raw
+} else {
+    Write-Host "ai-maker-lib.ps1 not found — falling back to manual config write" -ForegroundColor Yellow
+    $obj = if (Test-Path $cfg) { Get-Content $cfg -Raw | ConvertFrom-Json } else { [pscustomobject]@{ mcpServers = @{} } }
+    if (-not $obj.mcpServers) { $obj | Add-Member -NotePropertyName mcpServers -NotePropertyValue @{} -Force }
+    $obj.mcpServers | Add-Member -NotePropertyName workiq  -NotePropertyValue @{ command = $agency; args = @('mcp','workiq')  } -Force
+    $obj.mcpServers | Add-Member -NotePropertyName bluebird -NotePropertyValue @{ command = $agency; args = @('mcp','bluebird') } -Force
+    New-Item -ItemType Directory -Force -Path (Split-Path $cfg) | Out-Null
+    $obj | ConvertTo-Json -Depth 10 | Set-Content -Path $cfg -Encoding utf8
+    Get-Content $cfg -Raw
 }
 
-New-Item -ItemType Directory -Force -Path (Split-Path $cfg) | Out-Null
-$json = $obj | ConvertTo-Json -Depth 10
-[System.IO.File]::WriteAllText($cfg, $json, (New-Object System.Text.UTF8Encoding($false)))
-Write-Host "`nUpdated config:" -ForegroundColor Green
-Get-Content $cfg -Raw
-
-Write-Section "4. Auth note"
-Write-Host "EntraID token injection happens automatically on first MCP call." -ForegroundColor Yellow
-Write-Host "When you ask AI maker to read mail/calendar, a browser sign-in pops the first time." -ForegroundColor Yellow
-Write-Host "No CLI login needed." -ForegroundColor Yellow
+Write-Section "4. Sign in to workiq (M365 / Entra)"
+Write-Host "Discovering Agency tool/plugin surface..." -ForegroundColor Yellow
+Write-Host "`n--- agency mcp --help ---" -ForegroundColor Gray
+& $agency mcp --help 2>&1
+Write-Host "`n--- agency plugin --help ---" -ForegroundColor Gray
+& $agency plugin --help 2>&1
+Write-Host "`n--- agency plugin list ---" -ForegroundColor Gray
+& $agency plugin list 2>&1
+Write-Host "`n--- agency ring ---" -ForegroundColor Gray
+& $agency ring 2>&1
+Write-Host "`n--- agency marketplace --help ---" -ForegroundColor Gray
+& $agency marketplace --help 2>&1
+Write-Host "`n--- agency config ---" -ForegroundColor Gray
+& $agency config 2>&1
+Write-Host "`nScreenshot the above — looking for: workiq plugin variants, ring (alpha/canary/stable), or marketplace install commands." -ForegroundColor Yellow
 
 Write-Section "5. Restart Copilot App"
 Get-Process "GitHub Copilot*" -EA SilentlyContinue | ForEach-Object {
