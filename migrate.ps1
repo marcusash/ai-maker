@@ -283,7 +283,18 @@ Write-Host "`nStep 5: Ensuring Copilot App is installed..." -ForegroundColor Whi
 
 $appInstalled = (winget list --id GitHub.CopilotApp --accept-source-agreements 2>$null) -match "GitHub.CopilotApp"
 if ($appInstalled) {
-    Write-Host "  ✓ Copilot App already installed" -ForegroundColor Green
+    Write-Host "  ✓ Copilot App already installed — checking for updates..." -ForegroundColor Green
+    if (-not $WhatIf) {
+        winget upgrade --id GitHub.CopilotApp -e --silent --accept-source-agreements --accept-package-agreements 2>&1 | Out-Host
+        # Exit 0 = upgraded; -1978335189 (0x8A15002B) = no applicable upgrade. Both are success.
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  ✓ Copilot App upgraded to latest" -ForegroundColor Green
+        } elseif ($LASTEXITCODE -eq -1978335189) {
+            Write-Host "  ✓ Copilot App is already at the latest version" -ForegroundColor Green
+        } else {
+            Write-Host "  ⚠ Upgrade check returned exit $LASTEXITCODE — continuing with installed version" -ForegroundColor Yellow
+        }
+    }
 }
 else {
     Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub Copilot App" `
@@ -291,7 +302,7 @@ else {
         winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
         if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.CopilotApp (exit: $LASTEXITCODE)" }
     }
-    Write-Host "  ✓ Copilot App installed" -ForegroundColor Green
+    Write-Host "  ✓ Copilot App installed (latest version)" -ForegroundColor Green
 }
 
 # ═══════════════════════════════════════════════════════════════
