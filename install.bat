@@ -87,6 +87,14 @@ if errorlevel 1 (
 set "PS="
 if exist "%ProgramFiles%\PowerShell\7\pwsh.exe" set "PS=%ProgramFiles%\PowerShell\7\pwsh.exe"
 if not defined PS if exist "%LocalAppData%\Microsoft\PowerShell\7\pwsh.exe" set "PS=%LocalAppData%\Microsoft\PowerShell\7\pwsh.exe"
+if not defined PS if exist "%LocalAppData%\Microsoft\WindowsApps\pwsh.exe" set "PS=%LocalAppData%\Microsoft\WindowsApps\pwsh.exe"
+if not defined PS (
+    for /f "delims=" %%P in ('dir /b /s "%ProgramFiles%\WindowsApps\Microsoft.PowerShell_*\pwsh.exe" 2^>nul') do (
+        set "PS=%%P"
+        goto :ps_found
+    )
+)
+:ps_found
 if not defined PS (
     echo.
     echo   ERROR: PowerShell 7 installed but pwsh.exe could not be located.
