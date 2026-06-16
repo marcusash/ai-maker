@@ -1226,27 +1226,29 @@ function Register-AgencyMcpServers {
         $existing | Add-Member -NotePropertyName "servers" -NotePropertyValue ([PSCustomObject]@{}) -Force
     }
 
-    # Build target entries
-    $workiqEntry = [PSCustomObject]@{
-        command = $agencyCmd
-        args    = @("mcp", "workiq")
-        tools   = @("*")
-    }
-    $bluebirdEntry = [PSCustomObject]@{
-        command = $agencyCmd
-        args    = @("mcp", "bluebird")
-        tools   = @("*")
+    # Build target entries — full M365 surface
+    # workiq alone is read-only ("ask_work_iq"); for mail send / teams / planner / etc.
+    # we register the dedicated per-surface MCP servers Agency exposes.
+    $serverNames = @(
+        'workiq','bluebird',
+        'mail','teams','planner','calendar',
+        'sharepoint','onedrive','m365-copilot','m365-user',
+        'word','graph'
+    )
+    $targetEntries = @{}
+    foreach ($name in $serverNames) {
+        $targetEntries[$name] = [PSCustomObject]@{
+            command = $agencyCmd
+            args    = @("mcp", $name)
+            tools   = @("*")
+        }
     }
 
     # Merge — only add if missing (preserves user customizations)
     $changed = $false
-    foreach ($pair in @(
-        @{ Name = "workiq";   Value = $workiqEntry },
-        @{ Name = "bluebird"; Value = $bluebirdEntry }
-    )) {
-        $name = $pair.Name
+    foreach ($name in $serverNames) {
         if (-not ($existing.servers.PSObject.Properties.Name -contains $name)) {
-            $existing.servers | Add-Member -NotePropertyName $name -NotePropertyValue $pair.Value -Force
+            $existing.servers | Add-Member -NotePropertyName $name -NotePropertyValue $targetEntries[$name] -Force
             $changed = $true
             Write-Host "    [+] Registered MCP server: $name" -ForegroundColor Green
         } else {
@@ -1255,7 +1257,7 @@ function Register-AgencyMcpServers {
     }
 
     if (-not $changed) {
-        Write-Host "    [OK] m-mcp-servers.json already has workiq + bluebird. No change." -ForegroundColor Green
+        Write-Host "    [OK] m-mcp-servers.json already has full M365 server set. No change." -ForegroundColor Green
         return
     }
 
@@ -1270,20 +1272,21 @@ function Register-AgencyMcpServers {
         [System.IO.File]::WriteAllText($configPath, $json, [System.Text.UTF8Encoding]::new($false))
         Write-Host "    [OK] Wrote $configPath" -ForegroundColor Green
 
-        # Verify write actually worked and contains both servers
+        # Verify write actually worked and contains all servers
         if (-not (Test-Path $configPath)) {
             throw "Register-AgencyMcpServers: write claimed success but $configPath does not exist."
         }
         $verify = Get-Content $configPath -Raw | ConvertFrom-Json -ErrorAction Stop
         $missing = @()
-        if (-not ($verify.servers.PSObject.Properties.Name -contains 'workiq'))   { $missing += 'workiq' }
-        if (-not ($verify.servers.PSObject.Properties.Name -contains 'bluebird')) { $missing += 'bluebird' }
+        foreach ($name in $serverNames) {
+            if (-not ($verify.servers.PSObject.Properties.Name -contains $name)) { $missing += $name }
+        }
         if ($missing.Count -gt 0) {
             throw "Register-AgencyMcpServers: post-write verification failed — missing servers: $($missing -join ', ')"
         }
-        Write-Host "    [OK] Verified workiq + bluebird present in config" -ForegroundColor Green
+        Write-Host "    [OK] Verified full M365 server set present in config" -ForegroundColor Green
     } else {
-        Write-Host "    [WHATIF] Would write $configPath with workiq + bluebird merged in." -ForegroundColor Cyan
+        Write-Host "    [WHATIF] Would write $configPath with full M365 server set merged in." -ForegroundColor Cyan
     }
 }
 
