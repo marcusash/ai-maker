@@ -644,14 +644,24 @@ function New-WorkspaceScaffold {
     }
 
     # ── 1. Directory structure ───────────────────────────────────
+    # Blue = Maker only (no vault\workbench). Red = both vaults.
     $dirs = @(
         $ws,
         (Join-Path $ws "vault"),
         (Join-Path $ws "vault\maker"),
-        (Join-Path $ws "vault\workbench"),
         (Join-Path $ws ".github"),
         (Join-Path $ws ".github\agents")
     )
+    if ($Pill -eq "red") {
+        $dirs = @(
+            $ws,
+            (Join-Path $ws "vault"),
+            (Join-Path $ws "vault\maker"),
+            (Join-Path $ws "vault\workbench"),
+            (Join-Path $ws ".github"),
+            (Join-Path $ws ".github\agents")
+        )
+    }
 
     foreach ($dir in $dirs) {
         if (Test-Path $dir) {
