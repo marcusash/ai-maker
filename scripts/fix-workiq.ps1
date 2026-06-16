@@ -62,8 +62,18 @@ if (Test-Path $lib) {
 }
 
 Write-Section "4. Sign in to workiq (M365 / Entra)"
-Write-Host "A browser window will open for Microsoft sign-in. Use your @microsoft.com account." -ForegroundColor Yellow
-& $agency mcp workiq --login
+Write-Host "Discovering Agency auth surface..." -ForegroundColor Yellow
+Write-Host "`n--- agency --help ---" -ForegroundColor Gray
+& $agency --help 2>&1
+Write-Host "`n--- agency auth --help ---" -ForegroundColor Gray
+& $agency auth --help 2>&1
+Write-Host "`n--- agency login --help ---" -ForegroundColor Gray
+& $agency login --help 2>&1
+Write-Host "`n--- agency mcp --help ---" -ForegroundColor Gray
+& $agency mcp --help 2>&1
+Write-Host "`n--- agency mcp workiq --help ---" -ForegroundColor Gray
+& $agency mcp workiq --help 2>&1
+Write-Host "`nScreenshot the above and send to FP — we need to find the correct auth subcommand." -ForegroundColor Yellow
 
 Write-Section "5. Restart Copilot App"
 Get-Process "GitHub Copilot*" -EA SilentlyContinue | ForEach-Object {
