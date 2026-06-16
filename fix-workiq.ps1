@@ -62,18 +62,20 @@ if (Test-Path $lib) {
 }
 
 Write-Section "4. Sign in to workiq (M365 / Entra)"
-Write-Host "Discovering Agency auth surface..." -ForegroundColor Yellow
-Write-Host "`n--- agency --help ---" -ForegroundColor Gray
-& $agency --help 2>&1
-Write-Host "`n--- agency auth --help ---" -ForegroundColor Gray
-& $agency auth --help 2>&1
-Write-Host "`n--- agency login --help ---" -ForegroundColor Gray
-& $agency login --help 2>&1
+Write-Host "Discovering Agency tool/plugin surface..." -ForegroundColor Yellow
 Write-Host "`n--- agency mcp --help ---" -ForegroundColor Gray
 & $agency mcp --help 2>&1
-Write-Host "`n--- agency mcp workiq --help ---" -ForegroundColor Gray
-& $agency mcp workiq --help 2>&1
-Write-Host "`nScreenshot the above and send to FP — we need to find the correct auth subcommand." -ForegroundColor Yellow
+Write-Host "`n--- agency plugin --help ---" -ForegroundColor Gray
+& $agency plugin --help 2>&1
+Write-Host "`n--- agency plugin list ---" -ForegroundColor Gray
+& $agency plugin list 2>&1
+Write-Host "`n--- agency ring ---" -ForegroundColor Gray
+& $agency ring 2>&1
+Write-Host "`n--- agency marketplace --help ---" -ForegroundColor Gray
+& $agency marketplace --help 2>&1
+Write-Host "`n--- agency config ---" -ForegroundColor Gray
+& $agency config 2>&1
+Write-Host "`nScreenshot the above — looking for: workiq plugin variants, ring (alpha/canary/stable), or marketplace install commands." -ForegroundColor Yellow
 
 Write-Section "5. Restart Copilot App"
 Get-Process "GitHub Copilot*" -EA SilentlyContinue | ForEach-Object {
