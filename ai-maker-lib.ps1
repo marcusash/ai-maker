@@ -438,7 +438,8 @@ function Get-InstallScenario {
     param(
         [switch]$SkipRemoteChecks,
         [hashtable]$PathOverrides,
-        [hashtable]$RemoteOverrides
+        [hashtable]$RemoteOverrides,
+        [hashtable]$McpOverrides
     )
 
     # Path resolution — use overrides for testability, live checks otherwise
@@ -487,6 +488,30 @@ function Get-InstallScenario {
         }
         else {
             $state.remoteIsOurs = $false
+        }
+    }
+
+    # MCP registration check — use injected value or live file inspection
+    # McpConfigPath = $env:USERPROFILE.copilotm-mcp-servers.json (already in AIMakerConfig)
+    # mcpRegistered = $true ONLY when both workiq + bluebird keys present
+    if ($McpOverrides) {
+        $state.mcpRegistered        = [bool]$McpOverrides.McpRegistered
+        $state.mcpRegisteredServers = @($McpOverrides.McpRegisteredServers ?? @())
+    }
+    else {
+        $mcpPath = $script:AIMakerConfig.McpConfigPath
+        $state.mcpRegistered        = $false
+        $state.mcpRegisteredServers = @()
+        if (Test-Path $mcpPath) {
+            try {
+                $mcpJson = Get-Content $mcpPath -Raw | ConvertFrom-Json -AsHashtable -ErrorAction Stop
+                $servers  = @($mcpJson.Keys)
+                if (($servers -contains 'workiq') -and ($servers -contains 'bluebird')) {
+                    $state.mcpRegistered        = $true
+                    $state.mcpRegisteredServers = $servers
+                }
+            }
+            catch { <# invalid JSON — mcpRegistered stays $false #> }
         }
     }
 
