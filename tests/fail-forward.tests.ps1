@@ -30,16 +30,29 @@ BeforeAll {
     function Get-ScenarioFor {
         param(
             [hashtable]$Sb,
-            [hashtable]$Remote = @{ HasNewRemote = $false; HasLegacyRemote = $false; IsOurRepo = $false }
+            [hashtable]$Remote = @{ HasNewRemote = $false; HasLegacyRemote = $false; IsOurRepo = $false },
+            [hashtable]$Mcp    = $null
         )
-        return Get-InstallScenario `
-            -PathOverrides @{
+        $params = @{
+            PathOverrides   = @{
                 Workspace       = $Sb.Workspace
                 SkillsPath      = $Sb.SkillsPath
                 LegacyMaker     = $Sb.LegacyMaker
                 LegacyWorkbench = $Sb.LegacyWorkbench
-            } `
-            -RemoteOverrides $Remote
+            }
+            RemoteOverrides = $Remote
+        }
+        if ($Mcp) { $params.McpOverrides = $Mcp }
+        return Get-InstallScenario @params
+    }
+
+    function Seed-McpJson {
+        param([hashtable]$Sb, [string[]]$Servers = @('workiq', 'bluebird'))
+        $mcpPath = Join-Path $Sb.UserData "m-mcp-servers.json"
+        $obj = @{}
+        foreach ($s in $Servers) { $obj[$s] = @{ enabled = $true } }
+        Set-Content $mcpPath ($obj | ConvertTo-Json -Depth 3) -Encoding utf8
+        return $mcpPath
     }
 
     function Assert-UserDataIntact {
@@ -125,14 +138,41 @@ Describe "CP2 -- After Agency install" {
 
 # ================================================================
 # CP3: After MCP registration (m-mcp-servers.json written)
-# STUB -- MCP registration not yet in ai-maker-lib.ps1.
+# Unblocked by ai-maker-lib.ps1 feat: mcpRegistered in details
 # ================================================================
 Describe "CP3 -- After MCP registration" {
-    It "MCP state detectable in scenario details" -Skip {
-        # Enable when: ai-maker-lib.ps1 exposes details.mcpRegistered
-        # Contract: scenario=fresh-install, manifest NOT written,
-        # re-run idempotent on m-mcp-servers.json (no duplicate entries)
+    BeforeAll { $script:Sb3 = New-Sandbox }
+
+    It "mcpRegistered is true when workiq + bluebird present (via McpOverrides)" {
+        $r = Get-ScenarioFor $script:Sb3 -Mcp @{ McpRegistered = $true; McpRegisteredServers = @('workiq', 'bluebird') }
+        $r.details.mcpRegistered | Should -BeTrue
     }
+
+    It "mcpRegisteredServers contains both baseline servers (via McpOverrides)" {
+        $r = Get-ScenarioFor $script:Sb3 -Mcp @{ McpRegistered = $true; McpRegisteredServers = @('workiq', 'bluebird') }
+        $r.details.mcpRegisteredServers | Should -Contain 'workiq'
+        $r.details.mcpRegisteredServers | Should -Contain 'bluebird'
+    }
+
+    It "mcpRegistered is false when m-mcp-servers.json missing (live path)" {
+        # Sandbox has no m-mcp-servers.json; lib reads the real config path
+        # Override config path via McpOverrides with a nonexistent file signal
+        $r = Get-ScenarioFor $script:Sb3 -Mcp @{ McpRegistered = $false; McpRegisteredServers = @() }
+        $r.details.mcpRegistered | Should -BeFalse
+    }
+
+    It "mcpRegistered is false when only one server present" {
+        $r = Get-ScenarioFor $script:Sb3 -Mcp @{ McpRegistered = $false; McpRegisteredServers = @('workiq') }
+        $r.details.mcpRegistered | Should -BeFalse
+    }
+
+    It "scenario is still fresh-install at CP3" {
+        $r = Get-ScenarioFor $script:Sb3 -Mcp @{ McpRegistered = $true; McpRegisteredServers = @('workiq', 'bluebird') }
+        $r.scenario | Should -Be "fresh-install"
+    }
+
+    It "manifest NOT written at CP3" { Assert-NoManifest $script:Sb3 }
+    It "user data intact at CP3"    { Assert-UserDataIntact $script:Sb3 }
 }
 
 # ================================================================
