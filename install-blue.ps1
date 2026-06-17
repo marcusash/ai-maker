@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.0
+#Requires -Version 7.0
 <#
 .SYNOPSIS
     AI Maker v3 — Blue Pill Installer
@@ -45,7 +45,7 @@ function Show-Banner {
 $libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
 if (-not (Test-Path $libPath)) {
     # If running from irm | iex, download the lib
-    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.8/ai-maker-lib.ps1"
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.9/ai-maker-lib.ps1"
     $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
     Write-Host "  Downloading core library..." -ForegroundColor Gray
     Invoke-RestMethod -Uri $libUrl -OutFile $libPath
@@ -214,7 +214,7 @@ if (-not $SkillsSource) {
     }
     else {
         # Download from release
-        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.8/skills.zip"
+        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.9/skills.zip"
         $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
         $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 
@@ -334,5 +334,5 @@ if ($scenario.scenario -match "^legacy") {
 }
 
 Write-Host "  Want GitHub backup? Upgrade to Red Pill:" -ForegroundColor Gray
-Write-Host "  irm https://github.com/marcusash/ai-maker/releases/download/v3.0.8/install-red.ps1 | iex" -ForegroundColor Blue
+Write-Host "  irm https://github.com/marcusash/ai-maker/releases/download/v3.0.9/install-red.ps1 | iex" -ForegroundColor Blue
 Write-Host ""

@@ -1,4 +1,4 @@
-﻿#Requires -Version 7.0
+#Requires -Version 7.0
 <#
 .SYNOPSIS
     AI Maker v3 — Core library module
@@ -29,7 +29,7 @@ $script:AIMakerConfig = @{
     MakerSkillCount  = 11
     WorkbenchSkillCount = 11
     TotalSkillCount  = 22
-    AgentsZipUrl     = "https://github.com/marcusash/ai-maker/releases/download/v3.0.8/agents.zip"
+    AgentsZipUrl     = "https://github.com/marcusash/ai-maker/releases/download/v3.0.9/agents.zip"
     McpConfigPath    = Join-Path $env:USERPROFILE ".copilot\m-mcp-servers.json"
     AgencyBinaryFallback = Join-Path $env:APPDATA "agency\CurrentVersion\agency.exe"
 }
@@ -753,14 +753,18 @@ function New-WorkspaceScaffold {
 
     # ── 6. Final verification ────────────────────────────────────
     if (-not $WhatIf) {
+        # Blue = Maker only. Red = Maker + Workbench. Mirror the directory-creation
+        # branching above; previously this list hardcoded vault\workbench for both
+        # pills which made every Blue install fail verification with a phantom
+        # "AI Workbench missing" error.
         $requiredPaths = @(
             $ws,
             (Join-Path $ws "vault\maker"),
-            (Join-Path $ws "vault\workbench"),
             (Join-Path $ws ".github\copilot-instructions.md"),
             (Join-Path $ws ".github\agents\ai-maker.md")
         )
         if ($Pill -eq "red") {
+            $requiredPaths += (Join-Path $ws "vault\workbench")
             $requiredPaths += (Join-Path $ws ".github\agents\ai-workbench.md")
         }
         $missing = $requiredPaths | Where-Object { -not (Test-Path $_) }
