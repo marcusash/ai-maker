@@ -1,23 +1,35 @@
 $cfg = "$env:USERPROFILE\.copilot\m-mcp-servers.json"
 $agency = "$env:APPDATA\agency\CurrentVersion\agency.exe"
 
-Write-Host "Reverting MCP config to workiq + bluebird only..." -ForegroundColor Yellow
+Write-Host "Backing up current config..." -ForegroundColor Yellow
+$bak = "$cfg.bak.$(Get-Date -f yyyyMMddHHmmss)"
+Copy-Item $cfg $bak -EA Silent
+Write-Host "  saved: $bak" -ForegroundColor Gray
 
-$obj = Get-Content $cfg -Raw | ConvertFrom-Json
-$keep = @('filesystem','playwright','workiq','bluebird')
-$new = [pscustomobject]@{}
-foreach ($p in $obj.servers.PSObject.Properties) {
-    if ($keep -contains $p.Name) {
-        $new | Add-Member -NotePropertyName $p.Name -NotePropertyValue $p.Value
+Write-Host "Writing canonical clean config (workiq + bluebird only)..." -ForegroundColor Yellow
+
+$canonical = @{
+    mcpServers = @{
+        workiq = @{
+            command = $agency
+            args    = @('mcp','workiq')
+        }
+        bluebird = @{
+            command = $agency
+            args    = @('mcp','bluebird')
+        }
     }
-}
-$obj.servers = $new
+} | ConvertTo-Json -Depth 10
 
-$json = $obj | ConvertTo-Json -Depth 10
-[System.IO.File]::WriteAllText($cfg, $json, (New-Object System.Text.UTF8Encoding($false)))
+[System.IO.File]::WriteAllText($cfg, $canonical, (New-Object System.Text.UTF8Encoding($false)))
+Write-Host "Wrote: $cfg" -ForegroundColor Green
+Get-Content $cfg | Write-Host -ForegroundColor Gray
 
-Write-Host "Done. Hard-restarting Copilot App..." -ForegroundColor Green
+Write-Host "`nHard-restarting Copilot App + Agency..." -ForegroundColor Yellow
 Get-Process | ?{ $_.Name -match "Copilot|github-copilot|agency" } | Stop-Process -Force -EA SilentlyContinue
-Start-Sleep 5
+Start-Sleep 3
 Start-Process $agency -ArgumentList 'gh-app'
-Write-Host "App relaunched. workiq read-path should be back." -ForegroundColor Green
+Write-Host "Done. App should relaunch in a few seconds." -ForegroundColor Green
+Write-Host "`nNow open the App and run:" -ForegroundColor Cyan
+Write-Host "  /tools  (or ask the agent: 'list every MCP tool you can see')" -ForegroundColor Cyan
+Write-Host "Paste the tool list back to FP." -ForegroundColor Cyan
