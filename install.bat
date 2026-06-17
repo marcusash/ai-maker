@@ -14,7 +14,7 @@ if errorlevel 1 (
 )
 
 :: Determine if running co-located or standalone (downloaded to TEMP)
-set "BASE_URL=https://github.com/marcusash/ai-maker/releases/download/v3.0.7"
+set "BASE_URL=https://github.com/marcusash/ai-maker/releases/download/v3.0.8"
 set "SCRIPT_SELF_DIR=%~dp0"
 if exist "%SCRIPT_SELF_DIR%install-blue.ps1" if exist "%SCRIPT_SELF_DIR%install-red.ps1" if exist "%SCRIPT_SELF_DIR%migrate.ps1" if exist "%SCRIPT_SELF_DIR%ai-maker-lib.ps1" (
     set "SCRIPTDIR=%SCRIPT_SELF_DIR%"
@@ -153,7 +153,7 @@ if not defined PS (
     echo     2. Open a NEW PowerShell or Terminal window.
     echo     3. Paste the same command you used to start install:
     echo.
-    echo        curl.exe -sSL -o %%TEMP%%\install.bat https://github.com/marcusash/ai-maker/releases/download/v3.0.7/install.bat ^&^& %%TEMP%%\install.bat
+    echo        curl.exe -sSL -o %%TEMP%%\install.bat https://github.com/marcusash/ai-maker/releases/download/v3.0.8/install.bat ^&^& %%TEMP%%\install.bat
     echo.
     echo   This is normal — install resumes from where it left off.
     echo   ============================================================

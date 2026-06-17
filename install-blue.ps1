@@ -45,7 +45,7 @@ function Show-Banner {
 $libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
 if (-not (Test-Path $libPath)) {
     # If running from irm | iex, download the lib
-    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.7/ai-maker-lib.ps1"
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.8/ai-maker-lib.ps1"
     $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
     Write-Host "  Downloading core library..." -ForegroundColor Gray
     Invoke-RestMethod -Uri $libUrl -OutFile $libPath
@@ -144,6 +144,31 @@ if (Test-Path $_guardManifestPath) {
 if (-not $SkillsOnly) {
     Write-Host "`nStep 3: Installing Agency..." -ForegroundColor White
 
+    # 3a. Git is a hard prereq — Agency's MCP servers (bluebird, mail, teams, etc.)
+    # shell out to git on startup and will fail with "program not found" if absent.
+    # This bites Cloud PC / fresh Win11 images that ship without git.
+    $hasGit = (Get-Command git -EA SilentlyContinue) -ne $null
+    if ($hasGit) {
+        $gitVer = (git --version 2>$null) -replace "git version ", ""
+        Write-Host "  ✓ Git $gitVer already installed" -ForegroundColor Green
+    }
+    elseif (-not $WhatIf) {
+        Write-Host "  → Installing Git (required by Agency MCP servers)..." -ForegroundColor Gray
+        winget install Git.Git --accept-source-agreements --accept-package-agreements --silent
+        if ($LASTEXITCODE -ne 0) {
+            throw "winget install Git.Git failed (exit $LASTEXITCODE). Install git manually then re-run install-blue."
+        }
+        # Refresh PATH so subsequent git invocations in this session resolve
+        $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH","User")
+        if (-not (Get-Command git -EA SilentlyContinue)) {
+            Write-Host "  ⚠ Git installed but not yet on PATH for this session." -ForegroundColor Yellow
+            Write-Host "    Close this window, open a NEW PowerShell, and re-run install-blue.ps1." -ForegroundColor Yellow
+            throw "Git installed but PATH did not refresh. Reopen pwsh and retry."
+        }
+        Write-Host "  ✓ Git installed" -ForegroundColor Green
+    }
+    else { Write-Host "  [WhatIf] Would install Git.Git via winget" -ForegroundColor Cyan }
+
     $agencyOk = $false
     if (Get-Command agency.exe -EA SilentlyContinue) { $agencyOk = $true }
     elseif (Test-Path $script:AIMakerConfig.AgencyBinaryFallback) { $agencyOk = $true }
@@ -167,7 +192,7 @@ if (-not $SkillsOnly) {
     }
     else { Write-Host "  [WhatIf] Would install Agency via aka.ms/InstallTool.ps1" -ForegroundColor Cyan }
 
-    # 3b. Register Agency MCP servers. Agency exposes M365 through workiq; bluebird is the companion server.
+    # 3c. Register Agency MCP servers. Agency exposes M365 through workiq; bluebird is the companion server.
     Write-Host "  → Registering Agency MCP servers (workiq, bluebird)..." -ForegroundColor Gray
     Register-AgencyMcpServers -WhatIf:$WhatIf
     Write-Host "  ✓ Agency MCP servers registered" -ForegroundColor Green
@@ -189,7 +214,7 @@ if (-not $SkillsSource) {
     }
     else {
         # Download from release
-        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.7/skills.zip"
+        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.8/skills.zip"
         $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
         $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 
@@ -309,5 +334,5 @@ if ($scenario.scenario -match "^legacy") {
 }
 
 Write-Host "  Want GitHub backup? Upgrade to Red Pill:" -ForegroundColor Gray
-Write-Host "  irm https://github.com/marcusash/ai-maker/releases/download/v3.0.7/install-red.ps1 | iex" -ForegroundColor Blue
+Write-Host "  irm https://github.com/marcusash/ai-maker/releases/download/v3.0.8/install-red.ps1 | iex" -ForegroundColor Blue
 Write-Host ""
