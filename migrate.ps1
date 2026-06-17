@@ -48,7 +48,7 @@ function Show-Banner {
 
 $libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
 if (-not (Test-Path $libPath)) {
-    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.6/ai-maker-lib.ps1"
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.7/ai-maker-lib.ps1"
     $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
     Write-Host "  Downloading core library..." -ForegroundColor Gray
     Invoke-RestMethod -Uri $libUrl -OutFile $libPath
@@ -396,7 +396,7 @@ if (-not $SkillsSource) {
         Write-Host "  Using local skills folder" -ForegroundColor Gray
     }
     else {
-        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.6/skills.zip"
+        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.7/skills.zip"
         $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
         $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 

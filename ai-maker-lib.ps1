@@ -29,7 +29,7 @@ $script:AIMakerConfig = @{
     MakerSkillCount  = 11
     WorkbenchSkillCount = 11
     TotalSkillCount  = 22
-    AgentsZipUrl     = "https://github.com/marcusash/ai-maker/releases/download/v3.0.6/agents.zip"
+    AgentsZipUrl     = "https://github.com/marcusash/ai-maker/releases/download/v3.0.7/agents.zip"
     McpConfigPath    = Join-Path $env:USERPROFILE ".copilot\m-mcp-servers.json"
     AgencyBinaryFallback = Join-Path $env:APPDATA "agency\CurrentVersion\agency.exe"
 }

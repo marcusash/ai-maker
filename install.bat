@@ -14,7 +14,7 @@ if errorlevel 1 (
 )
 
 :: Determine if running co-located or standalone (downloaded to TEMP)
-set "BASE_URL=https://github.com/marcusash/ai-maker/releases/download/v3.0.6"
+set "BASE_URL=https://github.com/marcusash/ai-maker/releases/download/v3.0.7"
 set "SCRIPT_SELF_DIR=%~dp0"
 if exist "%SCRIPT_SELF_DIR%install-blue.ps1" if exist "%SCRIPT_SELF_DIR%install-red.ps1" if exist "%SCRIPT_SELF_DIR%migrate.ps1" if exist "%SCRIPT_SELF_DIR%ai-maker-lib.ps1" (
     set "SCRIPTDIR=%SCRIPT_SELF_DIR%"
