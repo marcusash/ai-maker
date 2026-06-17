@@ -66,30 +66,22 @@ if defined SQUIRREL_CMD (
     echo        - No Squirrel uninstaller found in registry or filesystem, will try winget.
 )
 
-:: B) winget fallback - retry on 1603 (file lock) after deeper process kill, 10sec wait per FR
-:: --all-versions: handle the case where multiple versions of GitHub.CopilotApp piled up
-:: from prior install attempts (the exact bug Marcus hit on CPC).
-echo        - winget uninstall GitHub.CopilotApp (all versions)
-winget uninstall --id GitHub.CopilotApp --all-versions --silent --force --accept-source-agreements --disable-interactivity
-if errorlevel 1 (
-    echo        - winget failed - killing processes hard incl. Electron helpers and retrying...
-    taskkill /F /T /IM "GitHub Copilot.exe" >nul 2>&1
-    taskkill /F /T /IM "GitHubCopilot.exe"  >nul 2>&1
-    taskkill /F /T /IM "github.exe"         >nul 2>&1
-    taskkill /F /T /IM "Update.exe"         >nul 2>&1
-    taskkill /F /T /IM "Squirrel.exe"       >nul 2>&1
-    rem Wildcard kill catches Electron renderer Helper procs that hold dll locks
-    powershell -NoProfile -Command "Get-Process -ErrorAction SilentlyContinue | Where-Object { $_.Name -like '*Copilot*' -or $_.Name -like '*github*' -or $_.Name -like '*Squirrel*' } | Stop-Process -Force -ErrorAction SilentlyContinue" >nul 2>&1
-    timeout /t 10 /nobreak >nul
-    echo        - winget retry GitHub.CopilotApp (all versions)
-    winget uninstall --id GitHub.CopilotApp --all-versions --silent --force --accept-source-agreements --disable-interactivity
-    if errorlevel 1 (
-        echo        [WARN] winget still failed - probable Defender realtime scan or corrupt MSI cache.
-        echo               Run reset.bat again, or uninstall manually via Settings then Apps.
-    )
-)
-echo        - winget uninstall GitHub.Copilot (all versions)
-winget uninstall --id GitHub.Copilot --all-versions --silent --force --accept-source-agreements --disable-interactivity
+:: B) winget fallback - try once, but quietly. Squirrel apps frequently return 1603
+::    because winget invokes the registered uninstaller exe which may not exist
+::    after step [4] wipes the install dir. We don't actually need winget to succeed -
+::    step C below sweeps the registry uninstall keys directly, which is the only
+::    thing winget itself checks via 'winget list'. --all-versions handles piled-up
+::    installs from prior attempts (the exact bug Marcus hit on CPC).
+echo        - winget uninstall GitHub.CopilotApp (best effort, registry sweep is authoritative)
+winget uninstall --id GitHub.CopilotApp --all-versions --silent --force --accept-source-agreements --disable-interactivity >nul 2>&1
+echo        - winget uninstall GitHub.Copilot (best effort)
+winget uninstall --id GitHub.Copilot    --all-versions --silent --force --accept-source-agreements --disable-interactivity >nul 2>&1
+
+:: C) Authoritative cleanup: sweep registry Uninstall keys for anything matching "Copilot"
+::    This is what 'winget list' reads, so wiping these here makes the package truly gone
+::    even when winget's MSI uninstall fails with 1603 on Squirrel/Electron apps.
+echo        - Sweeping registry Uninstall keys for Copilot ghosts...
+powershell -NoProfile -Command "$paths = @('HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall','HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall','HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall'); foreach ($p in $paths) { Get-ChildItem $p -EA 0 | ForEach-Object { $dn = (Get-ItemProperty $_.PSPath -EA 0).DisplayName; if ($dn -match 'Copilot') { Write-Host ('          removed: ' + $dn); Remove-Item $_.PSPath -Recurse -Force -EA 0 } } }"
 
 :: Final process sweep (A registry lookup already used UninstallString, no need to repeat)
 taskkill /F /T /IM "GitHub Copilot.exe" >nul 2>&1
