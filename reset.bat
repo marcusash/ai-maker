@@ -5,9 +5,20 @@
 title AI Maker Reset
 setlocal
 
+:: ── Self-elevate so Program Files / HKLM cleanup actually works ─────────────
+:: Per-machine Copilot installs (e.g. baked into Cloud PC images) live in
+:: C:\Program Files\GitHub Copilot — those need admin to remove.
+net session >nul 2>&1
+if errorlevel 1 (
+    echo  Reset needs admin to clean machine-wide Copilot installs.
+    echo  Re-launching elevated...
+    powershell -NoProfile -Command "Start-Process -FilePath '%~f0' -Verb RunAs"
+    exit /b
+)
+
 echo.
-echo  AI MAKER - FULL RESET
-echo  =====================
+echo  AI MAKER - FULL RESET (elevated)
+echo  =================================
 echo.
 
 :: -----------------------------------------------
@@ -89,17 +100,34 @@ powershell -NoProfile -Command "Get-AppxPackage -EA 0 | Where-Object { $_.Name -
 powershell -NoProfile -Command "Get-AppxPackage -AllUsers -EA 0 | Where-Object { $_.Name -match 'Copilot' -or $_.PackageFamilyName -match 'GitHub' } | ForEach-Object { Write-Host ('          removed (all users): ' + $_.Name); Remove-AppxPackage -AllUsers -Package $_.PackageFullName -EA 0 }" 2>nul
 
 :: E) Sweep filesystem - Squirrel can install in non-standard locations
-echo        - Sweeping disk for stray Copilot install dirs...
+::    Per-user (Squirrel) AND per-machine (Cloud PC image baseline / enterprise MSI).
+::    Per-machine paths require admin - we self-elevated at the top of this script.
+echo        - Sweeping disk for stray Copilot install dirs (per-user + per-machine)...
 for %%D in ("%LOCALAPPDATA%\Programs\GitHubCopilot" "%LOCALAPPDATA%\Programs\github-copilot" "%LOCALAPPDATA%\GitHubCopilot" "%LOCALAPPDATA%\github-copilot" "%PROGRAMFILES%\GitHub Copilot" "%PROGRAMFILES(X86)%\GitHub Copilot" "%PROGRAMFILES%\GitHubCopilot" "%PROGRAMFILES(X86)%\GitHubCopilot") do (
     if exist %%D (
         echo          removed: %%D
         rmdir /s /q %%D >nul 2>&1
     )
 )
+:: Stale Squirrel updaters left in Temp
+for /d %%D in ("%LOCALAPPDATA%\Temp\GitHub Copilot-*") do (
+    if exist "%%D" (
+        echo          removed: %%D
+        rmdir /s /q "%%D" >nul 2>&1
+    )
+)
 
-:: F) All-users Start Menu shortcuts (per-user is handled later in step 5)
-echo        - Removing all-users Start Menu Copilot shortcuts...
-powershell -NoProfile -Command "Get-ChildItem 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs' -Recurse -EA 0 | Where-Object { $_.Name -match 'Copilot' -or $_.Name -match 'GitHub Copilot' } | ForEach-Object { Write-Host ('          removed: ' + $_.FullName); Remove-Item $_.FullName -Force -Recurse -EA 0 }"
+:: F) Start Menu shortcuts - both per-user (%APPDATA%) AND all-users (%PROGRAMDATA%).
+::    The all-users folder is what makes the icon show up in the Start menu even after
+::    a successful per-user uninstall - many users miss this.
+echo        - Removing Start Menu Copilot shortcuts (per-user + all-users)...
+for %%D in ("%APPDATA%\Microsoft\Windows\Start Menu\Programs\GitHub Copilot" "%PROGRAMDATA%\Microsoft\Windows\Start Menu\Programs\GitHub Copilot") do (
+    if exist %%D (
+        echo          removed: %%D
+        rmdir /s /q %%D >nul 2>&1
+    )
+)
+powershell -NoProfile -Command "Get-ChildItem 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs','%APPDATA%\Microsoft\Windows\Start Menu\Programs' -Recurse -EA 0 | Where-Object { ($_.Name -match 'Copilot' -or $_.Name -match 'GitHub Copilot') -and $_.PSIsContainer -eq $false } | ForEach-Object { Write-Host ('          removed: ' + $_.FullName); Remove-Item $_.FullName -Force -EA 0 }"
 
 :: Final process sweep (A registry lookup already used UninstallString, no need to repeat)
 taskkill /F /T /IM "GitHub Copilot.exe" >nul 2>&1
