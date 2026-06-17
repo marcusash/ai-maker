@@ -47,7 +47,20 @@ for %%F in ("%WORKDIR%\%~1") do if %%~zF LSS 100 exit /b 1
 exit /b 0
 
 :download_failed
-echo   ERROR: Failed to download installer files. Check internet connection.
+echo.
+echo   ============================================================
+echo   ERROR — DOWNLOAD FAILED
+echo   ============================================================
+echo.
+echo   Couldn't download installer files from GitHub.
+echo.
+echo   How to fix:
+echo     1. Check your internet connection.
+echo     2. If on corp network, verify github.com is reachable:
+echo        curl.exe -I https://github.com
+echo     3. Retry: close this window, open a new one, run install.bat again.
+echo   ============================================================
+echo.
 pause
 exit /b 1
 
@@ -61,12 +74,34 @@ if not errorlevel 1 (
 )
 
 echo   [INFO] PowerShell 7 not found - installing via winget...
+echo.
+echo   ============================================================
+echo   HEADS UP — TWO-STEP INSTALL
+echo   ============================================================
+echo   Windows needs a fresh terminal session to recognize newly
+echo   installed PowerShell 7. After install completes, you may need
+echo   to close this window and run install.bat ONE MORE TIME.
+echo   This is normal — install resumes from where it left off.
+echo   ============================================================
+echo.
 where winget >nul 2>nul
 if errorlevel 1 (
     echo.
-    echo   ERROR: winget is not available. Install App Installer from the
-    echo          Microsoft Store, or install PowerShell 7 manually from:
-    echo          https://aka.ms/powershell-release?tag=stable
+    echo   ============================================================
+    echo   ERROR — winget IS NOT AVAILABLE
+    echo   ============================================================
+    echo.
+    echo   What this means:
+    echo     winget is Windows' built-in app installer. It ships with
+    echo     "App Installer" from the Microsoft Store.
+    echo.
+    echo   How to fix:
+    echo     1. Open Microsoft Store.
+    echo     2. Search for "App Installer" and install it.
+    echo        OR install PowerShell 7 directly from:
+    echo        https://aka.ms/powershell-release?tag=stable
+    echo     3. Close this window, open a new one, run install.bat again.
+    echo   ============================================================
     echo.
     pause
     exit /b 1
@@ -75,9 +110,17 @@ if errorlevel 1 (
 winget install --id Microsoft.PowerShell --source winget --accept-source-agreements --accept-package-agreements --silent
 if errorlevel 1 (
     echo.
-    echo   ERROR: winget install of Microsoft.PowerShell failed.
-    echo          Install PowerShell 7 manually from:
-    echo          https://aka.ms/powershell-release?tag=stable
+    echo   ============================================================
+    echo   ERROR — POWERSHELL 7 INSTALL FAILED
+    echo   ============================================================
+    echo.
+    echo   winget couldn't install Microsoft.PowerShell.
+    echo.
+    echo   How to fix:
+    echo     1. Install PowerShell 7 manually:
+    echo        https://aka.ms/powershell-release?tag=stable
+    echo     2. Close this window, open a new one, run install.bat again.
+    echo   ============================================================
     echo.
     pause
     exit /b 1
@@ -97,8 +140,23 @@ if not defined PS (
 :ps_found
 if not defined PS (
     echo.
-    echo   ERROR: PowerShell 7 installed but pwsh.exe could not be located.
-    echo          Close this window, open a new one, and run install.bat again.
+    echo   ============================================================
+    echo   ACTION REQUIRED — RESTART YOUR TERMINAL
+    echo   ============================================================
+    echo.
+    echo   PowerShell 7 was just installed, but Windows needs a fresh
+    echo   terminal session to see the new pwsh.exe on PATH.
+    echo.
+    echo   To finish the install:
+    echo.
+    echo     1. Close this window.
+    echo     2. Open a NEW PowerShell or Terminal window.
+    echo     3. Paste the same command you used to start install:
+    echo.
+    echo        curl.exe -sSL -o %%TEMP%%\install.bat https://github.com/marcusash/ai-maker/releases/download/v3.0.7/install.bat ^&^& %%TEMP%%\install.bat
+    echo.
+    echo   This is normal — install resumes from where it left off.
+    echo   ============================================================
     echo.
     pause
     exit /b 1
@@ -146,9 +204,33 @@ goto :done
 set "INSTALL_EXIT=%ERRORLEVEL%"
 if not "%INSTALL_EXIT%"=="0" (
     echo.
-    echo   Install failed. See errors above.
+    echo   ============================================================
+    echo   ERROR — INSTALL FAILED ^(exit code %INSTALL_EXIT%^)
+    echo   ============================================================
+    echo.
+    echo   See the error messages above this banner for details.
+    echo.
+    echo   Common fixes:
+    echo     - If a script error: scroll up, find the red message,
+    echo       paste it back to FP for help.
+    echo     - If install hung: close this window, run install.bat again.
+    echo     - If "access denied": run terminal as Administrator and retry.
+    echo   ============================================================
+    echo.
     pause
     exit /b %INSTALL_EXIT%
 )
+echo.
+echo   ============================================================
+echo   SUCCESS — INSTALL COMPLETE
+echo   ============================================================
+echo.
+echo   What's next:
+echo     The GitHub Copilot App should be launching ^(or already open^).
+echo     Sign in with your @microsoft.com account if prompted.
+echo.
+echo     Open a new session in the App and try: "hello"
+echo   ============================================================
+echo.
 pause
 exit /b 0
