@@ -1,0 +1,33 @@
+name: Preflight
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.ps1'
+      - '**.bat'
+      - 'agents/**'
+      - 'skills/**'
+      - 'index.html'
+      - 'pro/**'
+      - 'docs/**'
+      - 'tests/**'
+      - '.github/workflows/preflight.yml'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    name: Preflight (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run preflight
+        shell: pwsh
+        run: |
+          .\tests\preflight.ps1
