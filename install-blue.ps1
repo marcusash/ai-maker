@@ -128,7 +128,7 @@ if (Test-Path $_guardManifestPath) {
     try {
         $_guardManifest = Get-Content $_guardManifestPath -Raw | ConvertFrom-Json
         if ($_guardManifest.pill -eq "red") {
-            Write-Host "[FAIL] This workspace is set up for Red Pill (AI Workbench). Run install-blue with a different -WorkspacePath, or remove the existing workspace first." -ForegroundColor Red
+            Write-Host "[FAIL] This workspace is already set up for Red Pill. Run install-blue with a different -WorkspacePath, or remove the existing workspace first." -ForegroundColor Red
             exit 2
         }
     }
