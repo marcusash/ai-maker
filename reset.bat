@@ -83,6 +83,24 @@ winget uninstall --id GitHub.Copilot    --all-versions --silent --force --accept
 echo        - Sweeping registry Uninstall keys for Copilot ghosts...
 powershell -NoProfile -Command "$paths = @('HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall','HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall','HKLM:\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall'); foreach ($p in $paths) { Get-ChildItem $p -EA 0 | ForEach-Object { $dn = (Get-ItemProperty $_.PSPath -EA 0).DisplayName; if ($dn -match 'Copilot') { Write-Host ('          removed: ' + $dn); Remove-Item $_.PSPath -Recurse -Force -EA 0 } } }"
 
+:: D) AppX/MSIX packages (Microsoft Store / preinstalled Copilot)
+echo        - Removing any AppX Copilot packages...
+powershell -NoProfile -Command "Get-AppxPackage -EA 0 | Where-Object { $_.Name -match 'Copilot' -or $_.PackageFamilyName -match 'GitHub' } | ForEach-Object { Write-Host ('          removed: ' + $_.Name); Remove-AppxPackage -Package $_.PackageFullName -EA 0 }" 2>nul
+powershell -NoProfile -Command "Get-AppxPackage -AllUsers -EA 0 | Where-Object { $_.Name -match 'Copilot' -or $_.PackageFamilyName -match 'GitHub' } | ForEach-Object { Write-Host ('          removed (all users): ' + $_.Name); Remove-AppxPackage -AllUsers -Package $_.PackageFullName -EA 0 }" 2>nul
+
+:: E) Sweep filesystem - Squirrel can install in non-standard locations
+echo        - Sweeping disk for stray Copilot install dirs...
+for %%D in ("%LOCALAPPDATA%\Programs\GitHubCopilot" "%LOCALAPPDATA%\Programs\github-copilot" "%LOCALAPPDATA%\GitHubCopilot" "%LOCALAPPDATA%\github-copilot" "%PROGRAMFILES%\GitHub Copilot" "%PROGRAMFILES(X86)%\GitHub Copilot" "%PROGRAMFILES%\GitHubCopilot" "%PROGRAMFILES(X86)%\GitHubCopilot") do (
+    if exist %%D (
+        echo          removed: %%D
+        rmdir /s /q %%D >nul 2>&1
+    )
+)
+
+:: F) All-users Start Menu shortcuts (per-user is handled later in step 5)
+echo        - Removing all-users Start Menu Copilot shortcuts...
+powershell -NoProfile -Command "Get-ChildItem 'C:\ProgramData\Microsoft\Windows\Start Menu\Programs' -Recurse -EA 0 | Where-Object { $_.Name -match 'Copilot' -or $_.Name -match 'GitHub Copilot' } | ForEach-Object { Write-Host ('          removed: ' + $_.FullName); Remove-Item $_.FullName -Force -Recurse -EA 0 }"
+
 :: Final process sweep (A registry lookup already used UninstallString, no need to repeat)
 taskkill /F /T /IM "GitHub Copilot.exe" >nul 2>&1
 taskkill /F /T /IM "GitHubCopilot.exe"  >nul 2>&1
