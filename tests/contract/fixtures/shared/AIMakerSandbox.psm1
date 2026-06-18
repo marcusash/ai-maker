@@ -23,7 +23,7 @@ $script:RepoRoot      = Resolve-Path (Join-Path $script:ModuleRoot "..\..\..\.."
 # self-contained and reproducible — it does NOT track main. When v3.0.11 ships,
 # untag RealBug-v3010 assertions. When v3.x merged-workspace semantics land,
 # Phase 2 ports the harness to the new SUT version.
-$script:SutVersion    = 'v3.0.10'
+$script:SutVersion    = 'v3.0.11'
 $script:SutRoot       = Join-Path $script:ModuleRoot "..\sut\$script:SutVersion"
 $script:LibPath       = Join-Path $script:SutRoot "ai-maker-lib.ps1"
 $script:MockContent   = Join-Path $script:ModuleRoot "mock-content"

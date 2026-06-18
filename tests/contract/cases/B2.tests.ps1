@@ -221,7 +221,7 @@ Describe 'B2 #6 Idempotent rerun' -Tag Sandbox {
     It 'second install returns exit code 0' {
         $script:RerunResult.ExitCode | Should -Be 0
     }
-    It 'no new files added on second install' -Tag 'RealBug-v3010' {
+    It 'no new files added on second install' {
         # Known lib bug (v3.0.10): Install-Skills nested directory on re-run (same as B1).
         # This assertion INTENTIONALLY fails against v3.0.10.
         # Filed as marcusash_microsoft/ai-maker#6. Excluded from CI via -ExcludeTag RealBug-v3010.
