@@ -72,7 +72,7 @@ elseif ($pesterResult.Containers) {
 
 $buckets = @{
     Preservation       = @('changed SHA256','protected zone','no pre-existing file','was removed after install','was removed after the second')
-    PillPurity         = @('contamination','Pill Purity','pill identity','Workbench','Blue Pill','Red pill','Red-pill','workspace identity')
+    PillPurity         = @('contamination','Pill Purity','pill identity','Workbench identity','Workbench-pill','workbench contamination','Blue Pill','Red pill','Red-pill','workspace identity')
     RequiredArtifacts  = @('was written','was created','exists in workspace','exists in \.copilot','contains workiq','contains bluebird','SKILL\.md','agent identity','copilot-instructions','m-mcp-servers')
     Idempotent         = @('idempotent','second install','rerun returns','no new files','no files were removed','no files were changed','no content','no files removed','no files added')
 }
