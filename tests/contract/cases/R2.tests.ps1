@@ -108,25 +108,27 @@ Describe 'R2 #1 Protected-asset preservation — no files removed' -Tag Sandbox 
 }
 
 Describe 'R2 #1 Protected-asset preservation — SHA256 unchanged' -Tag Sandbox {
-    It 'regular file SHA256 is unchanged' {
-        $instEntry = $script:SnapProtectedBefore | Where-Object {
-            $_.RelPath -match '\.github.copilot-instructions\.md'
+    # Use Compare-StateManifest diff — avoids silent-skip if filename drifts.
+    # Fails loudly if any file is missing OR has a changed hash.
+    It 'no protected file was added or removed (count unchanged)' {
+        @($script:ProtectedDiff.Added).Count   | Should -Be 0
+        @($script:ProtectedDiff.Removed).Count | Should -Be 0
+    }
+    It 'no protected file has a changed SHA256 after install' {
+        $sha256Changes = @($script:ProtectedDiff.Changed | Where-Object {
+            $_.Fields | Where-Object { $_.Field -eq 'Sha256' }
+        })
+        if ($sha256Changes.Count -gt 0) {
+            $detail = ($sha256Changes | ForEach-Object { "  $($_.RelPath)" }) -join "`n"
+            $false | Should -BeTrue -Because "SHA256 changed for:`n$detail"
         }
-        if ($null -eq $instEntry) { Set-ItResult -Skipped -Because 'copilot-instructions.md not in protected snapshot'; return }
-        $after = $script:SnapProtectedAfter | Where-Object { $_.RelPath -eq $instEntry.RelPath }
-        $after.Sha256 | Should -Be $instEntry.Sha256
+        $sha256Changes.Count | Should -Be 0
     }
-    It 'agent file SHA256 is unchanged' {
-        $entry = $script:SnapProtectedBefore | Where-Object { $_.RelPath -match 'agents.my-agent\.md' }
-        if ($null -eq $entry) { Set-ItResult -Skipped -Because 'my-agent.md not in protected snapshot'; return }
-        $after = $script:SnapProtectedAfter | Where-Object { $_.RelPath -eq $entry.RelPath }
-        $after.Sha256 | Should -Be $entry.Sha256
-    }
-    It 'notes file SHA256 is unchanged' {
-        $entry = $script:SnapProtectedBefore | Where-Object { $_.RelPath -match 'my-notes\.md' }
-        if ($null -eq $entry) { Set-ItResult -Skipped -Because 'my-notes.md not in protected snapshot'; return }
-        $after = $script:SnapProtectedAfter | Where-Object { $_.RelPath -eq $entry.RelPath }
-        $after.Sha256 | Should -Be $entry.Sha256
+    It 'no protected file has a changed size after install' {
+        $sizeChanges = @($script:ProtectedDiff.Changed | Where-Object {
+            $_.Fields | Where-Object { $_.Field -eq 'SizeBytes' }
+        })
+        $sizeChanges.Count | Should -Be 0
     }
 }
 
@@ -194,6 +196,10 @@ Describe 'R2 #3 Required artifacts present' -Tag Sandbox {
     It 'at least one ai-maker-* skill was installed' {
         $skills = Get-ChildItem $script:SB.SkillsPath -Directory -Filter 'ai-maker-*' -EA SilentlyContinue
         @($skills).Count | Should -BeGreaterOrEqual 1
+    }
+    It 'workspace is in different location from legacy-maker (no clobber)' {
+        # Installer must create a SEPARATE workspace, NOT inside legacy-maker
+        $script:SB.Workspace | Should -Not -Match [regex]::Escape($script:SB.LegacyMaker)
     }
 }
 
