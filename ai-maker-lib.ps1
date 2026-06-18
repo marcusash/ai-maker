@@ -31,7 +31,8 @@ $script:AIMakerConfig = @{
     TotalSkillCount  = 22
     AgentsZipUrl     = "https://github.com/marcusash/ai-maker/releases/download/v3.0.10/agents.zip"
     McpConfigPath    = Join-Path $env:USERPROFILE ".copilot\m-mcp-servers.json"
-    AgencyBinaryFallback = Join-Path $env:APPDATA "agency\CurrentVersion\agency.exe"
+    AgencyBinaryFallback = Join-Path $env:APPDATA "agency\current\agency.exe"
+    AgencyVersionedGlob  = Join-Path $env:APPDATA "agency\app-*\agency.exe"
 }
 
 # Known stock hashes for copilot-instructions.md (all previous versions)
