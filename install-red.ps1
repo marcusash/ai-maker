@@ -48,7 +48,7 @@ function Show-Banner {
 
 $libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
 if (-not (Test-Path $libPath)) {
-    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.9/ai-maker-lib.ps1"
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.10/ai-maker-lib.ps1"
     $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
     Write-Host "  Downloading core library..." -ForegroundColor Gray
     Invoke-RestMethod -Uri $libUrl -OutFile $libPath
@@ -196,23 +196,49 @@ if (-not $SkillsOnly) {
     }
     else { Write-Host "  [WhatIf] Would install Microsoft.VisualStudioCode" -ForegroundColor Cyan }
 
-    # Agency (provides Copilot App install/launch + Entra auth + all MCP servers)
-    $agencyOk = $false
-    if (Get-Command agency.exe -EA SilentlyContinue) { $agencyOk = $true }
-    elseif (Test-Path $script:AIMakerConfig.AgencyBinaryFallback) { $agencyOk = $true }
+    # 3a-bis. Set SHELL env var so Copilot App's agency-mcp-settings extension works on Windows.
+    $gitSh = "C:\Program Files\Git\usr\bin\sh.exe"
+    if ((Test-Path $gitSh) -and -not $WhatIf) {
+        [Environment]::SetEnvironmentVariable("SHELL", $gitSh, "User")
+        $env:SHELL = $gitSh
+        Write-Host "  ✓ SHELL env var set (heals Agency MCP Settings canvas on Windows)" -ForegroundColor Green
+    }
+    elseif (-not (Test-Path $gitSh)) {
+        Write-Host "  ! Git for Windows not found at $gitSh — Agency MCP Settings canvas may fail until Git is installed" -ForegroundColor Yellow
+    }
 
-    if ($agencyOk) {
-        Write-Host "  ✓ Agency already installed" -ForegroundColor Green
+    # 3b. Velopack-aware agency.exe probe — installs to %APPDATA%\agency\<version>\agency.exe (not on PATH)
+    $agencyExe = $null
+    $cmd = Get-Command agency.exe -EA SilentlyContinue
+    if ($cmd) { $agencyExe = $cmd.Source }
+    if (-not $agencyExe) {
+        $velopack = Get-ChildItem "$env:APPDATA\agency\*\agency.exe" -EA SilentlyContinue |
+                    Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($velopack) { $agencyExe = $velopack.FullName }
+    }
+    if (-not $agencyExe -and (Test-Path $script:AIMakerConfig.AgencyBinaryFallback)) {
+        $agencyExe = $script:AIMakerConfig.AgencyBinaryFallback
+    }
+
+    if ($agencyExe) {
+        Write-Host "  ✓ Agency already installed at $agencyExe" -ForegroundColor Green
     }
     elseif (-not $WhatIf) {
         Write-Host "  → Installing Agency (Microsoft agentic platform)..." -ForegroundColor Gray
         try {
             $installer = Invoke-RestMethod -Uri "https://aka.ms/InstallTool.ps1" -UseBasicParsing
             Invoke-Expression "& { $installer } agency"
-            if (-not (Get-Command agency.exe -EA SilentlyContinue) -and -not (Test-Path $script:AIMakerConfig.AgencyBinaryFallback)) {
-                throw "Agency installer completed but agency.exe is not on PATH or at $($script:AIMakerConfig.AgencyBinaryFallback)"
+            $cmd = Get-Command agency.exe -EA SilentlyContinue
+            if ($cmd) { $agencyExe = $cmd.Source }
+            if (-not $agencyExe) {
+                $velopack = Get-ChildItem "$env:APPDATA\agency\*\agency.exe" -EA SilentlyContinue |
+                            Sort-Object LastWriteTime -Descending | Select-Object -First 1
+                if ($velopack) { $agencyExe = $velopack.FullName }
             }
-            Write-Host "  ✓ Agency installed" -ForegroundColor Green
+            if (-not $agencyExe) {
+                throw "Agency installer completed but agency.exe is not on PATH or at `$env:APPDATA\agency\*\agency.exe"
+            }
+            Write-Host "  ✓ Agency installed at $agencyExe" -ForegroundColor Green
         }
         catch {
             throw "Failed to install Agency via aka.ms/InstallTool.ps1: $($_.Exception.Message)`n  Manual install: iex `"& { `$(irm aka.ms/InstallTool.ps1) } agency`""
@@ -220,10 +246,46 @@ if (-not $SkillsOnly) {
     }
     else { Write-Host "  [WhatIf] Would install Agency via aka.ms/InstallTool.ps1" -ForegroundColor Cyan }
 
-    # Register Agency MCP servers. Agency exposes M365 through workiq; bluebird is the companion server.
+    # 3c. Register Agency MCP servers. Agency exposes M365 through workiq; bluebird is the companion server.
     Write-Host "  → Registering Agency MCP servers (workiq, bluebird)..." -ForegroundColor Gray
     Register-AgencyMcpServers -WhatIf:$WhatIf
-    Write-Host "  ✓ Agency MCP servers registered" -ForegroundColor Green
+
+    # 3d. Post-registration verify
+    if (-not $WhatIf) {
+        $mcpFile = Join-Path $env:USERPROFILE ".copilot\m-mcp-servers.json"
+        if (-not (Test-Path $mcpFile)) {
+            throw "MCP registration appeared to succeed but $mcpFile does not exist."
+        }
+        try {
+            $cfg = Get-Content $mcpFile -Raw | ConvertFrom-Json -ErrorAction Stop
+        }
+        catch {
+            throw "MCP registration appeared to succeed but $mcpFile is not valid JSON: $($_.Exception.Message)"
+        }
+        $missing = @('workiq','bluebird') | Where-Object { -not $cfg.servers.$_ }
+        if ($missing) {
+            throw "MCP registration silently no-op'd. Missing in m-mcp-servers.json: $($missing -join ', ')."
+        }
+        Write-Host "  ✓ Agency MCP servers registered (verified workiq + bluebird in m-mcp-servers.json)" -ForegroundColor Green
+    }
+    else {
+        Write-Host "  ✓ [WhatIf] Would register and verify workiq + bluebird" -ForegroundColor Cyan
+    }
+
+    # 3e. Enable Agency's built-in MCP integrations (teams/outlook/planner default to OFF).
+    if (-not $WhatIf -and $agencyExe) {
+        Write-Host "  → Enabling Agency MCPs (teams, outlook, planner)..." -ForegroundColor Gray
+        foreach ($m in @('teams','outlook','planner')) {
+            $out = & $agencyExe config set --global --mcp $m 2>&1
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "    ⚠ agency config set --mcp $m exited $LASTEXITCODE : $out" -ForegroundColor Yellow
+            }
+        }
+        Write-Host "  ✓ Agency MCPs enabled (teams, outlook, planner)" -ForegroundColor Green
+    }
+    elseif ($WhatIf) {
+        Write-Host "  ✓ [WhatIf] Would enable Agency MCPs: teams, outlook, planner" -ForegroundColor Cyan
+    }
 
     # GitHub Copilot CLI extension
     $hasCopilotExt = (gh extension list 2>$null) -match "copilot"
@@ -279,7 +341,7 @@ if (-not $SkillsOnly) {
 Write-Host "`nStep 5: Installing all skills (22)..." -ForegroundColor White
 
 if (-not $SkillsSource) {
-    $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.9/skills.zip"
+    $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.10/skills.zip"
     $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
     $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 

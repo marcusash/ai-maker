@@ -1,3 +1,11 @@
+## v3.0.10
+
+- **BLOCKER FIX:** Agency MCP Settings canvas no longer fails with "Unexpected end of JSON input" on fresh Windows installs. Sets `SHELL` user env var to Git Bash so `agency-mcp-settings` extension can spawn `agency mcp list` (extension defaulted to `/bin/sh` which does not exist on Windows).
+- **BLOCKER FIX:** Velopack-installed `agency.exe` (lives at `%APPDATA%\agency\<version>\agency.exe`, not on PATH) is now discovered via versioned-folder probe. Previous `Get-Command agency.exe` checks failed silently.
+- Post-registration verifies `m-mcp-servers.json` lists `workiq` and `bluebird` — silent install-success with broken MCP state is no longer possible.
+- Auto-enables Agency built-in MCPs `teams`, `outlook`, `planner` (ship with `defaultEnabled: false`).
+- Blue copilot-instructions and ai-maker.md scrubbed of all AI workbench / Red Pill cross-references — Blue Pill is now Blue-pure.
+- Session naming hard rule: agent calls `rename_session(title="AI maker")` as first action in every session. Sentence case, locked.
 # Changelog
 
 ## v3.0.6

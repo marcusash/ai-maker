@@ -7,7 +7,7 @@
     Covers: manifest management, detection matrix, transaction log, scaffold creation.
     Requires PowerShell 7+ (install.bat bootstraps pwsh via winget if not present).
 .VERSION
-    3.0.6
+    3.0.10
 #>
 
 # ═══════════════════════════════════════════════════════════════
@@ -15,7 +15,7 @@
 # ═══════════════════════════════════════════════════════════════
 
 $script:AIMakerConfig = @{
-    Version          = "3.0.6"
+    Version          = "3.0.10"
     ManifestFile     = ".ai-maker-manifest.json"
     SchemaVersion    = 1
     SkillsPath       = Join-Path $env:USERPROFILE ".copilot\skills"
@@ -29,7 +29,7 @@ $script:AIMakerConfig = @{
     MakerSkillCount  = 11
     WorkbenchSkillCount = 11
     TotalSkillCount  = 22
-    AgentsZipUrl     = "https://github.com/marcusash/ai-maker/releases/download/v3.0.9/agents.zip"
+    AgentsZipUrl     = "https://github.com/marcusash/ai-maker/releases/download/v3.0.10/agents.zip"
     McpConfigPath    = Join-Path $env:USERPROFILE ".copilot\m-mcp-servers.json"
     AgencyBinaryFallback = Join-Path $env:APPDATA "agency\CurrentVersion\agency.exe"
 }
@@ -38,7 +38,7 @@ $script:AIMakerConfig = @{
 $script:KnownStockHashes = @(
     # v3.0.0 — generic stock template (matches Get-StockCopilotInstructionsContent output, LF-normalized)
     "4271d7bf4bf837e9478e16ae8e967f8b690875a14f6541231728d21faf13f877"
-    # v3.0.0-v3.0.6 - neutral copilot-instructions.md (unchanged across all releases)
+    # v3.0.0-v3.0.10 - neutral copilot-instructions.md (unchanged across all releases)
     "bc33ef17b2e320d2b4ae6d6aa38d6913de9b5cb4d259b1ac5e6a1d01918b8a1e"
     # v3.0.1 — Blue Pill (AI Maker only)
     "910f72a6cf3f0bde5a7c118be8bf7954491b6206b66029255a8f7ea8894189e6"
@@ -48,9 +48,9 @@ $script:KnownStockHashes = @(
     "660f474cc0639963080866f2286f065fe15ed28f19ac6f57fc61758c9b3b0eff"
     # v3.0.3 — Red Pill
     "dae81725a279f781482ee31965f8cf2f6047affc87e1ecd9f630133c7ddfb744"
-    # v3.0.4-v3.0.6 - Blue Pill (greeting cleanup; content identical across these releases)
+    # v3.0.4-v3.0.10 - Blue Pill (greeting cleanup; content identical across these releases)
     "a94ad044e9ab9c3cc64c224df130c3fc49a2e7da80c180131ef604b0c3f2e4af"
-    # v3.0.4-v3.0.6 - Red Pill (greeting cleanup; content identical across these releases)
+    # v3.0.4-v3.0.10 - Red Pill (greeting cleanup; content identical across these releases)
     "896e80629dd939543c58bb447b5ed2055bf7e4854074dadbfaf6a324b49623e6"
     # NOTE: Pre-v3 instructions have no archived hashes. Users with custom pre-v3 files
     # will be detected as "modified" — their content is preserved as .user.md (safe default).
@@ -68,28 +68,30 @@ function Get-StockCopilotInstructionsContent {
     return @'
 # AI Workspace
 
-This project has two AI agents: **AI Maker** (creative/strategic) and **AI Workbench** (technical/engineering).
+This project has two AI agents: **AI maker** (creative/strategic) and **AI workbench** (technical/engineering). Names are sentence case. Always.
 
 ## Bootstrap Protocol
 
-When you are the first session opened in this project and no "AI Maker" or "AI Workbench" sessions exist yet, execute this automatically WITHOUT asking:
+When you are the first session opened in this project and no "AI maker" or "AI workbench" sessions exist yet, execute this automatically WITHOUT asking:
 
 1. Tell the user: "Setting up your AI agents..."
 
-2. Use `create_session` to create a session named **AI Maker** with kickoff_prompt:
-   "Read .github/agents/ai-maker.md and load that identity. You are AI Maker — a creative strategist and executive thinking partner. Acknowledge briefly and wait for instructions."
+2. Use `create_session` to create a session named **AI maker** (sentence case, exactly: A-I-space-m-a-k-e-r) with kickoff_prompt:
+   "Read .github/agents/ai-maker.md and load that identity. You are AI maker — a creative strategist and executive thinking partner. Your VERY FIRST action in this session, before responding to anything, is to call rename_session with title='AI maker' to lock the session name. Then acknowledge briefly and wait for instructions."
    Set kickoff_mode to "autopilot" and coordinate_with_creator to false.
 
-3. Use `create_session` to create a session named **AI Workbench** with kickoff_prompt:
-   "Read .github/agents/ai-workbench.md and load that identity. You are AI Workbench — a senior engineer and automation specialist. Acknowledge briefly and wait for instructions."
+3. Use `create_session` to create a session named **AI workbench** (sentence case, exactly: A-I-space-w-o-r-k-b-e-n-c-h) with kickoff_prompt:
+   "Read .github/agents/ai-workbench.md and load that identity. You are AI workbench — a senior engineer and automation specialist. Your VERY FIRST action in this session, before responding to anything, is to call rename_session with title='AI workbench' to lock the session name. Then acknowledge briefly and wait for instructions."
    Set kickoff_mode to "autopilot" and coordinate_with_creator to false.
 
 4. After both sessions are created, **delete this bootstrapping session** using `delete_item` with your own session ID. This promotes the two agent sessions to root level in the sidebar (not nested as children).
 
 5. If you cannot delete yourself, tell the user:
-   "Done! Your two agents are ready. Please delete this setup session now — that will move AI Maker and AI Workbench to the top level of your sidebar."
+   "Done! Your two agents are ready. Please delete this setup session now — that will move AI maker and AI workbench to the top level of your sidebar."
 
 Do NOT ask for confirmation. Just create them immediately on first load.
+
+**HARD RULE — naming:** Session names are ALWAYS sentence case: "AI maker" and "AI workbench". Never "AI Maker", "AI Workbench", "ai-maker", "AI maker chat", or "Chat". Every agent's first action in any session is to verify the session name is the canonical sentence-case form, and call `rename_session` to fix it if not.
 
 **IMPORTANT**: The agent sessions must appear at root level in the sidebar, not nested under this bootstrapper. Deleting the bootstrapper after creation achieves this.
 
@@ -97,8 +99,8 @@ Do NOT ask for confirmation. Just create them immediately on first load.
 
 | Agent | File | Domain |
 |-------|------|--------|
-| **AI Maker** | `.github/agents/ai-maker.md` | Research, brainstorming, design, data, ops, writing |
-| **AI Workbench** | `.github/agents/ai-workbench.md` | PowerShell, CI/CD, git, debugging, testing, security |
+| **AI maker** | `.github/agents/ai-maker.md` | Research, brainstorming, design, data, ops, writing |
+| **AI workbench** | `.github/agents/ai-workbench.md` | PowerShell, CI/CD, git, debugging, testing, security |
 
 ## Vault
 
@@ -108,7 +110,7 @@ Persistent memory across sessions:
 
 ## Routing
 
-AI Maker handles creative/strategic requests. AI Workbench handles technical/engineering requests. If a request is outside your domain, redirect the user to the other session.
+AI maker handles creative/strategic requests. AI workbench handles technical/engineering requests. If a request is outside your domain, redirect the user to the other session.
 '@
 }
 
