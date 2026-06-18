@@ -4,7 +4,7 @@
 
 ## Install
 
-1. Download: <https://github.com/marcusash_microsoft/ai-maker/releases/download/v3.0.11/ai-maker-v3.0.11.zip>
+1. Download: <https://github.com/marcusash/ai-maker/releases/download/v3.0.11/ai-maker-v3.0.11.zip>
 2. Right-click the zip → **Extract All**.
 3. Right-click `install.bat` → **Run as administrator**.
 4. Pick **1** (Blue Pill, lightweight) or **2** (Red Pill, full toolkit).
@@ -33,6 +33,6 @@ Run `install.bat` again, pick the other number. Workspace upgrades in place. You
 
 ## Problems?
 
-Open an issue: <https://github.com/marcusash_microsoft/ai-maker/issues/new>
+Open an issue: <https://github.com/marcusash/ai-maker/issues/new>
 
 Attach `C:\Temp\ai-maker-smoke\verify-<timestamp>.log` if you ran verify.

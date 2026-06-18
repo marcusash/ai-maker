@@ -9,7 +9,7 @@
 ## What you do (per machine)
 
 1. **Download the bundle** (one-click):
-   <https://github.com/marcusash_microsoft/ai-maker/releases/download/v3.0.11/ai-maker-v3.0.11.zip>
+   <https://github.com/marcusash/ai-maker/releases/download/v3.0.11/ai-maker-v3.0.11.zip>
 
 2. **Unzip** to anywhere (Downloads is fine). Right-click the zip → "Extract All".
 
