@@ -279,36 +279,68 @@ if ($ghExit -ne 0) {
 Ok "Release published"
 
 # ──────────────────────────────────────────────────────────────────────
-# 8. Post-publish: curl each asset URL, verify 200 + SHA matches
+# 8. Post-publish: gh release download each asset, verify SHA matches
 # ──────────────────────────────────────────────────────────────────────
-Step "Post-publish URL validation (FP v3.0.8 hash-drift gate)"
-$baseUrl = "https://github.com/$Repo/releases/download/$Tag"
+Step "Post-publish asset validation (FP v3.0.8 hash-drift gate)"
 $verifyDir = Join-Path $env:TEMP "ai-maker-verify-$Tag"
 if (Test-Path $verifyDir) { Remove-Item $verifyDir -Recurse -Force }
 New-Item -ItemType Directory -Path $verifyDir -Force | Out-Null
 
+# Asset indexing on GitHub can lag a few seconds. Wait for the release to list
+# all assets before downloading; gh release view is the canonical truth.
+$expectedNames = $script:Manifest.Keys
+$listed = @()
+for ($i = 0; $i -lt 8; $i++) {
+    Start-Sleep -Seconds 3
+    $assetsJson = gh release view $Tag --repo $Repo --json assets 2>$null
+    if ($LASTEXITCODE -eq 0) {
+        $listed = (($assetsJson | ConvertFrom-Json).assets).name
+        $missing = $expectedNames | Where-Object { $_ -notin $listed }
+        if (-not $missing) { break }
+        Info "Waiting for asset indexing... missing: $($missing -join ', ')"
+    }
+}
+$missingFinal = $expectedNames | Where-Object { $_ -notin $listed }
+if ($missingFinal) {
+    Write-Host "    Assets never listed after 24s wait: $($missingFinal -join ', ')" -ForegroundColor Red
+    & gh release delete $Tag --repo $Repo --yes 2>&1 | Out-Null
+    Push-Location $script:RepoRoot
+    try {
+        git push --delete origin $Tag 2>&1 | Out-Null
+        git tag -d $Tag 2>&1 | Out-Null
+    } finally { Pop-Location }
+    Die "Asset listing gate failed. Release rolled back."
+}
+Info "All $($expectedNames.Count) assets listed on release"
+
+# Download via gh CLI (handles auth + redirects + retries internally)
+& gh release download $Tag --repo $Repo --dir $verifyDir 2>&1 | Out-Null
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "    gh release download failed" -ForegroundColor Red
+    & gh release delete $Tag --repo $Repo --yes 2>&1 | Out-Null
+    Push-Location $script:RepoRoot
+    try {
+        git push --delete origin $Tag 2>&1 | Out-Null
+        git tag -d $Tag 2>&1 | Out-Null
+    } finally { Pop-Location }
+    Die "Asset download gate failed."
+}
+
 $drift = @()
 foreach ($name in $script:Manifest.Keys) {
-    $url = "$baseUrl/$name"
     $dst = Join-Path $verifyDir $name
-    try {
-        # Brief wait — gh release create can lag asset availability
-        Start-Sleep -Seconds 2
-        Invoke-WebRequest -Uri $url -OutFile $dst -UseBasicParsing -ErrorAction Stop
-        $publishedHash = Compute-Sha256 $dst
-        $expectedHash = $script:Manifest[$name]
-        if ($publishedHash -ne $expectedHash) {
-            $drift += "$name : expected $($expectedHash.Substring(0,12))... got $($publishedHash.Substring(0,12))..."
-        } else {
-            Info "$name → 200 + SHA match"
-        }
-    } catch {
-        $drift += "$name : URL fetch failed — $($_.Exception.Message)"
+    if (-not (Test-Path $dst)) { $drift += "$name : downloaded file not found at $dst"; continue }
+    $publishedHash = Compute-Sha256 $dst
+    $expectedHash = $script:Manifest[$name]
+    if ($publishedHash -ne $expectedHash) {
+        $drift += "$name : expected $($expectedHash.Substring(0,12))... got $($publishedHash.Substring(0,12))..."
+    } else {
+        Info "$name -> SHA match"
     }
 }
 if ($drift.Count -gt 0) {
     Write-Host ""
-    Write-Host "POST-PUBLISH DRIFT DETECTED — release is BROKEN. Rolling back." -ForegroundColor Red
+    Write-Host "POST-PUBLISH DRIFT DETECTED - release is BROKEN. Rolling back." -ForegroundColor Red
     foreach ($d in $drift) { Write-Host "  $d" -ForegroundColor Red }
     & gh release delete $Tag --repo $Repo --yes 2>&1 | Out-Null
     Push-Location $script:RepoRoot
@@ -318,10 +350,10 @@ if ($drift.Count -gt 0) {
     } finally { Pop-Location }
     Die "Post-publish gate failed. Release and tag rolled back."
 }
-Ok "All assets verified — 200 + SHA match"
+Ok "All assets verified - SHA match"
 
 Write-Host ""
 Write-Host "=== RELEASE $Tag PUBLISHED ===" -ForegroundColor Green
 Write-Host "    https://github.com/$Repo/releases/tag/$Tag" -ForegroundColor Cyan
-Write-Host "    Bundle: $baseUrl/ai-maker-$Tag.zip" -ForegroundColor Cyan
+Write-Host "    Bundle: https://github.com/$Repo/releases/download/$Tag/ai-maker-$Tag.zip" -ForegroundColor Cyan
 Write-Host ""
