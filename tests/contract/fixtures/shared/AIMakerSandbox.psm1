@@ -303,6 +303,70 @@ function Invoke-SandboxBlueInstall {
     }
 }
 
+# ── Invoke-SandboxRedInstall ──────────────────────────────────────────────────
+
+function Invoke-SandboxRedInstall {
+    <#
+    .SYNOPSIS
+        Runs the Red installer's key file-operation steps inside the sandbox.
+        Mirrors Invoke-SandboxBlueInstall with Pill = 'red'.
+        Red pill additionally creates vault\workbench.
+    .PARAMETER Sandbox
+        Sandbox context from New-InstallerSandbox.
+    .PARAMETER MockContentRoot
+        Path to mock-content/ dir. Defaults to module's sibling mock-content/.
+    .OUTPUTS
+        Hashtable with ExitCode, Workspace, SkillsPath, McpConfigPath.
+    #>
+    param(
+        [pscustomobject]$Sandbox,
+        [string]$MockContentRoot = $script:MockContent
+    )
+
+    $exitCode = 0
+    $workspace = $Sandbox.Workspace
+    try {
+        $libDst = Join-Path $Sandbox.Root 'ai-maker-lib.ps1'
+        Copy-Item $script:LibPath $libDst -Force
+        $agentsDst = Join-Path $Sandbox.Root 'agents'
+        if (-not (Test-Path $agentsDst)) { New-Item -ItemType Directory -Path $agentsDst -Force | Out-Null }
+        Get-ChildItem (Join-Path $MockContentRoot 'agents') | ForEach-Object {
+            Copy-Item $_.FullName $agentsDst -Force
+        }
+        . $libDst
+        $script:AIMakerConfig.WorkspacePath       = $workspace
+        $script:AIMakerConfig.LegacyMakerPath     = $Sandbox.LegacyMaker
+        $script:AIMakerConfig.LegacyWorkbenchPath = $Sandbox.LegacyWorkbench
+        $script:AIMakerConfig.SkillsPath          = $Sandbox.SkillsPath
+        $script:AIMakerConfig.McpConfigPath       = $Sandbox.McpConfigPath
+        $script:AIMakerConfig.LogPath             = $Sandbox.LogPath
+        $script:AIMakerConfig.AgentsZipUrl        = 'https://sandbox.test.invalid/agents.zip'
+        New-WorkspaceScaffold -Pill 'red'
+        $mockSkills = Join-Path $MockContentRoot 'skills'
+        Install-Skills -Pill 'red' -SourcePath $mockSkills | Out-Null
+        $mcpDir = Split-Path $Sandbox.McpConfigPath
+        New-Item -ItemType Directory -Path $mcpDir -Force | Out-Null
+        $mcpConfig = @{
+            servers = @{
+                workiq   = @{ command = 'pwsh.exe'; args = @('-File', 'workiq-mcp.ps1') }
+                bluebird = @{ command = 'pwsh.exe'; args = @('-File', 'bluebird-mcp.ps1') }
+            }
+        }
+        $mcpConfig | ConvertTo-Json -Depth 5 | Set-Content $Sandbox.McpConfigPath -Encoding utf8
+    }
+    catch {
+        $exitCode = 1
+        Write-Warning "Invoke-SandboxRedInstall: $($_.Exception.Message)"
+    }
+
+    return @{
+        ExitCode      = $exitCode
+        Workspace     = $workspace
+        SkillsPath    = $Sandbox.SkillsPath
+        McpConfigPath = $Sandbox.McpConfigPath
+    }
+}
+
 # ── Test-PillPurity ───────────────────────────────────────────────────────────
 
 function Test-PillPurity {
@@ -415,6 +479,7 @@ Export-ModuleMember -Function @(
     'Remove-InstallerSandbox',
     'New-B2ProtectedZone',
     'Invoke-SandboxBlueInstall',
+    'Invoke-SandboxRedInstall',
     'Test-PillPurity',
     'Assert-RequiredArtifacts'
 )

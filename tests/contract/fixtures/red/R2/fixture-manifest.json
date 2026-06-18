@@ -1,0 +1,38 @@
+{
+  "case": "R2",
+  "pill": "red",
+  "priorState": "with-prior-aimaker",
+  "description": "Red pill with prior C:\\AIMaker\\ populated. Protected zone files must survive install.",
+  "protectedZone": [
+    ".github/copilot-instructions.md",
+    "agents/my-agent.md",
+    "vault/notes/my-notes.md",
+    "vault/with-ads.md",
+    "vault/acl-file.md",
+    "vault/hardlink-original.md",
+    "vault/hardlink-link.md",
+    "vault/readonly.md"
+  ],
+  "expectedWorkspacePaths": [
+    ".github/copilot-instructions.md",
+    ".github/agents/ai-maker.md",
+    "vault/README.md",
+    ".gitignore"
+  ],
+  "expectedWorkspaceDirs": [
+    "vault",
+    "vault/maker",
+    "vault/workbench",
+    ".github",
+    ".github/agents"
+  ],
+  "expectedMinSkillCount": 1,
+  "expectedSkillPrefix": "ai-maker-",
+  "expectedMcpServers": ["workiq", "bluebird"],
+  "forbiddenPatterns": [
+    "AI Maker Workspace"
+  ],
+  "forbiddenPathSubstrings": [
+    "install-blue"
+  ]
+}
