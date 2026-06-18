@@ -258,7 +258,7 @@ Describe 'R1 #12.1 MCP command shape (Windows)' -Tag Sandbox {
     }
 }
 
-Describe 'R1 #12.2 SHELL env var written to correct scope' -Tag Sandbox {
+Describe 'R1 #12.2 SHELL env var written to correct scope' -Tag VMOnly {
     It 'SHELL in HKCU:\Environment ends with sh.exe (Git sh)' {
         $shell = [Environment]::GetEnvironmentVariable('SHELL', 'User')
         if ($null -eq $shell) {
