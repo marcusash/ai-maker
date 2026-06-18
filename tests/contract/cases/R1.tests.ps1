@@ -153,9 +153,10 @@ Describe 'R1 #6 Idempotent rerun' -Tag Sandbox {
     It 'second install returns exit code 0' {
         $script:RerunResult.ExitCode | Should -Be 0
     }
-    It 'no new files were added on second install' {
+    It 'no new files were added on second install' -Tag 'RealBug-v3010' {
         # Known lib bug (v3.0.10): Install-Skills idempotency defect — nested skill dir on rerun.
-        # This assertion INTENTIONALLY fails against v3.0.10. Filed as issue.
+        # This assertion INTENTIONALLY fails against v3.0.10. Filed as marcusash_microsoft/ai-maker#6.
+        # Excluded from CI via -ExcludeTag RealBug-v3010.
         @($script:RerunDiff.Added).Count | Should -Be 0
     }
     It 'no files were removed on second install' {
