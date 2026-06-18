@@ -1,0 +1,85 @@
+name: Installer contract tests
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sandbox-matrix:
+    name: Sandbox ${{ matrix.case }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        case: [B1, B2, R1, R2]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Pester 5.7+
+        shell: pwsh
+        run: |
+          Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+          Install-Module Pester -MinimumVersion 5.7.0 -Scope CurrentUser -Force -SkipPublisherCheck
+          Import-Module Pester -MinimumVersion 5.7.0
+          Get-Module Pester | Format-List Name,Version,Path
+
+      - name: Run installer contract case
+        id: contract
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Continue'
+          $case = '${{ matrix.case }}'
+          $reportDir = Join-Path $PWD 'tests\contract\reports'
+          New-Item -ItemType Directory -Force -Path $reportDir | Out-Null
+
+          $reportPath = Join-Path $reportDir "$case-report.txt"
+          $rawPath = Join-Path $reportDir "$case-raw.log"
+
+          & pwsh -NoLogo -NoProfile -File .\tests\test-installer.ps1 -Case $case 2>&1 |
+            Tee-Object -FilePath $rawPath |
+            Tee-Object -FilePath $reportPath
+
+          $testExit = $LASTEXITCODE
+
+          if (-not (Test-Path $reportPath)) {
+            Write-Error "Report was not created: $reportPath"
+            exit 1
+          }
+
+          $report = Get-Content -Path $reportPath
+          $lineCount = @($report).Count
+          if ($lineCount -ne 10) {
+            Write-Error "Expected exactly 10 report lines for $case, got $lineCount. See $rawPath."
+            exit 1
+          }
+
+          $failLines = $report | Where-Object { $_ -match '(^|\s)FAIL(\s|$)' }
+          if ($testExit -ne 0) {
+            Write-Error "Contract case $case exited $testExit."
+            exit $testExit
+          }
+
+          if ($failLines) {
+            Write-Error "Contract case $case reported FAIL: $($failLines -join '; ')"
+            exit 1
+          }
+
+      - name: Upload case report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-${{ matrix.case }}-report
+          path: |
+            tests/contract/reports/${{ matrix.case }}-report.txt
+            tests/contract/reports/${{ matrix.case }}-raw.log
+          if-no-files-found: error
