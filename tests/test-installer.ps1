@@ -1,110 +1,77 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    AI Maker installer regression harness entry point.
-.DESCRIPTION
-    Runs one or all test cases (B1/B2/R1/R2). In CiMode, known v3.0.10 bugs are
-    excluded via Pester tag filter so the gate exits 0 on clean code.
+    AI Maker installer regression harness — entry point.
+
+    Stdout is exactly 10 lines (Format-CaseReport). Pester chatter and install
+    script Write-Host output are captured into <OutputDir>/<Case>-raw.log.
+
+    Exit 0 if the case passes; 1 if any assertion fails (excluding tests
+    tagged 'RealBug-v3010', which are the known-fail v3.0.10 idempotency
+    regression that ships pre-tagged until v3.0.11 lands).
+
 .PARAMETER Case
-    Test case to run: B1 | B2 | R1 | R2 | All
-.PARAMETER CiMode
-    When set, excludes 'RealBug-v3010' tag and writes NUnit XML results to OutputDir.
+    Test case to run: B1 | B2 | R1 | R2.
+.PARAMETER IncludeKnownBugs
+    Include assertions tagged 'RealBug-v3010' (default: excluded).
 .PARAMETER OutputDir
-    Directory for NUnit XML files (one per case). Created if missing. Requires CiMode.
+    Directory for per-case raw log + JSON result + report. Defaults to
+    tests/contract/reports/.
 #>
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)]
-    [ValidateSet('B1','B2','R1','R2','All')]
+    [ValidateSet('B1','B2','R1','R2')]
     [string]$Case,
 
-    [switch]$CiMode,
+    [switch]$IncludeKnownBugs,
 
-    [string]$OutputDir = ''
+    [string]$OutputDir
 )
 
 $ErrorActionPreference = 'Stop'
 
-$allCases = if ($Case -eq 'All') { @('B1','B2','R1','R2') } else { @($Case) }
-
-if ($CiMode -and $OutputDir -ne '' -and -not (Test-Path $OutputDir)) {
-    New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
+if (-not $OutputDir) {
+    $OutputDir = Join-Path $PSScriptRoot 'contract\reports'
 }
+$null = New-Item -ItemType Directory -Force -Path $OutputDir
 
-$totalPassed  = 0
-$totalFailed  = 0
-$totalSkipped = 0
-$realBugCases = @()
-$exitCode     = 0
+$rawLog     = Join-Path $OutputDir "$Case-raw.log"
+$reportFile = Join-Path $OutputDir "$Case-report.txt"
 
-foreach ($c in $allCases) {
-    $env:AIMAKER_TEST_CASE = $c
-    $caseFile = Join-Path $PSScriptRoot "contract\cases\$c.tests.ps1"
-    if (-not (Test-Path $caseFile)) {
-        Write-Error "No test file for case '$c': $caseFile"
-        exit 1
-    }
+# Clear prior artifacts for a clean run
+Remove-Item $rawLog,$reportFile -ErrorAction SilentlyContinue
 
-    $baseConfig = Import-PowerShellDataFile (Join-Path $PSScriptRoot "contract\AIMakerTests.psd1")
-    $cfg = New-PesterConfiguration -Hashtable $baseConfig
-    $cfg.Run.Path      = $caseFile
-    $cfg.Run.Exit      = $false   # we manage exit ourselves
-    $cfg.Run.PassThru  = $true
+$runner = Join-Path $PSScriptRoot 'contract\harness\Run-Case.ps1'
 
-    if ($CiMode) {
-        # Exclude known real bugs so CI gate is green until the installer is fixed.
-        $cfg.Filter.ExcludeTag = @('VMOnly','RealBug-v3010')
-        if ($OutputDir -ne '') {
-            $cfg.TestResult.Enabled      = $true
-            $cfg.TestResult.OutputFormat = 'NUnitXml'
-            $cfg.TestResult.OutputPath   = Join-Path $OutputDir "$c-results.xml"
-        }
-    }
+$childArgs = @(
+    '-NoLogo','-NoProfile','-File',$runner,
+    '-Case',$Case,
+    '-OutputDir',$OutputDir,
+    '-ReportFile',$reportFile
+)
+if ($IncludeKnownBugs) { $childArgs += '-IncludeKnownBugs' }
 
-    Write-Host ""
-    Write-Host "=== Running $c ===" -ForegroundColor Cyan
-    $result = Invoke-Pester -Configuration $cfg
+# Run the case in a child pwsh; pipe ALL output streams to the raw log.
+& pwsh @childArgs *>&1 | Out-File -FilePath $rawLog -Encoding utf8
+$childExit = $LASTEXITCODE
 
-    $passed  = $result.PassedCount
-    $failed  = $result.FailedCount
-    $skipped = $result.SkippedCount
-
-    # Classify failures: real bugs vs unexpected
-    $unexpectedFailed = 0
-    foreach ($test in $result.Failed) {
-        if ('RealBug-v3010' -in $test.Tag) {
-            $realBugCases += "$c::$($test.ExpandedName)"
-        } else {
-            $unexpectedFailed++
-        }
-    }
-
-    $totalPassed  += $passed
-    $totalFailed  += $failed
-    $totalSkipped += $skipped
-    if ($unexpectedFailed -gt 0) { $exitCode = 1 }
-}
-
-# ── Summary report ──────────────────────────────────────────────────────────────
-Write-Host ""
-Write-Host "=== AI Maker Installer Harness Results ===" -ForegroundColor White
-Write-Host "Cases run : $($allCases -join ', ')"
-Write-Host "Passed    : $totalPassed"
-Write-Host "Skipped   : $totalSkipped (conditional — check Git/admin prereqs)"
-
-$knownBugCount = $realBugCases.Count
-if ($knownBugCount -gt 0) {
-    $label = if ($CiMode) { "EXCLUDED from CI (RealBug-v3010)" } else { "REAL BUG (v3.0.10) — filed as marcusash_microsoft/ai-maker#6" }
-    Write-Host "Known bugs: $knownBugCount  $label" -ForegroundColor Yellow
-}
-
-$unexpectedTotal = $totalFailed - $knownBugCount
-if ($exitCode -eq 0) {
-    Write-Host "Status    : PASS" -ForegroundColor Green
+if (Test-Path $reportFile) {
+    Get-Content -Path $reportFile
 } else {
-    Write-Host "UNEXPECTED FAILURES: $unexpectedTotal" -ForegroundColor Red
-    Write-Host "Status    : FAIL — unexpected regressions detected" -ForegroundColor Red
+    @(
+        ('{0,-19} {1}' -f 'Case:', $Case),
+        ('{0,-19} {1}' -f 'Result:', 'FAIL'),
+        ('{0,-19} {1}' -f 'Assertions:', '0/0 pass'),
+        ('{0,-19} {1}' -f 'Duration:', 'N/A'),
+        ('{0,-19} {1}' -f 'Preservation:', 'N/A  (runner crashed)'),
+        ('{0,-19} {1}' -f 'Pill Purity:', 'N/A  (runner crashed)'),
+        ('{0,-19} {1}' -f 'Required Artifacts:', 'N/A  (runner crashed)'),
+        ('{0,-19} {1}' -f 'Idempotent:', 'N/A  (runner crashed)'),
+        ('{0,-19} {1}' -f 'Failed Assertions:', "runner-exit:$childExit; see $rawLog"),
+        ('{0,-19} {1}' -f 'Report URL:', $rawLog)
+    )
+    if ($childExit -eq 0) { $childExit = 1 }
 }
 
-exit $exitCode
-
+exit $childExit
