@@ -3,10 +3,14 @@
 .SYNOPSIS
     Release gate runner for AI Maker installer test harness.
 
-    Validates a Pester NUnit XML report against the required assertion set
-    for the given case. This is the tool FF operates as Release Owner.
+    Validates a Pester report against the required assertion set for the given
+    case. This is the tool FF operates as Release Owner.
 
-    Input:  case name (B1/B2/R1/R2) + path to Pester NUnit XML report
+    Accepts two report formats:
+      JSON (.json) — Pester PassThru object from Run-Case.ps1 (primary format)
+      NUnit XML    — Pester TestResults.xml (legacy / manual runs)
+
+    Input:  case name (B1/B2/R1/R2) + path to report file
     Output: PSCustomObject { Pass: bool; FailedAssertions: string[];
                              SkippedAssertions: string[]; Reason: string }
 
@@ -14,7 +18,8 @@
     Test case identifier: B1 | B2 | R1 | R2
 
 .PARAMETER ReportPath
-    Path to the NUnit XML produced by test-installer.ps1 (TestResults.xml).
+    Path to the Pester PassThru JSON (tests/contract/reports/<Case>.json from
+    Run-Case.ps1) or a Pester NUnit XML file (TestResults.xml).
 
 .PARAMETER RepoRoot
     Root of the ai-maker repo (for Out-Null lint check #10).
@@ -117,42 +122,75 @@ function Parse-NUnitXml {
     return $suites
 }
 
+function Parse-PesterJson {
+    <#
+    .SYNOPSIS
+        Parses a Pester PassThru JSON (from Run-Case.ps1's ConvertTo-Json -Depth 4).
+        Returns a flat list of Block objects representing Describe blocks, each with
+        at minimum: Name (string), Result (string), Tests (array).
+    #>
+    param([string]$Path)
+    $raw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
+    $data = $raw | ConvertFrom-Json
+
+    $blocks = [System.Collections.Generic.List[object]]::new()
+
+    foreach ($container in @($data.Containers)) {
+        foreach ($block in @($container.Blocks)) {
+            # Top-level Describe blocks
+            $blocks.Add($block)
+            # Nested Describe/Context blocks (one level deep covers all Phase 1 cases)
+            foreach ($inner in @($block.Blocks)) {
+                $blocks.Add($inner)
+            }
+        }
+    }
+
+    return $blocks
+}
+
 function Get-AssertionStatus {
     <#
     .SYNOPSIS
-        Finds the Describe block for the given assertion number in the
-        Pester NUnit suite list and returns its status.
+        Finds the Describe block for the given assertion number and returns its status.
+        Accepts either an XML suite list or a JSON block list — detected by type.
 
     .OUTPUTS
         'pass' | 'fail' | 'absent'
     #>
     param(
-        [System.Collections.Generic.List[object]]$Suites,
+        [object]$ReportData,        # List<XmlElement> from NUnit or List<PSObject> from JSON
         [string]$AssertionNumber,   # e.g. '#9' '#12.1'
         [string]$Case               # e.g. 'B1'
     )
 
     # Describe block naming convention: "{Case} {#N} {description}"
-    # e.g. "B1 #9 Exit code contract" or "B2 #12.1 MCP command shape (Windows)"
-    # Match: suite name starts with "{Case} {AssertionNumber}" (case-insensitive)
+    # e.g. "B1 #9 Exit code contract" or "R2 #1 Protected-asset preservation — no files removed"
+    # Match: block name starts with "{Case} {AssertionNumber}" (case-insensitive)
     $pattern = [regex]::Escape("$Case $AssertionNumber")
 
-    $matches = @($Suites | Where-Object {
-        $_.name -imatch "^$pattern(\s|$)"
+    $matched = @($ReportData | Where-Object {
+        $name = if ($null -ne $_.name) { $_.name } else { $_.Name }
+        $name -imatch "^$pattern(\s|$|—)"
     })
 
-    if ($matches.Count -eq 0) { return 'absent' }
+    if ($matched.Count -eq 0) { return 'absent' }
 
-    # A describe block passes if result is 'Success' (NUnit) or 'Passed' (JUnit)
-    # and no child test-case has result = 'Failure'/'Error'
-    foreach ($suite in $matches) {
-        $suiteResult = $suite.result
-        if ($suiteResult -iin @('Failure','Error','Failed')) { return 'fail' }
+    foreach ($block in $matched) {
+        # JSON Pester PassThru uses 'Passed'/'Failed'/'Skipped'
+        # NUnit XML uses 'Success'/'Failure'/'Error'
+        $result = if ($null -ne $block.result) { $block.result } else { $block.Result }
 
-        # Also check individual test-case children for any failures
-        $testCases = $suite.SelectNodes('.//test-case')
-        foreach ($tc in $testCases) {
-            if ($tc.result -iin @('Failure','Error','Failed')) { return 'fail' }
+        if ($result -iin @('Failure','Error','Failed')) { return 'fail' }
+
+        # Check individual tests inside this block
+        $tests = if ($null -ne $block.Tests) { @($block.Tests) }
+                 elseif ($block.results) { @($block.results.SelectNodes('.//test-case')) }
+                 else { @() }
+
+        foreach ($t in $tests) {
+            $tResult = if ($null -ne $t.result) { $t.result } else { $t.Result }
+            if ($tResult -iin @('Failure','Error','Failed')) { return 'fail' }
         }
     }
 
@@ -239,8 +277,13 @@ if (-not (Test-Path -LiteralPath $ReportPath)) {
     exit 1
 }
 
-# 2. Parse NUnit XML
-$suites = Parse-NUnitXml -Path $ReportPath
+# 2. Parse report — JSON (Pester PassThru from Run-Case.ps1) or NUnit XML
+$reportExt = [System.IO.Path]::GetExtension($ReportPath).ToLower()
+$reportData = if ($reportExt -eq '.json') {
+    Parse-PesterJson -Path $ReportPath
+} else {
+    Parse-NUnitXml -Path $ReportPath
+}
 
 # 3. Check required assertions
 foreach ($num in $required) {
@@ -249,7 +292,7 @@ foreach ($num in $required) {
         continue
     }
 
-    $status = Get-AssertionStatus -Suites $suites -AssertionNumber $num -Case $Case
+    $status = Get-AssertionStatus -ReportData $reportData -AssertionNumber $num -Case $Case
 
     switch ($status) {
         'pass'   { $notes.Add("[OK]   $Case $num") }
@@ -267,7 +310,7 @@ foreach ($num in $required) {
 
 # 4. Check conditional assertions
 foreach ($num in $conditional) {
-    $status = Get-AssertionStatus -Suites $suites -AssertionNumber $num -Case $Case
+    $status = Get-AssertionStatus -ReportData $reportData -AssertionNumber $num -Case $Case
 
     switch ($status) {
         'pass'   { $notes.Add("[OK]   $Case $num (conditional)") }
