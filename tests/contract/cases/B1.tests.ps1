@@ -229,8 +229,16 @@ Describe 'B1 #2 Pill purity (installed output)' -Tag Sandbox {
 }
 
 # ════════════════════════════════════════════════════════════════════════════════
-# ASSERTION #12.1 / #12.2 — MCP command shape + SHELL env var (sandbox-eligible)
+# ASSERTION #12.1 / #12.2 / #12.5 — MCP command shape, SHELL env var, agency path (sandbox-eligible)
 # ════════════════════════════════════════════════════════════════════════════════
+# #12.1 ground truth (ai-maker-lib.ps1:1240-1252): the actual shipped bug class is
+# bare shim commands like "npx" (non-.exe, no path) + SHELL unset. The load-bearing
+# check is: if command is not a .exe (i.e. a shim/script), SHELL must be set in
+# HKCU:\Environment. Bash-style (/bin/sh -c) retained as defense-in-depth only
+# (git log -S 'sh -c' = 0 matches — this bug class was never shipped).
+#
+# #12.5 (new): for any command rooted under %APPDATA%\agency\<version>\, the
+# absolute path must exist. Catches agency self-update staleness (no release fixed).
 
 Describe 'B1 #12.1 MCP command shape (Windows)' -Tag Sandbox {
     BeforeAll {
@@ -243,6 +251,22 @@ Describe 'B1 #12.1 MCP command shape (Windows)' -Tag Sandbox {
     It 'm-mcp-servers.json is parseable' {
         $script:McpCfg | Should -Not -BeNullOrEmpty
     }
+
+    # ── Primary #12.1 check: shim-without-SHELL (the actual shipped bug class) ──
+    It 'any non-.exe command has SHELL set in User scope (shim-requires-SHELL)' {
+        $shell = [Environment]::GetEnvironmentVariable('SHELL', 'User')
+        $servers = $script:McpCfg.servers.PSObject.Properties
+        foreach ($entry in $servers) {
+            $cmd = $entry.Value.command
+            if ($cmd -and $cmd -notmatch '(?i)\.exe$' -and $cmd -notmatch '^[A-Za-z]:\\') {
+                # Non-.exe, non-absolute-path command = shim (e.g. "npx", "node").
+                # SHELL must be set so the shim can resolve to the right interpreter.
+                $shell | Should -Not -BeNullOrEmpty -Because "server '$($entry.Name)' uses shim '$cmd' — SHELL must be set"
+            }
+        }
+    }
+
+    # ── Defense-in-depth: bash-style never shipped but guard anyway ──
     It 'workiq command is not a POSIX-shell invocation' {
         $cmd = $script:McpCfg.servers.workiq.command
         $cmd | Should -Not -Match '^(/bin/sh|bash|sh\s+-c)'
@@ -287,3 +311,33 @@ Describe 'B1 #12.2 SHELL env var written to correct scope' -Tag Sandbox {
         $machineSHELL | Should -BeNullOrEmpty
     }
 }
+
+Describe 'B1 #12.5 Stale versioned agency path probe' -Tag Sandbox {
+    # For any MCP server command rooted under %APPDATA%\agency\<version>\,
+    # assert the absolute path exists. Catches agency self-update staleness:
+    # after update, old version dir is removed but m-mcp-servers.json still
+    # points at it — all Layer 1 checks (JSON valid, command shape) pass green
+    # while the server is actually broken.
+    BeforeAll {
+        $script:McpCfg12_5 = $null
+        try {
+            $script:McpCfg12_5 = Get-Content $script:SB.McpConfigPath -Raw | ConvertFrom-Json
+        } catch {}
+        $script:AgencyAppData = Join-Path $env:APPDATA 'agency'
+    }
+
+    It 'm-mcp-servers.json parseable for path probe' {
+        $script:McpCfg12_5 | Should -Not -BeNullOrEmpty
+    }
+    It 'all versioned agency commands resolve to existing paths' {
+        $servers = $script:McpCfg12_5.servers.PSObject.Properties
+        foreach ($entry in $servers) {
+            $cmd = $entry.Value.command
+            if ($cmd -and $cmd -like "$($script:AgencyAppData)\*") {
+                Test-Path $cmd -PathType Leaf |
+                    Should -BeTrue -Because "server '$($entry.Name)' command '$cmd' must exist (stale-path protection)"
+            }
+        }
+    }
+}
+

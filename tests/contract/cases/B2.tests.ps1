@@ -278,14 +278,31 @@ Describe 'B2 #2 Pill purity (installed output)' -Tag Sandbox {
 }
 
 # ════════════════════════════════════════════════════════════════════════════════
-# ASSERTION #12.1/#12.2 — MCP command shape + SHELL
+# ASSERTION #12.1 / #12.2 / #12.5 — MCP command shape, SHELL env var, agency path (sandbox-eligible)
 # ════════════════════════════════════════════════════════════════════════════════
+# #12.1 ground truth (ai-maker-lib.ps1:1240-1252): load-bearing check is shim-without-SHELL.
+# Bash-style (/bin/sh -c) kept as defense-in-depth; that bug class was never shipped.
+# #12.5 (new): versioned agency command paths must exist (stale self-update protection).
 
 Describe 'B2 #12.1 MCP command shape (Windows)' -Tag Sandbox {
     BeforeAll {
         $script:McpCfg = $null
         try { $script:McpCfg = Get-Content $script:SB.McpConfigPath -Raw | ConvertFrom-Json } catch {}
     }
+
+    # ── Primary #12.1 check: shim-without-SHELL ──
+    It 'any non-.exe command has SHELL set in User scope (shim-requires-SHELL)' {
+        $shell = [Environment]::GetEnvironmentVariable('SHELL', 'User')
+        $servers = $script:McpCfg.servers.PSObject.Properties
+        foreach ($entry in $servers) {
+            $cmd = $entry.Value.command
+            if ($cmd -and $cmd -notmatch '(?i)\.exe$' -and $cmd -notmatch '^[A-Za-z]:\\') {
+                $shell | Should -Not -BeNullOrEmpty -Because "server '$($entry.Name)' uses shim '$cmd' — SHELL must be set"
+            }
+        }
+    }
+
+    # ── Defense-in-depth ──
     It 'workiq command is not a POSIX-shell invocation' {
         $script:McpCfg.servers.workiq.command | Should -Not -Match '^(/bin/sh|bash|sh\s+-c)'
     }
@@ -299,3 +316,22 @@ Describe 'B2 #12.1 MCP command shape (Windows)' -Tag Sandbox {
         $script:McpCfg.servers.bluebird.command | Should -Match '(?i)(pwsh|powershell|cmd|\.exe)'
     }
 }
+
+Describe 'B2 #12.5 Stale versioned agency path probe' -Tag Sandbox {
+    BeforeAll {
+        $script:McpCfg12_5 = $null
+        try { $script:McpCfg12_5 = Get-Content $script:SB.McpConfigPath -Raw | ConvertFrom-Json } catch {}
+        $script:AgencyAppData = Join-Path $env:APPDATA 'agency'
+    }
+    It 'all versioned agency commands resolve to existing paths' {
+        $servers = $script:McpCfg12_5.servers.PSObject.Properties
+        foreach ($entry in $servers) {
+            $cmd = $entry.Value.command
+            if ($cmd -and $cmd -like "$($script:AgencyAppData)\*") {
+                Test-Path $cmd -PathType Leaf |
+                    Should -BeTrue -Because "server '$($entry.Name)' command '$cmd' must exist (stale-path protection)"
+            }
+        }
+    }
+}
+

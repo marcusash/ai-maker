@@ -1,0 +1,13 @@
+{
+  "_comment": "Fixture for meta-test seed 7a (shim-without-SHELL detection). Represents the actual shipped bug class in ai-maker-lib.ps1:1240-1252: bare shim command 'npx' registered without SHELL set. The #12.1 shim-requires-SHELL check must FAIL against this file when SHELL is absent.",
+  "servers": {
+    "workiq": {
+      "command": "npx",
+      "args": ["-y", "@microsoft/workiq-mcp"]
+    },
+    "bluebird": {
+      "command": "npx",
+      "args": ["-y", "@microsoft/bluebird-mcp"]
+    }
+  }
+}
