@@ -19,5 +19,15 @@ param(
 $ErrorActionPreference = 'Stop'
 $env:AIMAKER_TEST_CASE = $Case
 
-$config = Join-Path $PSScriptRoot "AIMakerTests.psd1"
-Invoke-Pester -Configuration (New-PesterConfiguration -Hashtable (Import-PowerShellDataFile $config))
+$caseFile = Join-Path $PSScriptRoot "contract\cases\$Case.tests.ps1"
+if (-not (Test-Path $caseFile)) {
+    Write-Error "No test file for case '$Case': $caseFile"
+    exit 1
+}
+
+$baseConfig = Import-PowerShellDataFile (Join-Path $PSScriptRoot "contract\AIMakerTests.psd1")
+$cfg = New-PesterConfiguration -Hashtable $baseConfig
+# Run only the specified case (not all files in cases/ directory)
+$cfg.Run.Path = $caseFile
+
+Invoke-Pester -Configuration $cfg
