@@ -1,0 +1,34 @@
+{
+  "case": "B1",
+  "pill": "blue",
+  "priorState": "fresh",
+  "description": "Fresh Win11 — no prior AIMaker, no workspace, no skills installed.",
+  "protectedZone": [],
+  "expectedWorkspacePaths": [
+    ".github/copilot-instructions.md",
+    ".github/agents/ai-maker.md",
+    "vault/README.md",
+    ".gitignore"
+  ],
+  "expectedWorkspaceDirs": [
+    "vault",
+    "vault/maker",
+    ".github",
+    ".github/agents"
+  ],
+  "expectedMinSkillCount": 1,
+  "expectedSkillPrefix": "ai-maker-",
+  "expectedMcpServers": ["workiq", "bluebird"],
+  "forbiddenPatterns": [
+    "\\bworkbench\\b",
+    "red[- ]pill",
+    "install-red",
+    "AIWorkbench",
+    "That's AI workbench territory"
+  ],
+  "forbiddenPathSubstrings": [
+    "workbench",
+    "install-red",
+    "ai-workbench"
+  ]
+}

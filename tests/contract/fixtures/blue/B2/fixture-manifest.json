@@ -1,0 +1,42 @@
+{
+  "case": "B2",
+  "pill": "blue",
+  "priorState": "has-legacy-maker",
+  "description": "Blue install when a prior C:\\AIMaker\\ exists. Protected zone = legacy maker files.",
+  "protectedZone": [
+    "legacy-maker/.github/copilot-instructions.md",
+    "legacy-maker/agents/my-agent.md",
+    "legacy-maker/vault/notes/my-notes.md",
+    "legacy-maker/vault/with-ads.md",
+    "legacy-maker/vault/acl-file.md",
+    "legacy-maker/vault/hardlink-original.md",
+    "legacy-maker/vault/readonly.md"
+  ],
+  "expectedWorkspacePaths": [
+    ".github/copilot-instructions.md",
+    ".github/agents/ai-maker.md",
+    "vault/README.md",
+    ".gitignore"
+  ],
+  "expectedWorkspaceDirs": [
+    "vault",
+    "vault/maker",
+    ".github",
+    ".github/agents"
+  ],
+  "expectedMinSkillCount": 1,
+  "expectedSkillPrefix": "ai-maker-",
+  "expectedMcpServers": ["workiq", "bluebird"],
+  "forbiddenPatterns": [
+    "\\bworkbench\\b",
+    "red[- ]pill",
+    "install-red",
+    "AIWorkbench",
+    "That's AI workbench territory"
+  ],
+  "forbiddenPathSubstrings": [
+    "workbench",
+    "install-red",
+    "ai-workbench"
+  ]
+}
