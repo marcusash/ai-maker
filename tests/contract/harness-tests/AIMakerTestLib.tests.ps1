@@ -657,3 +657,68 @@ Describe 'Get-FileStateSnapshot — AclSddl positive case (non-default ACL)' {
     }
 }
 
+# ============================================================
+# Attributes positive case — ReadOnly flag detection and diff
+# ============================================================
+
+Describe 'Get-FileStateSnapshot — Attributes positive case (ReadOnly)' {
+    BeforeAll {
+        $script:TestRoot = Join-Path ([System.IO.Path]::GetTempPath()) "AIMakerLibTest-Attrs-$(([guid]::NewGuid()).ToString('N').Substring(0,8))"
+        New-Item -ItemType Directory -Path $script:TestRoot -Force | Out-Null
+
+        $script:AttrFile = Join-Path $script:TestRoot 'protected.txt'
+        [System.IO.File]::WriteAllText($script:AttrFile, 'protected content')
+
+        # Snapshot before setting ReadOnly
+        $script:SnapAttrBefore = Get-FileStateSnapshot -Path $script:AttrFile -Root $script:TestRoot
+
+        # Set ReadOnly flag
+        $item = Get-Item -LiteralPath $script:AttrFile -Force
+        $item.Attributes = $item.Attributes -bor [System.IO.FileAttributes]::ReadOnly
+
+        # Snapshot after setting ReadOnly
+        $script:SnapAttrAfter = Get-FileStateSnapshot -Path $script:AttrFile -Root $script:TestRoot
+    }
+
+    AfterAll {
+        # Clear ReadOnly before cleanup
+        if (Test-Path $script:AttrFile -EA SilentlyContinue) {
+            $item = Get-Item -LiteralPath $script:AttrFile -Force
+            $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly)
+        }
+        Remove-Item $script:TestRoot -Recurse -Force -ErrorAction SilentlyContinue
+    }
+
+    It 'Attributes field is present on snapshot' {
+        $script:SnapAttrAfter.Attributes | Should -Not -BeNullOrEmpty
+    }
+    It 'Attributes contains ReadOnly after flag set' {
+        $script:SnapAttrAfter.Attributes | Should -Match 'ReadOnly'
+    }
+    It 'Attributes does NOT contain ReadOnly on a normal file' {
+        $script:SnapAttrBefore.Attributes | Should -Not -Match 'ReadOnly'
+    }
+    It 'Compare-StateManifest emits an Attributes FieldChange when ReadOnly is set' {
+        $diff = Compare-StateManifest -Before @($script:SnapAttrBefore) -After @($script:SnapAttrAfter)
+        $diff.Changed | Should -Not -BeNullOrEmpty
+        ($diff.Changed[0].Fields | Where-Object { $_.Field -eq 'Attributes' }) |
+            Should -Not -BeNullOrEmpty
+    }
+    It 'Attributes FieldChange Before lacks ReadOnly, After contains ReadOnly' {
+        $diff = Compare-StateManifest -Before @($script:SnapAttrBefore) -After @($script:SnapAttrAfter)
+        $attrChange = $diff.Changed[0].Fields | Where-Object { $_.Field -eq 'Attributes' }
+        $attrChange.Before | Should -Not -Match 'ReadOnly'
+        $attrChange.After  | Should -Match    'ReadOnly'
+    }
+    It 'Compare-StateManifest is symmetric: reverting ReadOnly emits another Attributes change' {
+        $snapWithFlag = $script:SnapAttrAfter
+        # Revert ReadOnly
+        $item = Get-Item -LiteralPath $script:AttrFile -Force
+        $item.Attributes = $item.Attributes -band (-bnot [System.IO.FileAttributes]::ReadOnly)
+        $snapReverted = Get-FileStateSnapshot -Path $script:AttrFile -Root $script:TestRoot
+        $diff = Compare-StateManifest -Before @($snapWithFlag) -After @($snapReverted)
+        $diff.Changed | Should -Not -BeNullOrEmpty
+        ($diff.Changed[0].Fields | Where-Object { $_.Field -eq 'Attributes' }) |
+            Should -Not -BeNullOrEmpty
+    }
+}

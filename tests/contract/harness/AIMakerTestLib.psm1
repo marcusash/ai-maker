@@ -98,7 +98,7 @@ function Get-FileStateSnapshot {
         Root path for RelPath computation. Defaults to immediate parent.
     .OUTPUTS
         PSCustomObject with fields: RelPath, Sha256, IsDirectory, SizeBytes,
-        LastWriteUtc, CreatedUtc, AclSddl, IsReparsePoint, HardLinkCount, AdsNames
+        LastWriteUtc, CreatedUtc, AclSddl, IsReparsePoint, HardLinkCount, AdsNames, Attributes
     #>
     [CmdletBinding()]
     param(
@@ -139,6 +139,7 @@ function Get-FileStateSnapshot {
         IsReparsePoint = (script:Get-IsReparsePoint -Path $item.FullName)
         HardLinkCount  = $links
         AdsNames       = $adsNames
+        Attributes     = $item.Attributes.ToString()
     }
 }
 
@@ -238,7 +239,7 @@ function Compare-StateManifest {
             $diffs = [System.Collections.Generic.List[object]]::new()
 
             foreach ($prop in @('Sha256','AclSddl','LastWriteUtc','CreatedUtc',
-                                'IsReparsePoint','HardLinkCount','SizeBytes','IsDirectory')) {
+                                'IsReparsePoint','HardLinkCount','SizeBytes','IsDirectory','Attributes')) {
                 $bv = [string]$b.$prop
                 $av = [string]$a.$prop
                 if ($bv -ne $av) {
@@ -372,6 +373,7 @@ function Import-StateManifest {
             IsReparsePoint = [bool]$_.IsReparsePoint
             HardLinkCount  = [int]$_.HardLinkCount
             AdsNames       = [string[]]@($_.AdsNames | ForEach-Object { [string]$_ })
+            Attributes     = if ($null -eq $_.Attributes) { $null } else { [string]$_.Attributes }
         }
     })
 }
