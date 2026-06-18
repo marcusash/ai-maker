@@ -340,6 +340,9 @@ if ($pass) {
 }
 Write-Host ""
 
-# 9. Exit code for CI
+# 9. Emit result object to pipeline (callers: $r = & .\Invoke-CaseGate.ps1 ...)
+Write-Output $result
+
+# 10. Exit code for CI
 if (-not $pass) { exit 1 }
 exit 0
