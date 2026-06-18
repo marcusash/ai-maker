@@ -1,0 +1,107 @@
+name: Blue Purity Gate
+
+# Validates that every published release's agents.zip ships Blue files
+# that contain ZERO references to Workbench or Red Pill agent identity.
+# This is the structural fix for the "fix what was pointed at" failure
+# mode (FR audit, 2026-06-17): Blue users must NEVER see a Workbench
+# prompt, instruction, or routing rule in their installed copilot
+# instructions or agent persona.
+#
+# Scope is intentionally narrow:
+#   - copilot-instructions.blue.md  -> ZERO matches for forbidden terms
+#   - ai-maker.md                   -> ZERO matches for forbidden terms
+#
+# Files NOT in scope (and why):
+#   - install-blue.ps1, install.bat -> may legitimately reference the
+#     "Red Pill" install path as an upsell or for cross-pill error messages
+#   - ai-maker-lib.ps1 bootstrap content -> teaches the agent which
+#     identity strings NOT to use, so it must contain those strings in
+#     negated form (e.g. "Never call yourself 'AI Maker' (title case)")
+#   - copilot-instructions.red.md, ai-workbench.md -> Red Pill files
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to validate (defaults to latest)'
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  asset-gate:
+    name: Validate agents.zip Blue purity
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve tag
+        id: resolve
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          if [ -n "${{ inputs.tag }}" ]; then
+            tag="${{ inputs.tag }}"
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            tag="${GITHUB_REF##refs/tags/}"
+          else
+            tag=$(gh release list -R "${{ github.repository }}" --limit 1 --json tagName --jq '.[0].tagName')
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Validating agents.zip from release: $tag"
+
+      - name: Fetch agents.zip from release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          tag="${{ steps.resolve.outputs.tag }}"
+          mkdir -p /tmp/agents
+          gh release download "$tag" -R "${{ github.repository }}" -p 'agents.zip' -D /tmp/agents
+          unzip -o /tmp/agents/agents.zip -d /tmp/agents/extracted
+          echo "--- agents.zip contents ---"
+          ls -la /tmp/agents/extracted
+
+      - name: Assert Blue files contain zero forbidden terms
+        run: |
+          set -e
+          # Forbidden in Blue agent files. Case-insensitive.
+          # We do NOT include "AI workbench" alone because the Blue file
+          # is allowed to say things like "do not mention AI workbench".
+          # We ARE strict about identity-case-confusion strings and any
+          # Red Pill upsell, which has no business in Blue agent prompts.
+          forbidden_strict='\bworkbench\b|red[- ]pill|install-red|That'\''s AI workbench territory'
+          fail=0
+          for f in /tmp/agents/extracted/copilot-instructions.blue.md \
+                   /tmp/agents/extracted/ai-maker.md; do
+            base=$(basename "$f")
+            if [ ! -f "$f" ]; then
+              echo "::error::Required Blue asset missing from agents.zip: $base"
+              fail=1
+              continue
+            fi
+            hits=$(grep -inE "$forbidden_strict" "$f" || true)
+            if [ -n "$hits" ]; then
+              echo "::error file=$base::Blue purity violation in $base"
+              echo "$hits" | sed 's/^/    /'
+              fail=1
+            else
+              echo "OK: $base is Blue-pure"
+            fi
+          done
+          if [ "$fail" -ne 0 ]; then
+            echo ""
+            echo "Blue Purity Gate FAILED."
+            echo "Re-cut agents.zip with Blue files scrubbed before publishing."
+            echo "See FR audit memo (2026-06-17) for the structural fix."
+            exit 1
+          fi
+          echo ""
+          echo "Blue Purity Gate PASSED."
