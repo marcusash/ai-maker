@@ -82,4 +82,6 @@ jobs:
           path: |
             tests/contract/reports/${{ matrix.case }}-report.txt
             tests/contract/reports/${{ matrix.case }}-raw.log
+            tests/contract/reports/${{ matrix.case }}-*.json
+            tests/contract/reports/${{ matrix.case }}-*.log
           if-no-files-found: error
