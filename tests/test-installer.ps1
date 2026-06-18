@@ -20,13 +20,15 @@ $ErrorActionPreference = 'Stop'
 $testsRoot = $PSScriptRoot
 $repoRoot = Split-Path -Parent $testsRoot
 $reportsDir = Join-Path $repoRoot 'tests\contract\reports'
-$formatter = Join-Path $repoRoot 'tests\contract\harness\Format-CaseReport.ps1'
+$harnessModule = Join-Path $repoRoot 'tests\contract\harness\AIMakerTestLib.psm1'
 
 New-Item -ItemType Directory -Force -Path $reportsDir | Out-Null
 
-if (-not (Test-Path $formatter)) {
-    throw "Case report formatter not found: $formatter"
+if (-not (Test-Path $harnessModule)) {
+    throw "Harness module not found: $harnessModule"
 }
+
+Import-Module $harnessModule -Force
 
 $timestamp = Get-Date -Format 'yyyy-MM-dd-HHmmss'
 $jsonReport = Join-Path $reportsDir "$Case-$timestamp.json"
@@ -57,7 +59,7 @@ if ($result.FailedCount -gt 0) {
     $failedAssertions += '#pester'
 }
 
-& $formatter `
+Format-CaseReport `
     -Case $Case `
     -PesterResult $result `
     -StateDiff $null `
