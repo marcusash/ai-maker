@@ -44,7 +44,7 @@ function Show-Banner {
 $libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
 if (-not (Test-Path $libPath)) {
     # If running from irm | iex, download the lib
-    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.0/ai-maker-lib.ps1"
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.12/ai-maker-lib.ps1"
     $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
     Write-Host "  Downloading core library..." -ForegroundColor Gray
     Invoke-RestMethod -Uri $libUrl -OutFile $libPath
@@ -156,7 +156,7 @@ if (-not $SkillsSource) {
     }
     else {
         # Download from release
-        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.0/skills.zip"
+        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.12/skills.zip"
         $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
         $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 
@@ -193,9 +193,11 @@ if (-not $SkillsOnly) {
 
     if (Test-Path (Join-Path $script:AIMakerConfig.WorkspacePath $script:AIMakerConfig.ManifestFile)) {
         Write-Host "  ✓ Workspace already exists" -ForegroundColor Green
+        # Repair any issues from prior installs (idempotent)
+        Repair-WorkspaceAssets -Pill "blue" -WhatIf:$WhatIf
     }
     else {
-        New-WorkspaceScaffold -WhatIf:$WhatIf
+        New-WorkspaceScaffold -Pill "blue" -WhatIf:$WhatIf
         Write-Host "  ✓ Workspace created at $($script:AIMakerConfig.WorkspacePath)" -ForegroundColor Green
     }
 }
@@ -212,7 +214,80 @@ Write-AIMakerManifest -Manifest $manifest -WhatIf:$WhatIf
 Write-Host "  ✓ Manifest written" -ForegroundColor Green
 
 # ═══════════════════════════════════════════════════════════════
-# STEP 7: CLEANUP + INSTRUCTIONS
+# STEP 7: INSTALL AGENCY + REGISTER MCP SERVERS
+# ═══════════════════════════════════════════════════════════════
+
+if (-not $SkillsOnly -and -not $WhatIf) {
+    Write-Host "`nStep 7: Setting up Agency (M365 integration)..." -ForegroundColor White
+
+    # Resolve agency.exe
+    function Resolve-Agency {
+        $candidates = @(
+            (Get-Command agency.exe -EA SilentlyContinue).Source,
+            "$env:APPDATA\agency\CurrentVersion\agency.exe",
+            "$env:LOCALAPPDATA\Microsoft\agency\agency.exe",
+            "$env:LOCALAPPDATA\agency\CurrentVersion\agency.exe"
+        )
+        foreach ($c in $candidates) { if ($c -and (Test-Path $c)) { return $c } }
+        return $null
+    }
+
+    $agency = Resolve-Agency
+    if (-not $agency) {
+        Write-Host "  Installing Agency..." -ForegroundColor Gray
+        try {
+            iex "& { $(irm https://aka.ms/InstallTool.ps1) } agency" 2>$null
+            $agency = Resolve-Agency
+        } catch {
+            Write-Host "  ⚠ Agency install failed: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
+
+    if ($agency) {
+        Write-Host "  ✓ Agency found: $agency" -ForegroundColor Green
+
+        # Write MCP config (workiq + bluebird)
+        $mcpCfg = $script:AIMakerConfig.McpServersPath
+        $needsConfig = $true
+        if (Test-Path $mcpCfg) {
+            try {
+                $existing = Get-Content $mcpCfg -Raw | ConvertFrom-Json -AsHashtable
+                $servers = @($existing.mcpServers.Keys)
+                if (($servers -contains 'workiq') -and ($servers -contains 'bluebird')) {
+                    Write-Host "  ✓ MCP config already has workiq + bluebird" -ForegroundColor Green
+                    $needsConfig = $false
+                }
+            } catch { }
+        }
+
+        if ($needsConfig) {
+            $mcpObj = @{
+                mcpServers = @{
+                    workiq = @{
+                        command = $agency
+                        args    = @('mcp','workiq')
+                    }
+                    bluebird = @{
+                        command = $agency
+                        args    = @('mcp','bluebird')
+                    }
+                }
+            } | ConvertTo-Json -Depth 10
+            New-Item -ItemType Directory -Force -Path (Split-Path $mcpCfg) | Out-Null
+            [System.IO.File]::WriteAllText($mcpCfg, $mcpObj, (New-Object System.Text.UTF8Encoding($false)))
+            Write-Host "  ✓ MCP config written (workiq + bluebird)" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "  ⚠ Agency not available — WorkIQ/M365 features will not work until Agency is installed" -ForegroundColor Yellow
+        Write-Host "    Run fix-workiq.ps1 later to set up M365 integration" -ForegroundColor Gray
+    }
+}
+elseif ($WhatIf) {
+    Write-Host "`nStep 7: [WhatIf] Would install Agency and register MCP servers (workiq + bluebird)" -ForegroundColor Cyan
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 8: CLEANUP + LAUNCH
 # ═══════════════════════════════════════════════════════════════
 
 # Clean up temp files
@@ -229,19 +304,16 @@ Write-Host ""
 Write-Host "  Opening the Copilot App..." -ForegroundColor White
 Write-Host "  When it opens, add C:\GitHub\ai-workspace as a project." -ForegroundColor Gray
 Write-Host "  Then open a new session and say anything — it will" -ForegroundColor Gray
-Write-Host "  automatically create your AI Maker and AI Workbench agents." -ForegroundColor Gray
-Write-Host "  Close the setup session when done." -ForegroundColor Gray
+Write-Host "  automatically create your AI Maker agent." -ForegroundColor Gray
 Write-Host ""
 
-# Launch the Copilot App
+# Launch via agency (preferred) or direct app exe
 if (-not $WhatIf) {
-    $appPath = Get-Command "GitHub Copilot" -EA Silent
-    if (-not $appPath) {
+    if ($agency) {
+        Start-Process -FilePath $agency -ArgumentList 'gh-app'
+    } else {
         $appExe = Join-Path $env:LOCALAPPDATA "Programs\GitHub Copilot\GitHub Copilot.exe"
         if (Test-Path $appExe) { Start-Process $appExe }
-    }
-    else {
-        Start-Process $appPath.Source
     }
 }
 
@@ -254,6 +326,6 @@ if ($scenario.scenario -match "^legacy") {
 }
 
 Write-Host "  Want GitHub backup? Upgrade to Red Pill:" -ForegroundColor Gray
-Write-Host "  irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install-red.ps1 | iex" -ForegroundColor Blue
+Write-Host "  irm https://github.com/marcusash/ai-maker/releases/download/v3.0.12/install-red.ps1 | iex" -ForegroundColor Blue
 Write-Host ""
 

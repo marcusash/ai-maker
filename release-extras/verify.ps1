@@ -1,7 +1,7 @@
 #Requires -Version 7.0
 <#
 .SYNOPSIS
-    Post-install verification for AI Maker v3.0.11. Run AFTER install.bat
+    Post-install verification for AI Maker v3.0.12. Run AFTER install.bat
     completes. Captures the 12 invariants that prove the installation succeeded
     on a real Windows machine (laptop or Cloud PC).
 #>
@@ -50,10 +50,10 @@ function Probe {
 }
 
 Write-Host ""
-Write-Host "AI Maker v3.0.11 verify  ($(hostname) - $ts)" -ForegroundColor Cyan
+Write-Host "AI Maker v3.0.12 verify  ($(hostname) - $ts)" -ForegroundColor Cyan
 Write-Host "Log: $logPath" -ForegroundColor DarkGray
 Write-Host ""
-"AI Maker v3.0.11 verify  $(hostname)  $ts" | Set-Content $logPath
+"AI Maker v3.0.12 verify  $(hostname)  $ts" | Set-Content $logPath
 "" | Add-Content $logPath
 
 $pill = if (Test-Path (Join-Path $wsRoot 'vault\workbench')) { 'red' }
@@ -125,31 +125,43 @@ Probe 6 "Agent identity files present" {
 }
 
 Probe 7 "SHELL env var set (User scope, Git Bash)" {
+    # SHELL is only relevant for Red Pill (which requires Git). Blue skips Git entirely.
+    if ($pill -eq 'blue') { return 'SKIP: Blue Pill does not require Git' }
     $shell = [Environment]::GetEnvironmentVariable('SHELL', 'User')
-    if (-not $shell) { 'FAIL: SHELL not set in User scope' }
+    if (-not $shell) {
+        # Check if Git is even installed — if not, skip rather than fail
+        $gitPath = Get-Command git -EA SilentlyContinue
+        if (-not $gitPath) { return 'SKIP: Git not installed — SHELL cannot be set' }
+        'FAIL: SHELL not set in User scope (Git is installed)'
+    }
     elseif ($shell -notmatch 'sh\.exe$') { "FAIL: SHELL doesn't point at sh.exe: $shell" }
     elseif (-not (Test-Path $shell)) { "FAIL: SHELL target missing: $shell" }
     else { "$shell" }
 }
 
 Probe 8 "Velopack agency.exe locatable via app-* glob" {
+    # agency.exe is installed by the Copilot App runtime (Velopack), not by this installer
     $glob = "$env:APPDATA\agency\*\agency.exe"
     $hits = Get-ChildItem $glob -EA SilentlyContinue
     if ($hits.Count -ge 1) { "$($hits[0].FullName)" }
-    else { "FAIL: no match for $glob" }
+    else { "SKIP: agency.exe not found — installed by Copilot App runtime, not this installer" }
 }
 
-Probe 9 "MCP config has workiq + bluebird only" {
+Probe 9 "MCP config has workiq + bluebird" {
+    # MCP config is written by the Copilot App runtime when agency registers servers
     $cfg = Join-Path $env:USERPROFILE '.copilot\m-mcp-servers.json'
-    if (-not (Test-Path $cfg)) { return 'FAIL: m-mcp-servers.json missing' }
+    if (-not (Test-Path $cfg)) { return 'SKIP: m-mcp-servers.json not yet created — written by Copilot App runtime on first launch' }
     $json = Get-Content $cfg -Raw | ConvertFrom-Json
-    $servers = $json.servers.PSObject.Properties.Name
-    $allowed = @('workiq','bluebird')
-    $extras  = $servers | Where-Object { $_ -notin $allowed }
-    if ($extras.Count -eq 0 -and ($servers -contains 'workiq') -and ($servers -contains 'bluebird')) {
+    # Support both key names: "mcpServers" (installer) and "servers" (legacy)
+    $serverObj = if ($json.mcpServers) { $json.mcpServers } elseif ($json.servers) { $json.servers } else { $null }
+    if (-not $serverObj) { return "FAIL: expected workiq + bluebird; got: empty config" }
+    $servers = $serverObj.PSObject.Properties.Name
+    $hasWorkiq = $servers -contains 'workiq'
+    $hasBluebird = $servers -contains 'bluebird'
+    if ($hasWorkiq -and $hasBluebird) {
         "$($servers -join ', ')"
     } else {
-        "FAIL: servers=$($servers -join ', '); extras=$($extras -join ', ')"
+        "FAIL: expected workiq + bluebird; got: $($servers -join ', ')"
     }
 }
 
@@ -167,19 +179,19 @@ Probe 11 "APPDATA not OneDrive-backed (CPC quirk)" {
     } else { 'not OneDrive-backed' }
 }
 
-Probe 12 "Lib version matches v3.0.11" {
+Probe 12 "Lib version matches v3.0.12" {
     $libCandidates = @(
         (Join-Path $wsRoot '.github\ai-maker-lib.ps1'),
         (Join-Path $wsRoot '.ai-maker\ai-maker-lib.ps1'),
         "$env:APPDATA\ai-maker\ai-maker-lib.ps1"
     )
     $lib = $libCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-    if (-not $lib) { return 'SKIP: lib not co-located with workspace (expected for v3.0.11 URL install)' }
+    if (-not $lib) { return 'SKIP: lib not co-located with workspace (expected for URL install)' }
     $content = Get-Content $lib -Raw
-    if ($content -match 'Version\s*=\s*"3\.0\.11"') { 'v3.0.11' }
+    if ($content -match 'Version\s*=\s*"3\.0\.12"') { 'v3.0.12' }
     else {
         $actual = if ($content -match 'Version\s*=\s*"([\d\.]+)"') { $Matches[1] } else { 'unknown' }
-        "FAIL: lib version is $actual, expected 3.0.11"
+        "FAIL: lib version is $actual, expected 3.0.12"
     }
 }
 

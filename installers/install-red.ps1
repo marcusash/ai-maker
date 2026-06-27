@@ -47,7 +47,7 @@ function Show-Banner {
 
 $libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
 if (-not (Test-Path $libPath)) {
-    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.0/ai-maker-lib.ps1"
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.12/ai-maker-lib.ps1"
     $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
     Write-Host "  Downloading core library..." -ForegroundColor Gray
     Invoke-RestMethod -Uri $libUrl -OutFile $libPath
@@ -244,7 +244,7 @@ if (-not $SkillsOnly) {
 Write-Host "`nStep 5: Installing all skills (22)..." -ForegroundColor White
 
 if (-not $SkillsSource) {
-    $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.0/skills.zip"
+    $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.12/skills.zip"
     $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
     $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 
@@ -284,10 +284,43 @@ if (-not $SkillsOnly) {
 
     if (Test-Path (Join-Path $wsPath $script:AIMakerConfig.ManifestFile)) {
         Write-Host "  ✓ Workspace already exists" -ForegroundColor Green
+        Repair-WorkspaceAssets -Pill "red" -WhatIf:$WhatIf
     }
     else {
-        New-WorkspaceScaffold -WhatIf:$WhatIf
+        New-WorkspaceScaffold -Pill "red" -WhatIf:$WhatIf
         Write-Host "  ✓ Workspace created at $wsPath" -ForegroundColor Green
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 6b: SET SHELL ENVIRONMENT VARIABLE
+# ═══════════════════════════════════════════════════════════════
+
+if (-not $SkillsOnly) {
+    $currentShell = [Environment]::GetEnvironmentVariable('SHELL', 'User')
+    if (-not $currentShell) {
+        # Find Git's sh.exe (check multiple known locations)
+        $gitCmd = Get-Command git -EA SilentlyContinue
+        if ($gitCmd) {
+            $gitRoot = Split-Path (Split-Path $gitCmd.Source)
+            $shCandidates = @(
+                (Join-Path $gitRoot "usr\bin\sh.exe"),
+                (Join-Path $gitRoot "bin\sh.exe")
+            )
+            $shExe = $shCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+            if ($shExe) {
+                if (-not $WhatIf) {
+                    [Environment]::SetEnvironmentVariable('SHELL', $shExe, 'User')
+                    Write-Host "  ✓ SHELL env var set: $shExe" -ForegroundColor Green
+                } else {
+                    Write-Host "  [WhatIf] Would set SHELL=$shExe" -ForegroundColor Cyan
+                }
+            } else {
+                Write-Host "  ⚠ sh.exe not found in Git installation" -ForegroundColor Yellow
+            }
+        }
+    } else {
+        Write-Host "  ✓ SHELL already set: $currentShell" -ForegroundColor Green
     }
 }
 
@@ -418,7 +451,79 @@ if (-not $SkillsOnly) {
 }
 
 # ═══════════════════════════════════════════════════════════════
-# STEP 10: CLEANUP + INSTRUCTIONS
+# STEP 10: INSTALL AGENCY + REGISTER MCP SERVERS
+# ═══════════════════════════════════════════════════════════════
+
+if (-not $SkillsOnly -and -not $WhatIf) {
+    Write-Host "`nStep 10: Setting up Agency (M365 integration)..." -ForegroundColor White
+
+    function Resolve-Agency {
+        $candidates = @(
+            (Get-Command agency.exe -EA SilentlyContinue).Source,
+            "$env:APPDATA\agency\CurrentVersion\agency.exe",
+            "$env:LOCALAPPDATA\Microsoft\agency\agency.exe",
+            "$env:LOCALAPPDATA\agency\CurrentVersion\agency.exe"
+        )
+        foreach ($c in $candidates) { if ($c -and (Test-Path $c)) { return $c } }
+        return $null
+    }
+
+    $agency = Resolve-Agency
+    if (-not $agency) {
+        Write-Host "  Installing Agency..." -ForegroundColor Gray
+        try {
+            iex "& { $(irm https://aka.ms/InstallTool.ps1) } agency" 2>$null
+            $agency = Resolve-Agency
+        } catch {
+            Write-Host "  ⚠ Agency install failed: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
+
+    if ($agency) {
+        Write-Host "  ✓ Agency found: $agency" -ForegroundColor Green
+
+        # Write MCP config (workiq + bluebird)
+        $mcpCfg = $script:AIMakerConfig.McpServersPath
+        $needsConfig = $true
+        if (Test-Path $mcpCfg) {
+            try {
+                $existing = Get-Content $mcpCfg -Raw | ConvertFrom-Json -AsHashtable
+                $servers = @($existing.mcpServers.Keys)
+                if (($servers -contains 'workiq') -and ($servers -contains 'bluebird')) {
+                    Write-Host "  ✓ MCP config already has workiq + bluebird" -ForegroundColor Green
+                    $needsConfig = $false
+                }
+            } catch { }
+        }
+
+        if ($needsConfig) {
+            $mcpObj = @{
+                mcpServers = @{
+                    workiq = @{
+                        command = $agency
+                        args    = @('mcp','workiq')
+                    }
+                    bluebird = @{
+                        command = $agency
+                        args    = @('mcp','bluebird')
+                    }
+                }
+            } | ConvertTo-Json -Depth 10
+            New-Item -ItemType Directory -Force -Path (Split-Path $mcpCfg) | Out-Null
+            [System.IO.File]::WriteAllText($mcpCfg, $mcpObj, (New-Object System.Text.UTF8Encoding($false)))
+            Write-Host "  ✓ MCP config written (workiq + bluebird)" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "  ⚠ Agency not available — WorkIQ/M365 features will not work until Agency is installed" -ForegroundColor Yellow
+        Write-Host "    Run fix-workiq.ps1 later to set up M365 integration" -ForegroundColor Gray
+    }
+}
+elseif ($WhatIf) {
+    Write-Host "`nStep 10: [WhatIf] Would install Agency and register MCP servers (workiq + bluebird)" -ForegroundColor Cyan
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 11: CLEANUP + INSTRUCTIONS
 # ═══════════════════════════════════════════════════════════════
 
 # Clean up temp files
@@ -440,13 +545,23 @@ Write-Host "    • Private GitHub repo: https://github.com/$ghUser/$RepoName" -
 Write-Host "    • Copilot CLI for terminal use" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  Next steps:" -ForegroundColor White
-Write-Host "  1. Close and reopen the GitHub Copilot App (if running)" -ForegroundColor Gray
-Write-Host "  2. Open this folder as a project:" -ForegroundColor Gray
+Write-Host "  1. The Copilot App is launching now" -ForegroundColor Gray
+Write-Host "  2. Add this folder as a project:" -ForegroundColor Gray
 Write-Host "     $($script:AIMakerConfig.WorkspacePath)" -ForegroundColor Cyan
-Write-Host "  3. Start chatting — all 22 skills are active" -ForegroundColor Gray
+Write-Host "  3. Start chatting — all 22 skills + WorkIQ are active" -ForegroundColor Gray
 Write-Host "  4. Your vault syncs to GitHub automatically with:" -ForegroundColor Gray
 Write-Host "     git add -A && git commit -m 'vault update' && git push" -ForegroundColor Cyan
 Write-Host ""
+
+# Launch via agency (preferred) or direct app exe
+if (-not $WhatIf) {
+    if ($agency) {
+        Start-Process -FilePath $agency -ArgumentList 'gh-app'
+    } else {
+        $appExe = Join-Path $env:LOCALAPPDATA "Programs\GitHub Copilot\GitHub Copilot.exe"
+        if (Test-Path $appExe) { Start-Process $appExe }
+    }
+}
 
 if ($scenario.scenario -match "^legacy") {
     Write-Host "  ─── Migration available ───" -ForegroundColor Yellow
