@@ -5,9 +5,8 @@
 .DESCRIPTION
     Shared functions for install-blue.ps1, install-red.ps1, and migrate.ps1.
     Covers: manifest management, detection matrix, transaction log, scaffold creation.
-    Requires PowerShell 7+ (install.bat bootstraps pwsh via winget if not present).
 .VERSION
-    3.0.10
+    1.0.0
 #>
 
 # ═══════════════════════════════════════════════════════════════
@@ -15,7 +14,7 @@
 # ═══════════════════════════════════════════════════════════════
 
 $script:AIMakerConfig = @{
-    Version          = "3.0.10"
+    Version          = "3.0.12"
     ManifestFile     = ".ai-maker-manifest.json"
     SchemaVersion    = 1
     SkillsPath       = Join-Path $env:USERPROFILE ".copilot\skills"
@@ -29,30 +28,13 @@ $script:AIMakerConfig = @{
     MakerSkillCount  = 11
     WorkbenchSkillCount = 11
     TotalSkillCount  = 22
-    AgentsZipUrl     = "https://github.com/marcusash/ai-maker/releases/download/v3.0.10/agents.zip"
-    McpConfigPath    = Join-Path $env:USERPROFILE ".copilot\m-mcp-servers.json"
-    AgencyBinaryFallback = Join-Path $env:APPDATA "agency\current\agency.exe"
-    AgencyVersionedGlob  = Join-Path $env:APPDATA "agency\app-*\agency.exe"
+    McpServersPath   = (Join-Path $env:USERPROFILE ".copilot\m-mcp-servers.json")
 }
 
 # Known stock hashes for copilot-instructions.md (all previous versions)
 $script:KnownStockHashes = @(
-    # v3.0.0 — generic stock template (matches Get-StockCopilotInstructionsContent output, LF-normalized)
+    # v3.0.0 — shipped with ai-maker-v3 installer (matches Get-StockCopilotInstructionsContent output, LF-normalized)
     "4271d7bf4bf837e9478e16ae8e967f8b690875a14f6541231728d21faf13f877"
-    # v3.0.0-v3.0.10 - neutral copilot-instructions.md (unchanged across all releases)
-    "bc33ef17b2e320d2b4ae6d6aa38d6913de9b5cb4d259b1ac5e6a1d01918b8a1e"
-    # v3.0.1 — Blue Pill (AI Maker only)
-    "910f72a6cf3f0bde5a7c118be8bf7954491b6206b66029255a8f7ea8894189e6"
-    # v3.0.1 — Red Pill (AI Maker + AI Workbench)
-    "280b85a55dbcbd5e87432113aab3c2a934c3b98fbaf2edd130626bb3718b26b8"
-    # v3.0.3 — Blue Pill
-    "660f474cc0639963080866f2286f065fe15ed28f19ac6f57fc61758c9b3b0eff"
-    # v3.0.3 — Red Pill
-    "dae81725a279f781482ee31965f8cf2f6047affc87e1ecd9f630133c7ddfb744"
-    # v3.0.4-v3.0.10 - Blue Pill (greeting cleanup; content identical across these releases)
-    "a94ad044e9ab9c3cc64c224df130c3fc49a2e7da80c180131ef604b0c3f2e4af"
-    # v3.0.4-v3.0.10 - Red Pill (greeting cleanup; content identical across these releases)
-    "896e80629dd939543c58bb447b5ed2055bf7e4854074dadbfaf6a324b49623e6"
     # NOTE: Pre-v3 instructions have no archived hashes. Users with custom pre-v3 files
     # will be detected as "modified" — their content is preserved as .user.md (safe default).
 )
@@ -69,30 +51,28 @@ function Get-StockCopilotInstructionsContent {
     return @'
 # AI Workspace
 
-This project has two AI agents: **AI maker** (creative/strategic) and **AI workbench** (technical/engineering). Names are sentence case. Always.
+This project has two AI agents: **AI Maker** (creative/strategic) and **AI Workbench** (technical/engineering).
 
 ## Bootstrap Protocol
 
-When you are the first session opened in this project and no "AI maker" or "AI workbench" sessions exist yet, execute this automatically WITHOUT asking:
+When you are the first session opened in this project and no "AI Maker" or "AI Workbench" sessions exist yet, execute this automatically WITHOUT asking:
 
 1. Tell the user: "Setting up your AI agents..."
 
-2. Use `create_session` to create a session named **AI maker** (sentence case, exactly: A-I-space-m-a-k-e-r) with kickoff_prompt:
-   "Read .github/agents/ai-maker.md and load that identity. You are AI maker — a creative strategist and executive thinking partner. Your VERY FIRST action in this session, before responding to anything, is to call rename_session with title='AI maker' to lock the session name. Then acknowledge briefly and wait for instructions."
+2. Use `create_session` to create a session named **AI Maker** with kickoff_prompt:
+   "Read .github/agents/ai-maker.md and load that identity. You are AI Maker — a creative strategist and executive thinking partner. Acknowledge briefly and wait for instructions."
    Set kickoff_mode to "autopilot" and coordinate_with_creator to false.
 
-3. Use `create_session` to create a session named **AI workbench** (sentence case, exactly: A-I-space-w-o-r-k-b-e-n-c-h) with kickoff_prompt:
-   "Read .github/agents/ai-workbench.md and load that identity. You are AI workbench — a senior engineer and automation specialist. Your VERY FIRST action in this session, before responding to anything, is to call rename_session with title='AI workbench' to lock the session name. Then acknowledge briefly and wait for instructions."
+3. Use `create_session` to create a session named **AI Workbench** with kickoff_prompt:
+   "Read .github/agents/ai-workbench.md and load that identity. You are AI Workbench — a senior engineer and automation specialist. Acknowledge briefly and wait for instructions."
    Set kickoff_mode to "autopilot" and coordinate_with_creator to false.
 
 4. After both sessions are created, **delete this bootstrapping session** using `delete_item` with your own session ID. This promotes the two agent sessions to root level in the sidebar (not nested as children).
 
 5. If you cannot delete yourself, tell the user:
-   "Done! Your two agents are ready. Please delete this setup session now — that will move AI maker and AI workbench to the top level of your sidebar."
+   "Done! Your two agents are ready. Please delete this setup session now — that will move AI Maker and AI Workbench to the top level of your sidebar."
 
 Do NOT ask for confirmation. Just create them immediately on first load.
-
-**HARD RULE — naming:** Session names are ALWAYS sentence case: "AI maker" and "AI workbench". Never "AI Maker", "AI Workbench", "ai-maker", "AI maker chat", or "Chat". Every agent's first action in any session is to verify the session name is the canonical sentence-case form, and call `rename_session` to fix it if not.
 
 **IMPORTANT**: The agent sessions must appear at root level in the sidebar, not nested under this bootstrapper. Deleting the bootstrapper after creation achieves this.
 
@@ -100,8 +80,8 @@ Do NOT ask for confirmation. Just create them immediately on first load.
 
 | Agent | File | Domain |
 |-------|------|--------|
-| **AI maker** | `.github/agents/ai-maker.md` | Research, brainstorming, design, data, ops, writing |
-| **AI workbench** | `.github/agents/ai-workbench.md` | PowerShell, CI/CD, git, debugging, testing, security |
+| **AI Maker** | `.github/agents/ai-maker.md` | Research, brainstorming, design, data, ops, writing |
+| **AI Workbench** | `.github/agents/ai-workbench.md` | PowerShell, CI/CD, git, debugging, testing, security |
 
 ## Vault
 
@@ -111,7 +91,7 @@ Persistent memory across sessions:
 
 ## Routing
 
-AI maker handles creative/strategic requests. AI workbench handles technical/engineering requests. If a request is outside your domain, redirect the user to the other session.
+AI Maker handles creative/strategic requests. AI Workbench handles technical/engineering requests. If a request is outside your domain, redirect the user to the other session.
 '@
 }
 
@@ -368,10 +348,7 @@ function Read-AIMakerManifest {
     if (-not (Test-Path $Path)) { return $null }
 
     try {
-        # PS5.1-compatible: ConvertFrom-Json -AsHashtable is PS7+ only
-        $obj = Get-Content $Path -Raw | ConvertFrom-Json
-        $manifest = @{}
-        foreach ($prop in $obj.PSObject.Properties) { $manifest[$prop.Name] = $prop.Value }
+        $manifest = Get-Content $Path -Raw | ConvertFrom-Json -AsHashtable
         if ($manifest.schema -gt $script:AIMakerConfig.SchemaVersion) {
             Write-Warning "Manifest schema v$($manifest.schema) is newer than this installer (v$($script:AIMakerConfig.SchemaVersion)). Upgrade the installer."
         }
@@ -447,10 +424,10 @@ function Get-InstallScenario {
 
     # Path resolution — use overrides for testability, live checks otherwise
     if ($PathOverrides) {
-        $ws = if ($PathOverrides.Workspace)       { $PathOverrides.Workspace }       else { $script:AIMakerConfig.WorkspacePath }
-        $lm = if ($PathOverrides.LegacyMaker)     { $PathOverrides.LegacyMaker }     else { $script:AIMakerConfig.LegacyMakerPath }
-        $lw = if ($PathOverrides.LegacyWorkbench) { $PathOverrides.LegacyWorkbench } else { $script:AIMakerConfig.LegacyWorkbenchPath }
-        $sp = if ($PathOverrides.SkillsPath)      { $PathOverrides.SkillsPath }      else { $script:AIMakerConfig.SkillsPath }
+        $ws = $PathOverrides.Workspace ?? $script:AIMakerConfig.WorkspacePath
+        $lm = $PathOverrides.LegacyMaker ?? $script:AIMakerConfig.LegacyMakerPath
+        $lw = $PathOverrides.LegacyWorkbench ?? $script:AIMakerConfig.LegacyWorkbenchPath
+        $sp = $PathOverrides.SkillsPath ?? $script:AIMakerConfig.SkillsPath
     }
     else {
         $ws = $script:AIMakerConfig.WorkspacePath
@@ -495,14 +472,12 @@ function Get-InstallScenario {
     }
 
     # MCP registration check — use injected value or live file inspection
-    # McpConfigPath = $env:USERPROFILE.copilotm-mcp-servers.json (already in AIMakerConfig)
-    # mcpRegistered = $true ONLY when both workiq + bluebird keys present
     if ($McpOverrides) {
         $state.mcpRegistered        = [bool]$McpOverrides.McpRegistered
         $state.mcpRegisteredServers = @($McpOverrides.McpRegisteredServers ?? @())
     }
     else {
-        $mcpPath = $script:AIMakerConfig.McpConfigPath
+        $mcpPath = $script:AIMakerConfig.McpServersPath
         $state.mcpRegistered        = $false
         $state.mcpRegisteredServers = @()
         if (Test-Path $mcpPath) {
@@ -587,92 +562,19 @@ function New-WorkspaceScaffold {
     <#
     .SYNOPSIS
         Creates the ai-workspace project folder with vault structure and templates.
-        Verbose logging on every step. Fails loudly if workspace is not created.
     .PARAMETER Pill
-        "blue" or "red" — selects the pill-specific copilot-instructions.md.
+        "blue" or "red". Controls vault structure, instructions content, and agent deployment.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][ValidateSet("blue","red")][string]$Pill,
+        [string]$AgentsSource,
         [switch]$WhatIf
     )
 
     $ws = $script:AIMakerConfig.WorkspacePath
-    Write-Host "  Workspace target: $ws" -ForegroundColor Gray
 
-    # ── 0. Resolve agents source (needed for both instructions and identity files) ─
-    # ALWAYS download fresh from the release to avoid stale extracts from prior runs.
-    # Only fall back to local $PSScriptRoot\agents if download fails AND local copy is complete.
-    $agentsDir   = Join-Path $ws ".github\agents"
-    $localAgentSource = Join-Path $PSScriptRoot "agents"
-    $agentSource = $null
-    $pillFileName = "copilot-instructions.$Pill.md"
-
-    if (-not $WhatIf) {
-        $agentsZip     = Join-Path $env:TEMP "ai-maker-agents.zip"
-        $agentsExtract = Join-Path $env:TEMP "ai-maker-agents"
-
-        # Wipe stale extract — Expand-Archive -Force only overwrites matching files,
-        # doesn't delete leftover ones, which has bitten us before.
-        if (Test-Path $agentsExtract) {
-            Remove-Item $agentsExtract -Recurse -Force -ErrorAction SilentlyContinue
-        }
-        if (Test-Path $agentsZip) {
-            Remove-Item $agentsZip -Force -ErrorAction SilentlyContinue
-        }
-
-        $downloadOk = $false
-        try {
-            Write-Host "  Downloading agents.zip from release..." -ForegroundColor Gray
-            # Use Invoke-WebRequest (not Invoke-RestMethod) for binary downloads
-            $progressPref = $ProgressPreference
-            $ProgressPreference = 'SilentlyContinue'
-            try {
-                Invoke-WebRequest -Uri $script:AIMakerConfig.AgentsZipUrl -OutFile $agentsZip -UseBasicParsing -ErrorAction Stop
-            } finally {
-                $ProgressPreference = $progressPref
-            }
-            if (-not (Test-Path $agentsZip) -or (Get-Item $agentsZip).Length -lt 100) {
-                throw "agents.zip download produced empty or missing file at $agentsZip"
-            }
-            Write-Host "  ✓ Downloaded $((Get-Item $agentsZip).Length) bytes" -ForegroundColor Green
-
-            Expand-Archive -Path $agentsZip -DestinationPath $agentsExtract -Force -ErrorAction Stop
-            $agentSource = $agentsExtract
-            $downloadOk = $true
-        }
-        catch {
-            Write-Host "  ⚠ Failed to download/extract agents.zip: $($_.Exception.Message)" -ForegroundColor Yellow
-        }
-
-        # Fallback to local co-located agents/ folder if download failed
-        if (-not $downloadOk -and (Test-Path $localAgentSource)) {
-            $localPill = Join-Path $localAgentSource $pillFileName
-            if (Test-Path $localPill) {
-                Write-Host "  Falling back to local agents/ folder: $localAgentSource" -ForegroundColor Gray
-                $agentSource = $localAgentSource
-            }
-        }
-
-        # Verify the pill-specific instructions file is actually present in the agentSource.
-        # If not, FAIL LOUDLY — the previous silent stock fallback caused real user bugs.
-        if (-not $agentSource) {
-            throw "New-WorkspaceScaffold: cannot resolve agents source. agents.zip download failed and no usable local copy exists. Check network or release asset URL: $($script:AIMakerConfig.AgentsZipUrl)"
-        }
-        $pillFile = Join-Path $agentSource $pillFileName
-        if (-not (Test-Path $pillFile)) {
-            $present = (Get-ChildItem $agentSource -Filter '*.md' -EA SilentlyContinue | Select-Object -ExpandProperty Name) -join ', '
-            throw "New-WorkspaceScaffold: pill-specific template '$pillFileName' missing from agents source at $agentSource (found: $present). The release's agents.zip is malformed."
-        }
-        Write-Host "  ✓ Verified pill template: $pillFileName" -ForegroundColor Green
-    }
-    else {
-        Write-Host "  [WhatIf] Would download agents.zip and verify $pillFileName" -ForegroundColor Cyan
-        $agentSource = $localAgentSource  # for WhatIf path display
-    }
-
-    # ── 1. Directory structure ───────────────────────────────────
-    # Blue = Maker only (no vault\workbench). Red = both vaults.
+    # Create directory structure — Blue gets vault\maker only, Red gets both
     $dirs = @(
         $ws,
         (Join-Path $ws "vault"),
@@ -681,135 +583,161 @@ function New-WorkspaceScaffold {
         (Join-Path $ws ".github\agents")
     )
     if ($Pill -eq "red") {
-        $dirs = @(
-            $ws,
-            (Join-Path $ws "vault"),
-            (Join-Path $ws "vault\maker"),
-            (Join-Path $ws "vault\workbench"),
-            (Join-Path $ws ".github"),
-            (Join-Path $ws ".github\agents")
-        )
+        $dirs += (Join-Path $ws "vault\workbench")
     }
 
     foreach ($dir in $dirs) {
-        if (Test-Path $dir) {
-            Write-Host "  ✓ Exists: $dir" -ForegroundColor DarkGray
-        }
-        else {
-            Write-Host "  + Creating: $dir" -ForegroundColor Gray
+        if (-not (Test-Path $dir)) {
             Invoke-TxOp -Operation "CREATE_DIR" -Description "Create: $dir" `
                 -Path $dir -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-                # $Path is the Invoke-TxOp param — outer $dir is NOT in scope inside this block
-                New-Item -Path $Path -ItemType Directory -Force | Out-Null
-            }
-            if (-not $WhatIf -and -not (Test-Path $dir)) {
-                Write-Error "New-WorkspaceScaffold: failed to create directory '$dir'"
-                throw "Directory creation failed: $dir"
+                New-Item -Path $dir -ItemType Directory -Force | Out-Null
             }
         }
     }
 
-    # ── 2. copilot-instructions.md ───────────────────────────────
-    # ALWAYS overwrite with pill-specific file. We guaranteed it exists above.
-    # Previously this skipped if file existed, but a stale stock file from a prior
-    # failed install would never be replaced, leaving users with the wrong agent.
+    # Write copilot-instructions.md (pill-aware content)
     $instructionsPath = Join-Path $ws ".github\copilot-instructions.md"
-    $pillInstructions = Join-Path $agentSource $pillFileName
-    Write-Host "  + Writing: .github\copilot-instructions.md (from $pillFileName)" -ForegroundColor Gray
-    Invoke-TxOp -Operation "CREATE_FILE" -Description "Write copilot-instructions.md ($Pill)" `
-        -Path $instructionsPath -From $pillInstructions -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-        Copy-Item $From $Path -Force
+    if (-not (Test-Path $instructionsPath)) {
+        $content = if ($Pill -eq "blue") { $script:StockInstructionsBlue } else { $script:StockInstructions }
+        Invoke-TxOp -Operation "CREATE_FILE" -Description "Write copilot-instructions.md ($Pill)" `
+            -Path $instructionsPath -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+            Set-Content -Path $instructionsPath -Value $content -Encoding utf8
+        }
     }
 
-    # ── 3. vault/README.md ───────────────────────────────────────
+    # Write vault README
     $vaultReadme = Join-Path $ws "vault\README.md"
-    if (Test-Path $vaultReadme) {
-        Write-Host "  ✓ Exists: vault\README.md" -ForegroundColor DarkGray
-    }
-    else {
-        Write-Host "  + Writing: vault\README.md" -ForegroundColor Gray
+    if (-not (Test-Path $vaultReadme)) {
+        $readmeContent = if ($Pill -eq "blue") { $script:VaultReadmeBlue } else { $script:VaultReadme }
         Invoke-TxOp -Operation "CREATE_FILE" -Description "Write vault/README.md" `
             -Path $vaultReadme -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-            Set-Content -Path $Path -Value $script:VaultReadme -Encoding utf8
+            Set-Content -Path $vaultReadme -Value $readmeContent -Encoding utf8
         }
     }
 
-    # ── 4. .gitignore ────────────────────────────────────────────
+    # Write .gitignore
     $gitignorePath = Join-Path $ws ".gitignore"
-    if (Test-Path $gitignorePath) {
-        Write-Host "  ✓ Exists: .gitignore" -ForegroundColor DarkGray
-    }
-    else {
-        Write-Host "  + Writing: .gitignore" -ForegroundColor Gray
+    if (-not (Test-Path $gitignorePath)) {
         Invoke-TxOp -Operation "CREATE_FILE" -Description "Write .gitignore" `
             -Path $gitignorePath -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-            Set-Content -Path $Path -Value $script:GitIgnoreTemplate -Encoding utf8
+            Set-Content -Path $gitignorePath -Value $script:GitIgnoreTemplate -Encoding utf8
         }
     }
 
-    # ── 5. Agent identity files ──────────────────────────────────
-    # Blue: ai-maker.md only. Red: ai-maker.md + ai-workbench.md.
-    # Explicit allow-list keeps copilot-instructions.*.md and legacy copilot-instructions.md out.
-    $agentAllowList = if ($Pill -eq "blue") {
-        @("ai-maker.md")
-    }
-    else {
-        @("ai-maker.md", "ai-workbench.md")
-    }
-
-    if ($agentSource -and (Test-Path $agentSource)) {
-        $agentFiles = Get-ChildItem $agentSource -Filter "*.md" -EA Silent |
-            Where-Object { $_.Name -in $agentAllowList }
-        if ($agentFiles.Count -eq 0) {
-            Write-Host "  ⚠ No agent identity *.md files found in: $agentSource" -ForegroundColor Yellow
-        }
-        foreach ($agentFile in $agentFiles) {
+    # Write agent identity files (pill-aware: Blue = ai-maker.md only, Red = both)
+    $agentsDir = Join-Path $ws ".github\agents"
+    # Check multiple locations for agent source files
+    $agentSource = if ($AgentsSource -and (Test-Path $AgentsSource)) { $AgentsSource }
+                   elseif (Test-Path (Join-Path $PSScriptRoot "agents")) { Join-Path $PSScriptRoot "agents" }
+                   elseif (Test-Path (Join-Path $PSScriptRoot "..\agents")) { (Resolve-Path (Join-Path $PSScriptRoot "..\agents")).Path }
+                   else { $null }
+    if ($agentSource) {
+        $allowedAgents = if ($Pill -eq "blue") { @("ai-maker.md") } else { @("ai-maker.md", "ai-workbench.md") }
+        foreach ($agentFile in (Get-ChildItem $agentSource -Filter "*.md")) {
+            if ($agentFile.Name -notin $allowedAgents) { continue }
             $dest = Join-Path $agentsDir $agentFile.Name
-            if (Test-Path $dest) {
-                Write-Host "  ✓ Exists: .github\agents\$($agentFile.Name)" -ForegroundColor DarkGray
-            }
-            else {
-                Write-Host "  + Copying agent: $($agentFile.Name)" -ForegroundColor Gray
+            if (-not (Test-Path $dest)) {
                 Invoke-TxOp -Operation "CREATE_FILE" -Description "Write agent: $($agentFile.Name)" `
-                    -Path $dest -From $agentFile.FullName -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-                    # $Path and $From are Invoke-TxOp params — outer vars not in scope
-                    Copy-Item $From $Path -Force
+                    -Path $dest -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+                    Copy-Item $agentFile.FullName $dest -Force
                 }
             }
         }
     }
+}
 
-    # ── 6. Final verification ────────────────────────────────────
-    if (-not $WhatIf) {
-        # Blue = Maker only. Red = Maker + Workbench. Mirror the directory-creation
-        # branching above; previously this list hardcoded vault\workbench for both
-        # pills which made every Blue install fail verification with a phantom
-        # "AI Workbench missing" error.
-        $requiredPaths = @(
-            $ws,
-            (Join-Path $ws "vault\maker"),
-            (Join-Path $ws ".github\copilot-instructions.md"),
-            (Join-Path $ws ".github\agents\ai-maker.md")
-        )
-        if ($Pill -eq "red") {
-            $requiredPaths += (Join-Path $ws "vault\workbench")
-            $requiredPaths += (Join-Path $ws ".github\agents\ai-workbench.md")
-        }
-        $missing = $requiredPaths | Where-Object { -not (Test-Path $_) }
-        if ($missing) {
-            $missing | ForEach-Object { Write-Host "  ✗ MISSING: $_" -ForegroundColor Red }
-            throw "New-WorkspaceScaffold: workspace incomplete — $($missing.Count) required path(s) missing. Check write permissions on C:\GitHub."
-        }
+function Repair-WorkspaceAssets {
+    <#
+    .SYNOPSIS
+        Idempotent repair — runs on every install to fix missing/incorrect workspace assets.
+        Fixes Blue Purity violations from prior installs, adds missing agent files.
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][ValidateSet("blue","red")][string]$Pill,
+        [string]$AgentsSource,
+        [switch]$WhatIf
+    )
 
-        # Content marker check: copilot-instructions.md must contain pill-specific marker.
-        # Catches the case where a stale/stock file was preserved instead of overwritten.
-        $expectedMarker = if ($Pill -eq "blue") { "AI Maker Workspace" } else { "AI Workspace" }
-        $ciContent = Get-Content (Join-Path $ws ".github\copilot-instructions.md") -Raw -ErrorAction Stop
-        if ($ciContent -notmatch [regex]::Escape($expectedMarker)) {
-            $firstLine = ($ciContent -split "`n")[0]
-            throw "New-WorkspaceScaffold: copilot-instructions.md does not contain expected marker '$expectedMarker' for Pill=$Pill. First line is: '$firstLine'. The pill template was not applied — this is a packaging bug."
+    $ws = $script:AIMakerConfig.WorkspacePath
+    if (-not (Test-Path $ws)) { return }  # Nothing to repair if workspace doesn't exist
+
+    # Blue Purity: remove vault\workbench if this is a Blue install
+    $workbenchVault = Join-Path $ws "vault\workbench"
+    if ($Pill -eq "blue" -and (Test-Path $workbenchVault)) {
+        # Only remove if it's empty (don't destroy user data)
+        $contents = Get-ChildItem $workbenchVault -EA SilentlyContinue
+        if (-not $contents) {
+            Invoke-TxOp -Operation "REMOVE_DIR" -Description "Remove vault\workbench (Blue Purity)" `
+                -Path $workbenchVault -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
+                Remove-Item $workbenchVault -Force
+            }
         }
-        Write-Host "  ✓ Workspace verified complete (marker '$expectedMarker' present)" -ForegroundColor Green
+    }
+
+    # Red: ensure vault\workbench exists
+    if ($Pill -eq "red" -and -not (Test-Path $workbenchVault)) {
+        Invoke-TxOp -Operation "CREATE_DIR" -Description "Create vault\workbench (Red)" `
+            -Path $workbenchVault -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+            New-Item -Path $workbenchVault -ItemType Directory -Force | Out-Null
+        }
+    }
+
+    # Ensure vault\maker exists
+    $makerVault = Join-Path $ws "vault\maker"
+    if (-not (Test-Path $makerVault)) {
+        Invoke-TxOp -Operation "CREATE_DIR" -Description "Create vault\maker" `
+            -Path $makerVault -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+            New-Item -Path $makerVault -ItemType Directory -Force | Out-Null
+        }
+    }
+
+    # Upgrade copilot-instructions.md if pill changed (Blue→Red or Red→Blue)
+    $instructionsPath = Join-Path $ws ".github\copilot-instructions.md"
+    if (Test-Path $instructionsPath) {
+        $currentContent = Get-Content $instructionsPath -Raw
+        $isBlueStock = $currentContent -match '# AI Maker Workspace'
+        $isRedStock = ($currentContent -match '# AI Workspace') -and -not $isBlueStock
+        if ($Pill -eq "red" -and $isBlueStock) {
+            # Upgrading Blue→Red: replace Blue instructions with Red
+            Invoke-TxOp -Operation "UPDATE_FILE" -Description "Upgrade copilot-instructions.md (Blue→Red)" `
+                -Path $instructionsPath -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+                Set-Content -Path $instructionsPath -Value $script:StockInstructions -Encoding utf8
+            }
+        }
+    }
+
+    # Repair agent identity files
+    $agentsDir = Join-Path $ws ".github\agents"
+    if (-not (Test-Path $agentsDir)) {
+        New-Item -Path $agentsDir -ItemType Directory -Force | Out-Null
+    }
+    $agentSource = if ($AgentsSource -and (Test-Path $AgentsSource)) { $AgentsSource }
+                   elseif (Test-Path (Join-Path $PSScriptRoot "agents")) { Join-Path $PSScriptRoot "agents" }
+                   elseif (Test-Path (Join-Path $PSScriptRoot "..\agents")) { (Resolve-Path (Join-Path $PSScriptRoot "..\agents")).Path }
+                   else { $null }
+    if ($agentSource) {
+        $allowedAgents = if ($Pill -eq "blue") { @("ai-maker.md") } else { @("ai-maker.md", "ai-workbench.md") }
+        foreach ($agentFile in (Get-ChildItem $agentSource -Filter "*.md")) {
+            if ($agentFile.Name -notin $allowedAgents) { continue }
+            $dest = Join-Path $agentsDir $agentFile.Name
+            if (-not (Test-Path $dest)) {
+                Invoke-TxOp -Operation "CREATE_FILE" -Description "Repair agent: $($agentFile.Name)" `
+                    -Path $dest -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+                    Copy-Item $agentFile.FullName $dest -Force
+                }
+            }
+        }
+        # Blue Purity: remove ai-workbench.md if present on Blue
+        if ($Pill -eq "blue") {
+            $wbAgent = Join-Path $agentsDir "ai-workbench.md"
+            if (Test-Path $wbAgent) {
+                Invoke-TxOp -Operation "REMOVE_FILE" -Description "Remove ai-workbench.md (Blue Purity)" `
+                    -Path $wbAgent -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
+                    Remove-Item $wbAgent -Force
+                }
+            }
+        }
     }
 }
 
@@ -861,15 +789,16 @@ function Install-Skills {
 
         Invoke-TxOp -Operation "INSTALL_SKILL" -Description "Install skill: $($folder.Name)" `
             -Path $targetPath -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-            Copy-Item $folder.FullName $targetPath -Recurse -Force
+            # Ensure target exists, then copy contents (not the folder itself) to avoid nesting
+            if (-not (Test-Path $targetPath)) {
+                New-Item -Path $targetPath -ItemType Directory -Force | Out-Null
+            }
+            Copy-Item (Join-Path $folder.FullName "*") $targetPath -Recurse -Force
         }
 
         $installed += @{
             id        = $folder.Name
-            version   = $(
-                $vPath = Join-Path $folder.FullName ".bundled-version"
-                if (Test-Path $vPath) { (Get-Content $vPath -EA SilentlyContinue) } else { "1.0.0" }
-            )
+            version   = (Get-Content (Join-Path $folder.FullName ".bundled-version") -EA Silent) ?? "1.0.0"
             checksum  = $newChecksum
             installed = (Get-Date -Format "o")
         }
@@ -1109,6 +1038,71 @@ Your actual project files (code, documents, deliverables) should stay in your pr
 If a skill folder has grown large with files you no longer need, clear it out. Old context can confuse new work just as much as no context.
 '@
 
+$script:StockInstructionsBlue = @'
+# AI Maker Workspace — Copilot Instructions
+
+This is your personal AI workspace. It's where you work with Copilot on anything from research and writing to design thinking and day-to-day tasks.
+
+## What this workspace is for
+
+This workspace is set up for creative and analytical work:
+
+- **vault/maker** — your creative toolkit: research, brainstorming, design thinking, writing, and strategy
+
+Use this when you're exploring ideas, producing content, analyzing data, or working through decisions.
+
+## How to work with Copilot here
+
+Just describe what you want to do. If you want to research something, brainstorm ideas, draft a document, or analyze data — start talking and Copilot will figure out which skills apply.
+
+You don't need to remember command names or skill names. Natural language works fine.
+
+## A few things to know
+
+- Your vault is yours. Nothing in it is shared unless you share it.
+- Skills are installed in your local profile. They update when you run the installer again.
+- If something isn't working the way you expect, describe the behavior and Copilot will help diagnose it.
+
+## Tone
+
+Be direct. You don't need to be polite to get good results. If a response isn't useful, say so and ask for something different.
+
+## Memory
+
+Save important decisions, preferences, and context to your vault so you remember them next time. If I tell you something I want you to remember, save it.
+
+## Ready for more?
+
+When you want the full engineering toolkit (code, automation, testing, security), upgrade to Red Pill. It adds AI Workbench and 11 more skills. Run the installer again and pick option 2.
+'@
+
+$script:VaultReadmeBlue = @'
+# vault
+
+This folder holds the context and content that powers your AI Maker skills.
+
+## vault/maker
+
+AI Maker skills live here. Use this for:
+
+- Research and synthesis
+- Brainstorming and ideation
+- Design thinking and strategy
+- Writing, editing, and content creation
+- Data exploration and analysis
+- Canvas and presentation work
+
+## What goes in the vault vs. your project folders
+
+The vault is for **ongoing context** — things that make your skills smarter over time. Examples: a style guide you want writing to follow, a glossary of terms, a set of example outputs you liked.
+
+Your actual project files (code, documents, deliverables) should stay in your project folders. The vault is context, not storage.
+
+## Keeping it clean
+
+If a skill folder has grown large with files you no longer need, clear it out. Old context can confuse new work just as much as no context.
+'@
+
 $script:GitIgnoreTemplate = @'
 # Secrets and credentials
 .env
@@ -1177,182 +1171,13 @@ Set-Alias -Name Write-AIMTxEntry -Value Write-TxEntry -Scope Script
 
 # When dot-sourced, all functions above are available.
 # Key entry points:
-#   Get-InstallScenario         — detect current state (§4)
-#   New-WorkspaceScaffold       — create project folder (§5)
-#   Install-Skills              — copy skills to App path (§6)
-#   New-AIMakerManifest         — create manifest object (§3)
-#   Write-AIMakerManifest       — persist manifest to disk (§3)
-#   Invoke-HealthCheck          — run -Doctor diagnostics (§8)
-#   Invoke-Rollback             — best-effort rollback (§2)
-#   Copy-VaultData              — migrate legacy vaults (§7)
+#   Get-InstallScenario    — detect current state (§4)
+#   New-WorkspaceScaffold  — create project folder (§5)
+#   Install-Skills         — copy skills to App path (§6)
+#   New-AIMakerManifest    — create manifest object (§3)
+#   Write-AIMakerManifest  — persist manifest to disk (§3)
+#   Invoke-HealthCheck     — run -Doctor diagnostics (§8)
+#   Invoke-Rollback        — best-effort rollback (§2)
+#   Copy-VaultData         — migrate legacy vaults (§7)
 #   Test-CopilotInstructionsModified — hash check (§7)
-#   Get-DiskSpaceCheck          — verify free space (§7)
-
-
-# ============================================================================
-# §6b. AGENCY MCP REGISTRATION + APP LAUNCH (v3.0.1)
-# ============================================================================
-
-function Register-AgencyMcpServers {
-    <#
-    .SYNOPSIS
-        Registers Agency's MCP servers (workiq + bluebird) with the Copilot App.
-    .DESCRIPTION
-        The Copilot App reads ~/.copilot/m-mcp-servers.json to discover MCP servers.
-        Agency provides workiq (M365) and bluebird via `agency mcp <name>`.
-        This function reads the existing JSON (or creates one with the standard
-        filesystem+playwright builtins if missing), merges workiq+bluebird without
-        clobbering user customizations, and writes it back as pretty UTF-8 (no BOM).
-        Idempotent — safe to run repeatedly.
-    .PARAMETER WhatIf
-        Preview changes without writing.
-    #>
-    [CmdletBinding(SupportsShouldProcess)]
-    param()
-
-    $configPath = $script:AIMakerConfig.McpConfigPath
-
-    # Resolve agency.exe — PATH first, then AppData fallback
-    $agencyCmd = (Get-Command agency.exe -ErrorAction SilentlyContinue).Source
-    if (-not $agencyCmd) {
-        $fallback = $script:AIMakerConfig.AgencyBinaryFallback
-        if (Test-Path $fallback) { $agencyCmd = $fallback }
-    }
-    if (-not $agencyCmd) {
-        throw "Register-AgencyMcpServers: agency.exe not found on PATH and not at $($script:AIMakerConfig.AgencyBinaryFallback). MCP servers cannot be wired up. Install Agency CLI first."
-    }
-
-    # Load or seed config
-    $existing = $null
-    if (Test-Path $configPath) {
-        try {
-            $existing = Get-Content $configPath -Raw -ErrorAction Stop | ConvertFrom-Json -ErrorAction Stop
-        } catch {
-            Write-Host "    [WARN] m-mcp-servers.json malformed; backing up and re-seeding." -ForegroundColor Yellow
-            $bak = "$configPath.bak.$(Get-Date -Format yyyyMMddHHmmss)"
-            Copy-Item $configPath $bak -Force
-            $existing = $null
-        }
-    }
-
-    if (-not $existing) {
-        # Seed with the standard builtins the App expects when no config exists
-        $existing = [PSCustomObject]@{
-            servers = [PSCustomObject]@{
-                filesystem = [PSCustomObject]@{
-                    command = "npx"
-                    args    = @("-y", "@modelcontextprotocol/server-filesystem", $env:USERPROFILE)
-                    tools   = @("*")
-                }
-                playwright = [PSCustomObject]@{
-                    command = "npx"
-                    args    = @("-y", "@playwright/mcp@latest")
-                    tools   = @("*")
-                }
-            }
-        }
-    }
-
-    # Ensure .servers exists
-    if (-not ($existing.PSObject.Properties.Name -contains "servers")) {
-        $existing | Add-Member -NotePropertyName "servers" -NotePropertyValue ([PSCustomObject]@{}) -Force
-    }
-
-    # Build target entries
-    $workiqEntry = [PSCustomObject]@{
-        command = $agencyCmd
-        args    = @("mcp", "workiq")
-        tools   = @("*")
-    }
-    $bluebirdEntry = [PSCustomObject]@{
-        command = $agencyCmd
-        args    = @("mcp", "bluebird")
-        tools   = @("*")
-    }
-
-    # Merge — only add if missing (preserves user customizations)
-    $changed = $false
-    foreach ($pair in @(
-        @{ Name = "workiq";   Value = $workiqEntry },
-        @{ Name = "bluebird"; Value = $bluebirdEntry }
-    )) {
-        $name = $pair.Name
-        if (-not ($existing.servers.PSObject.Properties.Name -contains $name)) {
-            $existing.servers | Add-Member -NotePropertyName $name -NotePropertyValue $pair.Value -Force
-            $changed = $true
-            Write-Host "    [+] Registered MCP server: $name" -ForegroundColor Green
-        } else {
-            Write-Host "    [=] MCP server already registered: $name (preserved)" -ForegroundColor Gray
-        }
-    }
-
-    if (-not $changed) {
-        Write-Host "    [OK] m-mcp-servers.json already has workiq + bluebird. No change." -ForegroundColor Green
-        return
-    }
-
-    if ($PSCmdlet.ShouldProcess($configPath, "Write MCP config")) {
-        # Ensure parent dir exists
-        $parent = Split-Path $configPath -Parent
-        if (-not (Test-Path $parent)) {
-            New-Item -ItemType Directory -Path $parent -Force | Out-Null
-        }
-        $json = $existing | ConvertTo-Json -Depth 10
-        # UTF-8 no BOM
-        [System.IO.File]::WriteAllText($configPath, $json, [System.Text.UTF8Encoding]::new($false))
-        Write-Host "    [OK] Wrote $configPath" -ForegroundColor Green
-
-        # Verify write actually worked and contains both servers
-        if (-not (Test-Path $configPath)) {
-            throw "Register-AgencyMcpServers: write claimed success but $configPath does not exist."
-        }
-        $verify = Get-Content $configPath -Raw | ConvertFrom-Json -ErrorAction Stop
-        $missing = @()
-        if (-not ($verify.servers.PSObject.Properties.Name -contains 'workiq'))   { $missing += 'workiq' }
-        if (-not ($verify.servers.PSObject.Properties.Name -contains 'bluebird')) { $missing += 'bluebird' }
-        if ($missing.Count -gt 0) {
-            throw "Register-AgencyMcpServers: post-write verification failed — missing servers: $($missing -join ', ')"
-        }
-        Write-Host "    [OK] Verified workiq + bluebird present in config" -ForegroundColor Green
-    } else {
-        Write-Host "    [WHATIF] Would write $configPath with workiq + bluebird merged in." -ForegroundColor Cyan
-    }
-}
-
-function Invoke-AgencyGhApp {
-    <#
-    .SYNOPSIS
-        Launches the Copilot App via `agency gh-app`.
-    .DESCRIPTION
-        Agency exposes `gh-app` to start the Copilot App with all M365 connectors
-        wired up. Replaces the legacy Start-Process "GitHub Copilot.exe" call.
-        Non-fatal — prints manual fallback message if agency is missing or fails.
-    #>
-    [CmdletBinding(SupportsShouldProcess)]
-    param()
-
-    $agencyCmd = (Get-Command agency.exe -ErrorAction SilentlyContinue).Source
-    if (-not $agencyCmd) {
-        $fallback = $script:AIMakerConfig.AgencyBinaryFallback
-        if (Test-Path $fallback) { $agencyCmd = $fallback }
-    }
-    if (-not $agencyCmd) {
-        Write-Host "    [SKIP] agency.exe not found. To launch manually: agency gh-app" -ForegroundColor Yellow
-        return
-    }
-
-    if ($PSCmdlet.ShouldProcess("agency gh-app", "Launch Copilot App")) {
-        try {
-            & $agencyCmd gh-app
-            if ($LASTEXITCODE -ne 0) {
-                Write-Host "    [WARN] agency gh-app exited with code $LASTEXITCODE. Launch the App manually." -ForegroundColor Yellow
-            } else {
-                Write-Host "    [OK] Launched Copilot App via agency gh-app" -ForegroundColor Green
-            }
-        } catch {
-            Write-Host "    [WARN] agency gh-app failed: $($_.Exception.Message). Launch the App manually." -ForegroundColor Yellow
-        }
-    } else {
-        Write-Host "    [WHATIF] Would run: agency gh-app" -ForegroundColor Cyan
-    }
-}
+#   Get-DiskSpaceCheck     — verify free space (§7)

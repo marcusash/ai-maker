@@ -1,4 +1,4 @@
-#Requires -Version 7.0
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     AI Maker v3 — CLI-to-App Migration Script
@@ -27,7 +27,6 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$ProgressPreference = "SilentlyContinue"
 
 # ═══════════════════════════════════════════════════════════════
 # BANNER
@@ -48,7 +47,7 @@ function Show-Banner {
 
 $libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
 if (-not (Test-Path $libPath)) {
-    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.10/ai-maker-lib.ps1"
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.12/ai-maker-lib.ps1"
     $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
     Write-Host "  Downloading core library..." -ForegroundColor Gray
     Invoke-RestMethod -Uri $libUrl -OutFile $libPath
@@ -283,18 +282,7 @@ Write-Host "`nStep 5: Ensuring Copilot App is installed..." -ForegroundColor Whi
 
 $appInstalled = (winget list --id GitHub.CopilotApp --accept-source-agreements 2>$null) -match "GitHub.CopilotApp"
 if ($appInstalled) {
-    Write-Host "  ✓ Copilot App already installed — checking for updates..." -ForegroundColor Green
-    if (-not $WhatIf) {
-        winget upgrade --id GitHub.CopilotApp -e --silent --accept-source-agreements --accept-package-agreements 2>&1 | Out-Host
-        # Exit 0 = upgraded; -1978335189 (0x8A15002B) = no applicable upgrade. Both are success.
-        if ($LASTEXITCODE -eq 0) {
-            Write-Host "  ✓ Copilot App upgraded to latest" -ForegroundColor Green
-        } elseif ($LASTEXITCODE -eq -1978335189) {
-            Write-Host "  ✓ Copilot App is already at the latest version" -ForegroundColor Green
-        } else {
-            Write-Host "  ⚠ Upgrade check returned exit $LASTEXITCODE — continuing with installed version" -ForegroundColor Yellow
-        }
-    }
+    Write-Host "  ✓ Copilot App already installed" -ForegroundColor Green
 }
 else {
     Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub Copilot App" `
@@ -302,7 +290,7 @@ else {
         winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
         if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.CopilotApp (exit: $LASTEXITCODE)" }
     }
-    Write-Host "  ✓ Copilot App installed (latest version)" -ForegroundColor Green
+    Write-Host "  ✓ Copilot App installed" -ForegroundColor Green
 }
 
 # ═══════════════════════════════════════════════════════════════
@@ -396,7 +384,7 @@ if (-not $SkillsSource) {
         Write-Host "  Using local skills folder" -ForegroundColor Gray
     }
     else {
-        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.10/skills.zip"
+        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.12/skills.zip"
         $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
         $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 
@@ -430,7 +418,7 @@ else {
 Write-Host "`nStep 8: Creating workspace and copying data..." -ForegroundColor White
 
 # Create scaffold (idempotent)
-New-WorkspaceScaffold -Pill $pillTarget -WhatIf:$WhatIf
+New-WorkspaceScaffold -WhatIf:$WhatIf
 Write-Host "  ✓ Workspace scaffold ready" -ForegroundColor Green
 
 # Copy vault data
@@ -601,7 +589,7 @@ if ($MarkLegacy -and -not $WhatIf) {
     $marker = @{
         migrated_at = (Get-Date -Format "o")
         migrated_to = $ws
-        version = "3.0.10"
+        version = "3.0.0"
     } | ConvertTo-Json
 
     foreach ($legacyPath in @($script:AIMakerConfig.LegacyMakerPath, $script:AIMakerConfig.LegacyWorkbenchPath)) {

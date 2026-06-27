@@ -1,4 +1,4 @@
-#Requires -Version 7.0
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     AI Maker v3 — Red Pill Installer
@@ -23,8 +23,7 @@ param(
     [switch]$Doctor,
     [switch]$SkillsOnly,
     [string]$SkillsSource,
-    [string]$RepoName = "ai-workspace",
-    [switch]$SkipAppLaunch
+    [string]$RepoName = "ai-workspace"
 )
 
 $ErrorActionPreference = "Stop"
@@ -48,7 +47,7 @@ function Show-Banner {
 
 $libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
 if (-not (Test-Path $libPath)) {
-    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.10/ai-maker-lib.ps1"
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.12/ai-maker-lib.ps1"
     $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
     Write-Host "  Downloading core library..." -ForegroundColor Gray
     Invoke-RestMethod -Uri $libUrl -OutFile $libPath
@@ -99,8 +98,7 @@ if (-not $diskCheck.ok) {
     Write-Host "  ✗ $($diskCheck.message)" -ForegroundColor Red
     return
 }
-$availableGb = [math]::Round($diskCheck.available / 1GB, 1)
-Write-Host "  ✓ Disk space OK ($availableGb GB free)" -ForegroundColor Green
+Write-Host "  ✓ Disk space OK ($($diskCheck.available) GB free)" -ForegroundColor Green
 
 # ═══════════════════════════════════════════════════════════════
 # STEP 2: DETECT EXISTING STATE
@@ -178,113 +176,18 @@ if (-not $SkillsOnly) {
         Write-Host "  ✓ GitHub CLI installed" -ForegroundColor Green
     }
 
-    # NOTE: GitHub Copilot App is installed by `agency gh-app` in the final step,
-    # not via winget. Agency mode auto-installs the App on first launch.
-
-    # VS Code (Red Pill — power users edit agents/skills directly)
-    $vsCodeInstalled = (winget list --id Microsoft.VisualStudioCode --accept-source-agreements 2>$null) -match "Microsoft.VisualStudioCode"
-    if ($vsCodeInstalled) {
-        Write-Host "  ✓ VS Code already installed" -ForegroundColor Green
-    }
-    elseif (-not $WhatIf) {
-        Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install VS Code" `
-            -Path "Microsoft.VisualStudioCode" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
-            winget install Microsoft.VisualStudioCode --accept-source-agreements --accept-package-agreements --silent
-            if ($LASTEXITCODE -ne 0) { throw "winget install failed for Microsoft.VisualStudioCode (exit: $LASTEXITCODE)" }
-        }
-        Write-Host "  ✓ VS Code installed" -ForegroundColor Green
-    }
-    else { Write-Host "  [WhatIf] Would install Microsoft.VisualStudioCode" -ForegroundColor Cyan }
-
-    # 3a-bis. Set SHELL env var so Copilot App's agency-mcp-settings extension works on Windows.
-    $gitSh = "C:\Program Files\Git\usr\bin\sh.exe"
-    if ((Test-Path $gitSh) -and -not $WhatIf) {
-        [Environment]::SetEnvironmentVariable("SHELL", $gitSh, "User")
-        $env:SHELL = $gitSh
-        Write-Host "  ✓ SHELL env var set (heals Agency MCP Settings canvas on Windows)" -ForegroundColor Green
-    }
-    elseif (-not (Test-Path $gitSh)) {
-        Write-Host "  ! Git for Windows not found at $gitSh — Agency MCP Settings canvas may fail until Git is installed" -ForegroundColor Yellow
-    }
-
-    # 3b. Velopack-aware agency.exe probe — installs to %APPDATA%\agency\<version>\agency.exe (not on PATH)
-    $agencyExe = $null
-    $cmd = Get-Command agency.exe -EA SilentlyContinue
-    if ($cmd) { $agencyExe = $cmd.Source }
-    if (-not $agencyExe) {
-        $velopack = Get-ChildItem "$env:APPDATA\agency\*\agency.exe" -EA SilentlyContinue |
-                    Sort-Object LastWriteTime -Descending | Select-Object -First 1
-        if ($velopack) { $agencyExe = $velopack.FullName }
-    }
-    if (-not $agencyExe -and (Test-Path $script:AIMakerConfig.AgencyBinaryFallback)) {
-        $agencyExe = $script:AIMakerConfig.AgencyBinaryFallback
-    }
-
-    if ($agencyExe) {
-        Write-Host "  ✓ Agency already installed at $agencyExe" -ForegroundColor Green
-    }
-    elseif (-not $WhatIf) {
-        Write-Host "  → Installing Agency (Microsoft agentic platform)..." -ForegroundColor Gray
-        try {
-            $installer = Invoke-RestMethod -Uri "https://aka.ms/InstallTool.ps1" -UseBasicParsing
-            Invoke-Expression "& { $installer } agency"
-            $cmd = Get-Command agency.exe -EA SilentlyContinue
-            if ($cmd) { $agencyExe = $cmd.Source }
-            if (-not $agencyExe) {
-                $velopack = Get-ChildItem "$env:APPDATA\agency\*\agency.exe" -EA SilentlyContinue |
-                            Sort-Object LastWriteTime -Descending | Select-Object -First 1
-                if ($velopack) { $agencyExe = $velopack.FullName }
-            }
-            if (-not $agencyExe) {
-                throw "Agency installer completed but agency.exe is not on PATH or at `$env:APPDATA\agency\*\agency.exe"
-            }
-            Write-Host "  ✓ Agency installed at $agencyExe" -ForegroundColor Green
-        }
-        catch {
-            throw "Failed to install Agency via aka.ms/InstallTool.ps1: $($_.Exception.Message)`n  Manual install: iex `"& { `$(irm aka.ms/InstallTool.ps1) } agency`""
-        }
-    }
-    else { Write-Host "  [WhatIf] Would install Agency via aka.ms/InstallTool.ps1" -ForegroundColor Cyan }
-
-    # 3c. Register Agency MCP servers. Agency exposes M365 through workiq; bluebird is the companion server.
-    Write-Host "  → Registering Agency MCP servers (workiq, bluebird)..." -ForegroundColor Gray
-    Register-AgencyMcpServers -WhatIf:$WhatIf
-
-    # 3d. Post-registration verify
-    if (-not $WhatIf) {
-        $mcpFile = Join-Path $env:USERPROFILE ".copilot\m-mcp-servers.json"
-        if (-not (Test-Path $mcpFile)) {
-            throw "MCP registration appeared to succeed but $mcpFile does not exist."
-        }
-        try {
-            $cfg = Get-Content $mcpFile -Raw | ConvertFrom-Json -ErrorAction Stop
-        }
-        catch {
-            throw "MCP registration appeared to succeed but $mcpFile is not valid JSON: $($_.Exception.Message)"
-        }
-        $missing = @('workiq','bluebird') | Where-Object { -not $cfg.servers.$_ }
-        if ($missing) {
-            throw "MCP registration silently no-op'd. Missing in m-mcp-servers.json: $($missing -join ', ')."
-        }
-        Write-Host "  ✓ Agency MCP servers registered (verified workiq + bluebird in m-mcp-servers.json)" -ForegroundColor Green
+    # GitHub Copilot App
+    $appInstalled = (winget list --id GitHub.CopilotApp --accept-source-agreements 2>$null) -match "GitHub.CopilotApp"
+    if ($appInstalled) {
+        Write-Host "  ✓ Copilot App already installed" -ForegroundColor Green
     }
     else {
-        Write-Host "  ✓ [WhatIf] Would register and verify workiq + bluebird" -ForegroundColor Cyan
-    }
-
-    # 3e. Enable Agency's built-in MCP integrations (teams/outlook/planner default to OFF).
-    if (-not $WhatIf -and $agencyExe) {
-        Write-Host "  → Enabling Agency MCPs (teams, outlook, planner)..." -ForegroundColor Gray
-        foreach ($m in @('teams','outlook','planner')) {
-            $out = & $agencyExe config set --global --mcp $m 2>&1
-            if ($LASTEXITCODE -ne 0) {
-                Write-Host "    ⚠ agency config set --mcp $m exited $LASTEXITCODE : $out" -ForegroundColor Yellow
-            }
+        Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub Copilot App" `
+            -Path "GitHub.CopilotApp" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
+            winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
+            if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.CopilotApp (exit: $LASTEXITCODE)" }
         }
-        Write-Host "  ✓ Agency MCPs enabled (teams, outlook, planner)" -ForegroundColor Green
-    }
-    elseif ($WhatIf) {
-        Write-Host "  ✓ [WhatIf] Would enable Agency MCPs: teams, outlook, planner" -ForegroundColor Cyan
+        Write-Host "  ✓ Copilot App installed" -ForegroundColor Green
     }
 
     # GitHub Copilot CLI extension
@@ -341,7 +244,7 @@ if (-not $SkillsOnly) {
 Write-Host "`nStep 5: Installing all skills (22)..." -ForegroundColor White
 
 if (-not $SkillsSource) {
-    $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.10/skills.zip"
+    $releaseUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.12/skills.zip"
     $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
     $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 
@@ -378,35 +281,46 @@ if (-not $SkillsOnly) {
     Write-Host "`nStep 6: Creating workspace..." -ForegroundColor White
 
     $wsPath = $script:AIMakerConfig.WorkspacePath
-    $manifestCheck = Join-Path $wsPath $script:AIMakerConfig.ManifestFile
 
-    $instrPath = Join-Path $wsPath ".github\copilot-instructions.md"
-    $needsRepair = $false
-    if ((Test-Path $wsPath) -and (Test-Path $manifestCheck)) {
-        # Red Pill marker: copilot-instructions.red.md content includes "AI Workspace"
-        # but we also check it does NOT contain a stale Blue marker.
-        $content = Get-Content $instrPath -Raw -EA SilentlyContinue
-        if (-not (Test-Path $instrPath) -or -not $content -or
-            $content -match 'AI Maker Workspace' -or
-            $content -notmatch 'AI Workspace') {
-            Write-Host "  ! Existing workspace has wrong/missing copilot-instructions.md — repairing" -ForegroundColor Yellow
-            $needsRepair = $true
-        } else {
-            Write-Host "  ✓ Workspace exists with correct Red Pill content at $wsPath" -ForegroundColor Green
-        }
+    if (Test-Path (Join-Path $wsPath $script:AIMakerConfig.ManifestFile)) {
+        Write-Host "  ✓ Workspace already exists" -ForegroundColor Green
+        Repair-WorkspaceAssets -Pill "red" -WhatIf:$WhatIf
     }
-    if (-not (Test-Path $wsPath) -or -not (Test-Path $manifestCheck) -or $needsRepair) {
+    else {
         New-WorkspaceScaffold -Pill "red" -WhatIf:$WhatIf
-        if (-not $WhatIf) {
-            if (-not (Test-Path $wsPath)) {
-                Write-Host "  ✗ Workspace folder was not created. See error above." -ForegroundColor Red
-                throw "Workspace scaffold failed — $wsPath not present after New-WorkspaceScaffold"
+        Write-Host "  ✓ Workspace created at $wsPath" -ForegroundColor Green
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 6b: SET SHELL ENVIRONMENT VARIABLE
+# ═══════════════════════════════════════════════════════════════
+
+if (-not $SkillsOnly) {
+    $currentShell = [Environment]::GetEnvironmentVariable('SHELL', 'User')
+    if (-not $currentShell) {
+        # Find Git's sh.exe (check multiple known locations)
+        $gitCmd = Get-Command git -EA SilentlyContinue
+        if ($gitCmd) {
+            $gitRoot = Split-Path (Split-Path $gitCmd.Source)
+            $shCandidates = @(
+                (Join-Path $gitRoot "usr\bin\sh.exe"),
+                (Join-Path $gitRoot "bin\sh.exe")
+            )
+            $shExe = $shCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+            if ($shExe) {
+                if (-not $WhatIf) {
+                    [Environment]::SetEnvironmentVariable('SHELL', $shExe, 'User')
+                    Write-Host "  ✓ SHELL env var set: $shExe" -ForegroundColor Green
+                } else {
+                    Write-Host "  [WhatIf] Would set SHELL=$shExe" -ForegroundColor Cyan
+                }
+            } else {
+                Write-Host "  ⚠ sh.exe not found in Git installation" -ForegroundColor Yellow
             }
-            Write-Host "  ✓ Workspace created/repaired at $wsPath" -ForegroundColor Green
         }
-        else {
-            Write-Host "  [WhatIf] Would create workspace at $wsPath" -ForegroundColor Cyan
-        }
+    } else {
+        Write-Host "  ✓ SHELL already set: $currentShell" -ForegroundColor Green
     }
 }
 
@@ -537,22 +451,85 @@ if (-not $SkillsOnly) {
 }
 
 # ═══════════════════════════════════════════════════════════════
-# STEP 10: CLEANUP + INSTRUCTIONS
+# STEP 10: INSTALL AGENCY + REGISTER MCP SERVERS
 # ═══════════════════════════════════════════════════════════════
 
-# Step 3 registers workiq + bluebird for Copilot App MCP discovery.
+if (-not $SkillsOnly -and -not $WhatIf) {
+    Write-Host "`nStep 10: Setting up Agency (M365 integration)..." -ForegroundColor White
 
-if (-not $SkipAppLaunch) {
-    Write-Host "`nStep 9b: Launching Copilot App in Agency mode..." -ForegroundColor White
-    Invoke-AgencyGhApp -WhatIf:$WhatIf
+    function Resolve-Agency {
+        $candidates = @(
+            (Get-Command agency.exe -EA SilentlyContinue).Source,
+            "$env:APPDATA\agency\CurrentVersion\agency.exe",
+            "$env:LOCALAPPDATA\Microsoft\agency\agency.exe",
+            "$env:LOCALAPPDATA\agency\CurrentVersion\agency.exe"
+        )
+        foreach ($c in $candidates) { if ($c -and (Test-Path $c)) { return $c } }
+        return $null
+    }
+
+    $agency = Resolve-Agency
+    if (-not $agency) {
+        Write-Host "  Installing Agency..." -ForegroundColor Gray
+        try {
+            iex "& { $(irm https://aka.ms/InstallTool.ps1) } agency" 2>$null
+            $agency = Resolve-Agency
+        } catch {
+            Write-Host "  ⚠ Agency install failed: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+    }
+
+    if ($agency) {
+        Write-Host "  ✓ Agency found: $agency" -ForegroundColor Green
+
+        # Write MCP config (workiq + bluebird)
+        $mcpCfg = $script:AIMakerConfig.McpServersPath
+        $needsConfig = $true
+        if (Test-Path $mcpCfg) {
+            try {
+                $existing = Get-Content $mcpCfg -Raw | ConvertFrom-Json -AsHashtable
+                $servers = @($existing.mcpServers.Keys)
+                if (($servers -contains 'workiq') -and ($servers -contains 'bluebird')) {
+                    Write-Host "  ✓ MCP config already has workiq + bluebird" -ForegroundColor Green
+                    $needsConfig = $false
+                }
+            } catch { }
+        }
+
+        if ($needsConfig) {
+            $mcpObj = @{
+                mcpServers = @{
+                    workiq = @{
+                        command = $agency
+                        args    = @('mcp','workiq')
+                    }
+                    bluebird = @{
+                        command = $agency
+                        args    = @('mcp','bluebird')
+                    }
+                }
+            } | ConvertTo-Json -Depth 10
+            New-Item -ItemType Directory -Force -Path (Split-Path $mcpCfg) | Out-Null
+            [System.IO.File]::WriteAllText($mcpCfg, $mcpObj, (New-Object System.Text.UTF8Encoding($false)))
+            Write-Host "  ✓ MCP config written (workiq + bluebird)" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "  ⚠ Agency not available — WorkIQ/M365 features will not work until Agency is installed" -ForegroundColor Yellow
+        Write-Host "    Run fix-workiq.ps1 later to set up M365 integration" -ForegroundColor Gray
+    }
 }
+elseif ($WhatIf) {
+    Write-Host "`nStep 10: [WhatIf] Would install Agency and register MCP servers (workiq + bluebird)" -ForegroundColor Cyan
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 11: CLEANUP + INSTRUCTIONS
+# ═══════════════════════════════════════════════════════════════
 
 # Clean up temp files
 if (-not $WhatIf) {
     Remove-Item (Join-Path $env:TEMP "ai-maker-skills.zip") -EA Silent
     Remove-Item (Join-Path $env:TEMP "ai-maker-skills") -Recurse -EA Silent
-    Remove-Item (Join-Path $env:TEMP "ai-maker-agents.zip") -EA Silent
-    Remove-Item (Join-Path $env:TEMP "ai-maker-agents") -Recurse -EA Silent
 }
 
 Write-Host ""
@@ -568,12 +545,23 @@ Write-Host "    • Private GitHub repo: https://github.com/$ghUser/$RepoName" -
 Write-Host "    • Copilot CLI for terminal use" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  Next steps:" -ForegroundColor White
-Write-Host "  1. Open this folder as a project in the Copilot App:" -ForegroundColor Gray
+Write-Host "  1. The Copilot App is launching now" -ForegroundColor Gray
+Write-Host "  2. Add this folder as a project:" -ForegroundColor Gray
 Write-Host "     $($script:AIMakerConfig.WorkspacePath)" -ForegroundColor Cyan
-Write-Host "  2. Start chatting — all 22 skills are active" -ForegroundColor Gray
-Write-Host "  3. Your vault syncs to GitHub automatically with:" -ForegroundColor Gray
+Write-Host "  3. Start chatting — all 22 skills + WorkIQ are active" -ForegroundColor Gray
+Write-Host "  4. Your vault syncs to GitHub automatically with:" -ForegroundColor Gray
 Write-Host "     git add -A && git commit -m 'vault update' && git push" -ForegroundColor Cyan
 Write-Host ""
+
+# Launch via agency (preferred) or direct app exe
+if (-not $WhatIf) {
+    if ($agency) {
+        Start-Process -FilePath $agency -ArgumentList 'gh-app'
+    } else {
+        $appExe = Join-Path $env:LOCALAPPDATA "Programs\GitHub Copilot\GitHub Copilot.exe"
+        if (Test-Path $appExe) { Start-Process $appExe }
+    }
+}
 
 if ($scenario.scenario -match "^legacy") {
     Write-Host "  ─── Migration available ───" -ForegroundColor Yellow
@@ -587,3 +575,4 @@ if ($scenario.scenario -match "^legacy") {
 Write-Host "  On a new machine, restore everything with:" -ForegroundColor Gray
 Write-Host "  gh repo clone $RepoName -- ~/GitHub/ai-workspace && .\install-red.ps1 -SkillsOnly" -ForegroundColor Blue
 Write-Host ""
+
