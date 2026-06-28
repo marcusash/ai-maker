@@ -1,0 +1,396 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RED PILL: AI maker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --matrix-green:#00FF41;--matrix-green-dark:#003B00;--matrix-green-glow:rgba(0,255,65,.6);
+  --blue-pill:#2E5EAA;--blue-pill-light:#4A90D9;--blue-pill-dark:#1A3D7C;--blue-glow:rgba(74,144,217,.8);
+  --red-pill:#CE1126;--red-pill-light:#FF1A1A;--red-pill-dark:#990000;--red-glow:rgba(206,17,38,.6);
+  --black:#000;
+}
+body{font-family:'Courier New',Courier,monospace;background:var(--black);color:var(--matrix-green);overflow-x:hidden;min-height:100vh;font-size:16px;line-height:1.6}
+.text-xl{font-size:32px;line-height:1.2}.text-lg{font-size:24px;line-height:1.3}.text-md{font-size:18px;line-height:1.4}.text-base{font-size:16px;line-height:1.6}.text-sm{font-size:14px;line-height:1.6}
+#matrix{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+.content{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 20px}
+.terminal{background:rgba(0,20,0,.95);border:2px solid var(--matrix-green);box-shadow:0 0 40px var(--matrix-green-glow),inset 0 0 100px rgba(0,255,65,.05);margin-bottom:40px;overflow:hidden}
+.terminal-header{background:var(--matrix-green-dark);border-bottom:1px solid var(--matrix-green);padding:8px 12px;display:flex;align-items:center;gap:8px}
+.terminal-dot{width:12px;height:12px;border-radius:50%;border:1px solid var(--matrix-green)}
+.terminal-body{padding:30px}
+.choice{text-align:center;margin-bottom:60px}
+.choice-title{text-transform:uppercase;letter-spacing:4px;text-shadow:0 0 10px var(--matrix-green);margin-bottom:10px}
+.choice-sub{opacity:.6;margin-bottom:40px}
+.pills{display:flex;gap:100px;justify-content:center;flex-wrap:wrap}
+.pill{width:280px;height:280px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;text-decoration:none;position:relative}
+.pill-blue{background:radial-gradient(circle at 30% 30%,var(--blue-pill-light),var(--blue-pill) 50%,var(--blue-pill-dark));border:3px solid var(--blue-pill);box-shadow:0 0 40px var(--blue-glow),inset 0 0 60px rgba(255,255,255,.2)}
+.pill-blue:hover{transform:scale(1.05);box-shadow:0 0 60px var(--blue-glow),inset 0 0 80px rgba(255,255,255,.3)}
+.pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2)}
+.pill-red:hover{transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
+.pill-label{font-weight:700;margin-bottom:12px;color:#FFF;text-shadow:0 2px 4px rgba(0,0,0,.8);font-size:24px;letter-spacing:2px}
+.pill-sub{color:rgba(255,255,255,.9);text-shadow:0 1px 3px rgba(0,0,0,.7);font-size:18px}
+.pill-detail{color:rgba(255,255,255,.65);font-size:11px;letter-spacing:.12em;margin-top:10px;text-transform:uppercase;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.section{margin-bottom:50px}
+.section-title{margin-bottom:24px;color:var(--matrix-green);text-transform:uppercase;letter-spacing:2px;border-left:4px solid var(--matrix-green);padding-left:12px;text-shadow:0 0 8px var(--matrix-green)}
+code{background:rgba(0,255,65,.1);padding:3px 8px;border-radius:3px;color:var(--matrix-green);border:1px solid rgba(0,255,65,.3);font-family:'Courier New',monospace}
+a{color:#00D9FF;text-decoration:underline;text-shadow:0 0 8px rgba(0,217,255,.8);font-weight:600}
+a:hover{color:#4DFFFF}
+.prompt-block{background:rgba(0,20,0,.9);border:2px solid var(--matrix-green);border-radius:4px;overflow:hidden;margin:16px 0}
+.prompt-text{padding:20px;font-size:16px;opacity:.9;font-style:italic;line-height:1.7}
+.prompt-copy{width:100%;padding:12px 20px;background:rgba(0,255,65,.15);border:none;border-top:1px solid var(--matrix-green);color:var(--matrix-green);font-size:14px;font-weight:700;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:1px;transition:background .15s}
+.prompt-copy:hover{background:rgba(0,255,65,.3)}.prompt-copy.copied{background:rgba(0,100,255,.3);color:#4DAAFF}
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.feature-card{background:rgba(0,59,0,.2);border:1px solid rgba(0,255,65,.3);padding:20px;border-radius:4px}
+.feature-name{color:var(--matrix-green);font-weight:700;margin-bottom:8px;font-size:16px;text-shadow:0 0 6px var(--matrix-green)}
+.feature-desc{font-size:14px;opacity:.8;line-height:1.6}
+.chip-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.chip-row-label{font-size:11px;font-weight:700;letter-spacing:2px;opacity:.5;text-transform:uppercase;margin:18px 0 0 2px}
+.chip-row-label:first-of-type{margin-top:8px}
+.chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
+.chip:hover{border-color:var(--matrix-green)}
+.chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
+.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green)}
+.footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6;font-size:14px}
+.footer a{color:var(--matrix-green)}
+@keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
+.pill-blue{opacity:.5}
+.pill-blue:hover{opacity:1;transform:scale(1.05)}
+.pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2)}
+.pill-red:hover{transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
+.pill-current::after{content:">>> YOU ARE HERE";position:absolute;bottom:-52px;left:50%;transform:translateX(-50%);color:var(--red-pill-light);text-shadow:0 0 8px var(--red-glow);animation:blink 1.5s infinite;font-size:12px;letter-spacing:.1em;white-space:nowrap}
+.plus-badge{display:inline-block;background:rgba(206,17,38,.2);border:1px solid var(--red-pill);color:var(--matrix-green);font-size:12px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:3px;margin-left:8px;vertical-align:middle}
+@keyframes pillshake{0%,100%{transform:translate(0,0) rotate(0deg)}8%{transform:translate(-2px,1px) rotate(-.5deg)}16%{transform:translate(3px,-1px) rotate(.4deg)}24%{transform:translate(-1px,2px) rotate(-.3deg)}33%{transform:translate(2px,-2px) rotate(.6deg)}42%{transform:translate(-3px,1px) rotate(-.4deg)}50%{transform:translate(1px,0) rotate(.2deg)}58%{transform:translate(-2px,-2px) rotate(-.5deg)}66%{transform:translate(3px,1px) rotate(.5deg)}75%{transform:translate(-1px,2px) rotate(-.2deg)}83%{transform:translate(2px,-1px) rotate(.4deg)}91%{transform:translate(-2px,0) rotate(-.3deg)}}
+.pill-red.pill-current{animation:pillshake 2.8s ease-in-out infinite}
+.flow-step{display:flex;gap:24px;margin-bottom:36px;align-items:flex-start}
+.flow-num{flex-shrink:0;width:48px;height:48px;border-radius:50%;background:var(--matrix-green);color:var(--black);font-weight:700;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px var(--matrix-green-glow);margin-top:4px}
+.flow-content{flex:1;min-width:0}
+.flow-title{font-size:20px;font-weight:700;color:var(--matrix-green);margin-bottom:10px;text-shadow:0 0 8px var(--matrix-green)}
+.flow-desc{opacity:.85;font-size:15px;line-height:1.7;margin-bottom:12px}
+.flow-req{background:rgba(0,40,0,.5);border:1px solid rgba(0,255,65,.2);padding:16px 20px;border-radius:4px;font-size:14px;line-height:1.8}
+.flow-req li{margin:4px 0 4px 20px;list-style:disc;opacity:.9}
+.install-hero{background:rgba(0,30,0,.98);border:3px solid var(--matrix-green);box-shadow:0 0 80px var(--matrix-green-glow);padding:28px;margin:16px 0;border-radius:4px}
+.install-label{font-size:11px;letter-spacing:.22em;opacity:.65;margin-bottom:14px;text-transform:uppercase}
+.install-cmd-wrap{position:relative;background:rgba(0,0,0,.95);border:1px solid var(--matrix-green);border-radius:4px;padding:18px 150px 18px 20px;margin-bottom:14px}
+.install-cmd{font-size:15px;line-height:1.7;color:var(--matrix-green);word-break:break-all;display:block}
+.install-copy-btn{position:absolute;top:50%;right:14px;transform:translateY(-50%);background:var(--matrix-green);color:var(--black);border:none;padding:11px 20px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:.08em;border-radius:3px;white-space:nowrap}
+.install-copy-btn:hover{background:#4DFF7C}
+.install-note{font-size:13px;opacity:.6;line-height:1.7}
+.trouble-box{background:rgba(0,20,0,.8);border:1px solid rgba(0,255,65,.2);border-radius:4px;overflow:hidden}
+.trouble-item{padding:20px 24px;border-bottom:1px solid rgba(0,255,65,.1)}
+.trouble-item:last-child{border-bottom:none}
+.trouble-label{font-weight:700;color:var(--matrix-green);margin-bottom:10px;font-size:15px;text-shadow:0 0 6px var(--matrix-green)}
+.reset-cmd-wrap{position:relative;background:rgba(0,0,0,.8);border:1px solid rgba(0,255,65,.25);border-radius:4px;padding:18px 150px 18px 20px;margin:10px 0 4px}
+.reset-cmd{font-size:13px;color:var(--matrix-green);word-break:break-all}
+.reset-copy-btn{position:absolute;top:50%;right:14px;transform:translateY(-50%);background:var(--matrix-green);color:var(--black);border:none;padding:11px 20px;font-weight:700;font-size:14px;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:.08em;border-radius:3px;white-space:nowrap}
+@media(max-width:640px){
+  .pill{width:150px;height:150px}
+  .pill-label{font-size:16px}.pill-sub{font-size:13px}.pill-detail{font-size:10px}
+  .pill-current::after{font-size:10px;bottom:-22px;letter-spacing:.05em}
+  .pills{gap:20px}.flow-step{gap:14px}
+  .flow-num{width:38px;height:38px;font-size:18px}.flow-title{font-size:17px}
+  .install-cmd-wrap{padding:14px 14px 58px}
+  .install-copy-btn{top:auto;right:12px;bottom:10px;transform:none;width:calc(100% - 24px);text-align:center}
+  .reset-cmd-wrap{padding:12px 12px 44px}
+  .reset-copy-btn{top:auto;right:8px;bottom:8px;transform:none}
+  .feature-grid,.chip-grid{grid-template-columns:1fr}
+  .content{padding:24px 16px}.text-xl{font-size:22px}.text-lg{font-size:19px}
+}
+.skill-list{border:1px solid rgba(0,255,65,.2);border-radius:4px;overflow:hidden}
+.skill-row{display:flex;gap:20px;padding:14px 20px;border-bottom:1px solid rgba(0,255,65,.1);align-items:flex-start}
+.skill-row:last-child{border-bottom:none}
+.skill-name{flex-shrink:0;width:90px;font-weight:700;font-size:11px;letter-spacing:1px;color:var(--matrix-green);text-shadow:0 0 6px var(--matrix-green);padding-top:2px;text-transform:uppercase}
+.skill-body{flex:1;min-width:0}
+.skill-desc{font-size:13px;opacity:.85;line-height:1.6;margin-bottom:4px}
+.skill-trigger{font-size:12px;opacity:.5;font-style:italic}
+/* Red pill accent */
+:root{--accent:#FF1A1A;--accent-glow:rgba(255,26,26,.6);--accent-dim:rgba(255,26,26,.25)}
+.section-title{color:var(--accent);border-left-color:var(--accent);text-shadow:0 0 8px var(--accent-glow)}
+.flow-num{background:var(--accent);color:#FFF;box-shadow:0 0 20px var(--accent-glow)}
+.flow-title{color:var(--accent);text-shadow:0 0 8px var(--accent-glow)}
+.install-copy-btn{background:var(--accent);color:#FFF}
+.reset-copy-btn{background:var(--accent);color:#FFF}
+.install-copy-btn:hover{background:#FF5555}
+.chip{border-color:var(--accent-dim)}
+.chip:hover{border-color:var(--accent)}
+.chip-tag{color:var(--accent);border-top-color:var(--accent-dim)}
+.skill-list{border-color:var(--accent-dim)}
+.skill-row{border-bottom-color:rgba(255,26,26,.1)}
+.skill-name{color:var(--accent);text-shadow:0 0 6px var(--accent-glow)}
+
+</style>
+</head>
+<body>
+<canvas id="matrix" style="opacity:.18"></canvas>
+<div class="content">
+<div class="choice">
+  <div class="choice-title text-xl">CHOOSE YOUR REALITY</div>
+  <div class="choice-sub text-sm">The story you tell yourself about what you are capable of.</div>
+  <div class="pills">
+    <a href="https://marcusash.github.io/ai-maker/" class="pill pill-blue">
+      <div class="pill-label">BLUE PILL</div>
+      <div class="pill-sub">Stay comfortable</div>
+    </a>
+    <div class="pill pill-red pill-current">
+      <div class="pill-label">RED PILL</div>
+      <div class="pill-sub">See the truth</div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:center;gap:100px;margin-top:72px;font-size:12px;color:var(--matrix-green);letter-spacing:.08em">
+    <div style="width:280px;text-align:center;opacity:.55">Fastest setup. No GitHub required.</div>
+    <div style="width:280px;text-align:center;opacity:.55">Restore anywhere. AI workbench.</div>
+  </div>
+</div>
+
+<div class="terminal" style="margin-bottom:50px">
+  <div class="terminal-header text-sm">
+    <div class="terminal-dot" style="background:var(--matrix-green)"></div>
+    <div class="terminal-dot"></div><div class="terminal-dot"></div>
+    <span style="margin-left:auto;opacity:.6">AI-MAKER-PRO.EXE</span>
+  </div>
+  <div class="terminal-body">
+    <div class="text-lg" style="margin-bottom:16px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; WHAT IS AI MAKER?</div>
+    <div class="text-base" style="opacity:.9">For power users who want version control and the full technical skill set. Two AI agents, 22 skills, private GitHub repo that backs up your work, and restores it on any machine in minutes.</div>
+    <div class="text-sm" style="margin-top:12px;opacity:.6">Everything the Blue Pill gives you, plus <strong style="color:var(--matrix-green)">AI workbench</strong>, <strong style="color:var(--matrix-green)">GitHub backup</strong>, and <strong style="color:var(--matrix-green)">cross-machine restore</strong>.</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title text-lg">&gt; SETUP GUIDE</div>
+
+  <div class="flow-step">
+    <div class="flow-num">1</div>
+    <div class="flow-content">
+      <div class="flow-title">What you need</div>
+      <div class="flow-req">
+        <ul>
+          <li>Windows 11</li>
+          <li>Internet connection</li>
+          <li>GitHub account, sign in with your <code>alias_microsoft</code> enterprise account (e.g. <code>marcusash_microsoft</code>). The install guide works with this account out of the box.</li>
+        </ul>
+        <div style="margin-top:10px;font-size:13px;opacity:.55">Microsoft employee? You can also link a personal GitHub account for personal projects, free within Microsoft. <a href="/ai-maker/account-setup/" target="_blank" style="color:var(--matrix-green)">Learn how &rarr;</a> &nbsp;&bull;&nbsp; Not at Microsoft? <a href="https://github.com/signup" target="_blank" style="color:inherit">Create a personal account at github.com</a><br><span style="opacity:.7">Git, GitHub CLI, and VS Code are installed automatically.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">2</div>
+    <div class="flow-content">
+      <div class="flow-title">Install</div>
+      <div class="flow-desc">Open PowerShell (<code>Win+X</code> &rarr; Terminal) and paste this command. When prompted, choose <strong style="color:var(--red-pill-light)">option 2 (Red Pill)</strong>:</div>
+<div class="install-hero">
+  <div class="install-label">&gt;&gt; PASTE INTO POWERSHELL</div>
+  <div class="install-cmd-wrap">
+    <span id="installCmd" class="install-cmd">curl.exe -sSL -o $env:TEMP\install.bat https://github.com/marcusash/ai-maker/releases/download/v3.0.12/install.bat; &amp; $env:TEMP\install.bat</span>
+    <button onclick="copyInstall()" id="installBtn" class="install-copy-btn">COPY</button>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">3</div>
+    <div class="flow-content">
+      <div class="flow-title">Authenticate with GitHub</div>
+      <div class="flow-desc">The installer opens a browser window and prompts you to sign in to GitHub. This creates your private <code>ai-workspace</code> repo and pushes your first backup. One-time step.</div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">4</div>
+    <div class="flow-content">
+      <div class="flow-title">Open the GitHub Copilot App</div>
+      <div class="flow-desc">The app opens automatically after install. Or search <strong style="color:var(--matrix-green)">&ldquo;GitHub Copilot&rdquo;</strong> in the Start menu.</div>
+      <div class="flow-req" style="margin-top:12px">
+        <strong style="color:var(--matrix-green)">When asked to sign in:</strong>
+        <ul style="margin-top:8px">
+          <li>Go to <a href="https://github.com" target="_blank">github.com</a> and sign in with your enterprise credentials, your <code>alias_microsoft</code> account</li>
+          <li>The app will show you a code, enter it on GitHub when prompted to authorize the device</li>
+          <li>Follow the prompts to complete the connection</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">5</div>
+    <div class="flow-content">
+      <div class="flow-title">Add your project folder</div>
+      <div class="flow-desc">In the App's left rail, find the <strong>Sessions</strong> section and click the <strong>+</strong> button next to it. Choose <strong>Add local folder</strong> and select <code style="white-space:nowrap">C:\GitHub\ai-workspace</code>. This is where both AI agents live, the folder was created during install.</div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">6</div>
+    <div class="flow-content">
+      <div class="flow-title">Start your first session</div>
+      <div class="flow-desc">Open a new session in the App and say hello. AI maker greets you and asks what you&rsquo;re working on. If it&rsquo;s technical, AI maker spins up AI workbench in a new session automatically. All 22 skills are always active.</div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">7</div>
+    <div class="flow-content">
+      <div class="flow-title">Try these. Click to copy, then paste into AI maker.</div>
+      <div style="display:inline-flex;align-items:center;gap:8px;font-size:12px;opacity:.7;margin:8px 0 14px;padding:5px 10px;border:1px solid rgba(0,255,65,.25);border-radius:3px">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;filter:drop-shadow(0 0 4px #00FF41)"><circle cx="8" cy="8" r="7" stroke="#00FF41" stroke-width="1.5"/><rect x="7.25" y="7" width="1.5" height="5" rx=".5" fill="#00FF41"/><circle cx="8" cy="4.5" r=".85" fill="#00FF41"/></svg>
+        <span><strong style="color:var(--matrix-green);letter-spacing:.05em">TIP</strong>&nbsp; Hit <code>Win+H</code> to use voice typing. Enter prompts or add context faster.</span>
+      </div>
+      <div class="chip-grid" style="margin-top:12px">
+        <div class="chip" onclick="copyChip(this,'Read my emails, calendar entries that have transcripts or meeting notes, and Teams messages. Write a status report for the last 3 days that I can send to my team. Display it in a canvas for me to review and edit.')">
+          <div class="chip-quote">Read my emails, meetings, and Teams. Write a status report for the last 3 days in a canvas.</div>
+          <div class="chip-tag">CANVAS</div>
+        </div>
+        <div class="chip" onclick="copyChip(this,'Write a Teams message to me that summarizes tomorrow\'s meetings and gives me advice on key things to prepare.')">
+          <div class="chip-quote">Write a Teams message to me with tomorrow&rsquo;s meetings and prep advice.</div>
+          <div class="chip-tag">AGENCY</div>
+        </div>
+        <div class="chip" onclick="copyChip(this,'Play devil\'s advocate on a decision I\'m about to make.')">
+          <div class="chip-quote">Play devil&rsquo;s advocate on a decision I&rsquo;m about to make. <em style="opacity:.6">(then speak your plan)</em></div>
+          <div class="chip-tag">BRAINSTORM · VOICE</div>
+        </div>
+        <div class="chip" onclick="copyChip(this,'I have a direct report who has been quietly disengaging , still delivering, but less energy, fewer ideas, going quiet in meetings. Help me prepare for my 1:1 with them: give me the exact words to open the conversation, three questions to ask, and what I should avoid saying.')">
+          <div class="chip-quote">I have a hard 1:1 this week. Help me prepare, what to say, what to ask, what to avoid.</div>
+          <div class="chip-tag">OPS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title text-lg">&gt; WHAT YOU GET</div>
+  <button onclick="toggleWYG()" id="wyg-toggle-btn" style="background:transparent;border:1px solid rgba(0,255,65,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;letter-spacing:.1em;padding:8px 20px;cursor:pointer;margin-bottom:16px;display:block">+ SHOW ALL 22 SKILLS</button>
+  <div id="wyg-body" style="display:none"><div class="terminal"><div class="terminal-body">
+    <div style="opacity:.7;font-size:14px;margin-bottom:16px">Two AI agents, 22 skills, GitHub-backed workspace. Describe what you need, they route automatically.</div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;opacity:.5;text-transform:uppercase;margin-bottom:8px">AI maker, 11 skills</div>
+    <div class="skill-list">
+      <div class="skill-row"><div class="skill-name">Canvas</div><div class="skill-body"><div class="skill-desc">Generates a live HTML page in your browser, dashboards, status boards, trackers, comparison views.</div><div class="skill-trigger">Trigger: &ldquo;Build me a canvas that shows&hellip;&rdquo; / &ldquo;Display this in a canvas.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Vault</div><div class="skill-body"><div class="skill-desc">Writes notes, decisions, and context to a local file on your PC. Findable and reusable across future sessions.</div><div class="skill-trigger">Trigger: &ldquo;Save this to my vault as a [decision / note / log entry].&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">WorkIQ</div><div class="skill-body"><div class="skill-desc">Reads your Microsoft 365, email, calendar, Teams, Planner tasks. Returns summaries and answers. Makes no changes.</div><div class="skill-trigger">Trigger: &ldquo;What&rsquo;s on my calendar this week?&rdquo; / &ldquo;Catch me up on what I missed in Teams.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Agency</div><div class="skill-body"><div class="skill-desc">Acts on your Microsoft 365, sends emails, posts to Teams, creates meetings, adds Planner tasks. Your approval is required before anything sends.</div><div class="skill-trigger">Trigger: &ldquo;Send a Teams message to [person] that says&hellip;&rdquo; / &ldquo;Create a meeting with&hellip;&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Research</div><div class="skill-body"><div class="skill-desc">Analyzes a document, dataset, or topic and returns structured findings, key patterns, or a brief you can act on.</div><div class="skill-trigger">Trigger: &ldquo;Research [topic]&rdquo; / &ldquo;Analyze this document and tell me what stands out.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Design</div><div class="skill-body"><div class="skill-desc">Visual direction, deck structure, layout critique, brand review. Gets your work to a presentation-ready standard.</div><div class="skill-trigger">Trigger: &ldquo;Give me [N] rules for&hellip;&rdquo; / &ldquo;Review this design for&hellip;&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Writing</div><div class="skill-body"><div class="skill-desc">Drafts and edits that preserve your voice, emails, announcements, feedback, scripts, talking points.</div><div class="skill-trigger">Trigger: &ldquo;Write a [type] for [situation].&rdquo; / &ldquo;Help me say this better.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Code</div><div class="skill-body"><div class="skill-desc">Explains what engineers built in plain English. Helps non-coders evaluate PRs, ask the right questions, and spot red flags.</div><div class="skill-trigger">Trigger: &ldquo;Explain this PR.&rdquo; / &ldquo;What should I ask my engineer about this refactor?&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Data</div><div class="skill-body"><div class="skill-desc">Interprets metrics, charts, and spreadsheets. Tells you what the numbers mean and what to watch for in a decision.</div><div class="skill-trigger">Trigger: &ldquo;Analyze this spreadsheet and give me observations.&rdquo; / &ldquo;What does this data actually mean?&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Brainstorm</div><div class="skill-body"><div class="skill-desc">Generates ideas, red-teams plans, plays devil&rsquo;s advocate, runs pre-mortems. Stress-tests your thinking before you commit.</div><div class="skill-trigger">Trigger: &ldquo;Brainstorm ideas for&hellip;&rdquo; / &ldquo;Red-team this plan.&rdquo; / &ldquo;What could go wrong?&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Ops</div><div class="skill-body"><div class="skill-desc">Sprint planning, team communications, meeting prep, status updates, retrospectives. Runs the operational rhythm of your team.</div><div class="skill-trigger">Trigger: &ldquo;Help me plan this sprint.&rdquo; / &ldquo;Write a status update for my team.&rdquo; / &ldquo;Prepare me for this 1:1.&rdquo;</div></div></div>
+    </div>
+    <div style="font-size:11px;font-weight:700;letter-spacing:2px;opacity:.5;text-transform:uppercase;margin:20px 0 8px">AI workbench, +11 skills</div>
+    <div class="skill-list">
+      <div class="skill-row"><div class="skill-name">Researcher</div><div class="skill-body"><div class="skill-desc">Deep technical research, digs into GitHub repos, API docs, and implementation details to give you a grounded technical brief.</div><div class="skill-trigger">Trigger: &ldquo;How does [X] actually work?&rdquo; / &ldquo;Research the implementation of&hellip;&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">PowerShell</div><div class="skill-body"><div class="skill-desc">Writes, debugs, and runs Windows automation scripts. System administration, registry, services, WMI.</div><div class="skill-trigger">Trigger: &ldquo;Write a PowerShell script to&hellip;&rdquo; / &ldquo;Automate this on Windows.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">CI/CD</div><div class="skill-body"><div class="skill-desc">Creates and fixes GitHub Actions workflows. Build pipelines, deployment automation, release processes.</div><div class="skill-trigger">Trigger: &ldquo;Write a GitHub Actions workflow for&hellip;&rdquo; / &ldquo;Fix this CI/CD pipeline.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Security</div><div class="skill-body"><div class="skill-desc">Scans for secrets, hardens workflows, audits dependencies. Finds credentials, API keys, and vulnerabilities in code.</div><div class="skill-trigger">Trigger: &ldquo;Scan for secrets.&rdquo; / &ldquo;Review this workflow for security issues.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Prompts</div><div class="skill-body"><div class="skill-desc">Writes and improves AI skills, system prompts, and agent behaviors. Builds and tests custom skill files.</div><div class="skill-trigger">Trigger: &ldquo;Write a skill that&hellip;&rdquo; / &ldquo;Improve this system prompt.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Testing</div><div class="skill-body"><div class="skill-desc">Writes test cases, defines acceptance criteria, evaluates test coverage. Strategy for what to test and how much.</div><div class="skill-trigger">Trigger: &ldquo;Write tests for&hellip;&rdquo; / &ldquo;What should we test before shipping?&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Design Audit</div><div class="skill-body"><div class="skill-desc">Audits existing HTML and UI for accessibility, brand compliance, layout bugs, and visual quality. Scored review with fixes.</div><div class="skill-trigger">Trigger: &ldquo;Audit this design.&rdquo; / &ldquo;Check this for accessibility issues.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Data Pipelines</div><div class="skill-body"><div class="skill-desc">Builds ETL scripts, processes CSVs and JSON, instruments apps, automates report generation.</div><div class="skill-trigger">Trigger: &ldquo;Process this CSV.&rdquo; / &ldquo;Build a pipeline that&hellip;&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Debugging</div><div class="skill-body"><div class="skill-desc">Diagnoses errors, reads logs, finds root causes, resolves dependency conflicts and performance bottlenecks.</div><div class="skill-trigger">Trigger: &ldquo;Why is this failing?&rdquo; / &ldquo;Debug this error.&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">Vision</div><div class="skill-body"><div class="skill-desc">Reads and interprets screenshots, diagrams, and images. Describes what it sees and extracts actionable information.</div><div class="skill-trigger">Trigger: &ldquo;Look at this screenshot and tell me&hellip;&rdquo; / &ldquo;What does this diagram show?&rdquo;</div></div></div>
+      <div class="skill-row"><div class="skill-name">GitHub</div><div class="skill-body"><div class="skill-desc">Repo operations, branch management, pull requests, GitHub Pages, git workflows.</div><div class="skill-trigger">Trigger: &ldquo;Create a repo.&rdquo; / &ldquo;Set up GitHub Pages.&rdquo; / &ldquo;Manage this PR.&rdquo;</div></div></div>
+    </div>
+  </div></div>
+</div></div>
+
+<div class="section">
+  <div class="section-title text-lg">&gt; RESTORE ON A NEW MACHINE</div>
+  <div class="terminal"><div class="terminal-body">
+    <div style="opacity:.8;font-size:15px;margin-bottom:20px">Your <code>ai-workspace</code> folder is a private GitHub repo. To restore on a new PC:</div>
+    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">1.</strong> Run the installer on your new machine (same command). Choose option 2.</div>
+    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">2.</strong> Authenticate with GitHub. The installer detects your existing <code>ai-workspace</code> repo and restores everything automatically.</div>
+    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;font-size:14px"><strong style="color:var(--matrix-green)">3.</strong> Open the App, add <code>C:\GitHub\ai-workspace</code> as a project. Your agents remember everything.</div>
+  </div></div>
+</div>
+
+<div class="section">
+  <div class="section-title text-lg">&gt; SOMETHING WRONG?</div>
+<div class="trouble-box">
+  <div class="trouble-item">
+    <div class="trouble-label">The installer didn&rsquo;t finish or something looks off</div>
+    <div style="opacity:.8;font-size:14px">It&rsquo;s safe to run the install command at the top of the page again, the installer detects what&rsquo;s already in place and skips those steps.</div>
+  </div>
+  <div class="trouble-item">
+    <div class="trouble-label">Still stuck or have an idea?</div>
+    <div style="opacity:.8;font-size:14px"><a href="https://github.com/marcusash/ai-maker/issues/new/choose" target="_blank">Report a problem or share an idea</a> &middot; <a href="https://github.com/marcusash/ai-maker/issues" target="_blank">browse existing reports</a> &middot; or reach Marcus on <a href="https://teams.microsoft.com/l/chat/0/0?users=marcusash@microsoft.com" target="_blank">Teams</a> / <a href="mailto:marcusash@microsoft.com">email</a>.</div>
+  </div>
+</div>
+</div>
+
+<div class="footer">
+  <div style="margin-bottom:12px">Want the simpler setup? <a href="https://marcusash.github.io/ai-maker/">Take the blue pill instead</a>. Upgrading from CLI? <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html">Migration guide</a>.</div>
+  <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
+</div>
+</div>
+<div id="toast" style="position:fixed;bottom:60px;left:50%;transform:translateX(-50%) translateY(10px);background:#CE1126;color:#fff;padding:9px 22px;border-radius:20px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;font-family:'Courier New',monospace">Copied to clipboard</div>
+<script>function showToast(msg){
+  var t=document.getElementById("toast");
+  t.textContent=msg||"Copied to clipboard";
+  t.style.opacity="1";t.style.transform="translateX(-50%) translateY(0)";
+  setTimeout(function(){t.style.opacity="0";t.style.transform="translateX(-50%) translateY(10px)"},2000);
+}
+function toggleWYG(){
+  var b=document.getElementById('wyg-body');
+  var btn=document.getElementById('wyg-toggle-btn');
+  if(b.style.display==='none'){b.style.display='block';btn.textContent='- HIDE SKILL LIST';}
+  else{b.style.display='none';btn.textContent='+ SHOW ALL 22 SKILLS';}
+}
+function copyInstall(){
+  var cmd=document.getElementById("installCmd").textContent;
+  navigator.clipboard.writeText(cmd).then(function(){
+    var btn=document.getElementById("installBtn");
+    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
+  });
+}
+function copyReset(){
+  var cmd=document.getElementById("resetCmd").textContent;
+  navigator.clipboard.writeText(cmd).then(function(){
+    var btn=document.getElementById("resetBtn");
+    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
+  });
+}
+function copyPrompt(id,btnId){
+  var text=document.getElementById(id).innerText;
+  navigator.clipboard.writeText(text).then(function(){
+    var btn=document.getElementById(btnId);
+    btn.textContent="COPIED!";btn.classList.add("copied");
+    setTimeout(function(){btn.textContent="COPY THIS PROMPT";btn.classList.remove("copied")},2000);
+    showToast();
+  });
+}
+function copyChip(el,text){
+  navigator.clipboard.writeText(text).then(function(){
+    var tag=el.querySelector('.chip-tag');
+    var orig=tag.textContent;
+    tag.textContent='COPIED!';
+    setTimeout(function(){tag.textContent=orig;},2000);
+    showToast();
+  });
+}
+var canvas=document.getElementById("matrix");
+var ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;canvas.height=window.innerHeight;
+window.addEventListener("resize",function(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;});
+var chars="アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズヅブプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴ01";
+var fontSize=10;var cols=Math.floor(canvas.width/fontSize);var drops=[];
+for(var i=0;i<cols;i++)drops[i]=1;
+var bright=["#FFFFFF","#80FF40","#00FF41","#00CC33","#004D15"];
+function draw(){
+  ctx.fillStyle="rgba(0,0,0,.06)";ctx.fillRect(0,0,canvas.width,canvas.height);
+  ctx.font=fontSize+"px monospace";
+  for(var i=0;i<drops.length;i++){
+    var r=Math.random();
+    ctx.fillStyle=r>.97?bright[0]:r>.9?bright[1]:r>.6?bright[2]:r>.3?bright[3]:bright[4];
+    var text=chars[Math.floor(Math.random()*chars.length)];
+    ctx.fillText(text,i*fontSize,drops[i]*fontSize);
+    if(drops[i]*fontSize>canvas.height&&Math.random()>.975)drops[i]=0;
+    drops[i]++;
+  }
+}
+setInterval(draw,15);</script>
+</body>
+</html>

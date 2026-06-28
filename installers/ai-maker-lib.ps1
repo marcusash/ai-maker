@@ -6,7 +6,7 @@
     Shared functions for install-blue.ps1, install-red.ps1, and migrate.ps1.
     Covers: manifest management, detection matrix, transaction log, scaffold creation.
 .VERSION
-    3.0.13
+    1.0.0
 #>
 
 # ═══════════════════════════════════════════════════════════════
@@ -14,7 +14,7 @@
 # ═══════════════════════════════════════════════════════════════
 
 $script:AIMakerConfig = @{
-    Version          = "3.0.13"
+    Version          = "3.0.12"
     ManifestFile     = ".ai-maker-manifest.json"
     SchemaVersion    = 1
     SkillsPath       = Join-Path $env:USERPROFILE ".copilot\skills"
@@ -561,21 +561,20 @@ function Get-InstallScenario {
 function New-WorkspaceScaffold {
     <#
     .SYNOPSIS
-        Creates the ai-workspace project folder with pill-aware vault and agent structure.
-    .DESCRIPTION
-        PRD §10.3: Blue = ai-maker.md + vault/maker/ ONLY; Red = both agents + both vaults.
+        Creates the ai-workspace project folder with vault structure and templates.
     .PARAMETER Pill
-        "blue" or "red" — determines which agents and vault dirs are created.
+        "blue" or "red". Controls vault structure, instructions content, and agent deployment.
     #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)][ValidateSet("blue","red")][string]$Pill,
+        [string]$AgentsSource,
         [switch]$WhatIf
     )
 
     $ws = $script:AIMakerConfig.WorkspacePath
 
-    # Create directory structure — pill-aware (PRD §10.3)
+    # Create directory structure — Blue gets vault\maker only, Red gets both
     $dirs = @(
         $ws,
         (Join-Path $ws "vault"),
@@ -596,21 +595,23 @@ function New-WorkspaceScaffold {
         }
     }
 
-    # Write copilot-instructions.md (only if not exists)
+    # Write copilot-instructions.md (pill-aware content)
     $instructionsPath = Join-Path $ws ".github\copilot-instructions.md"
     if (-not (Test-Path $instructionsPath)) {
-        Invoke-TxOp -Operation "CREATE_FILE" -Description "Write copilot-instructions.md" `
+        $content = if ($Pill -eq "blue") { $script:StockInstructionsBlue } else { $script:StockInstructions }
+        Invoke-TxOp -Operation "CREATE_FILE" -Description "Write copilot-instructions.md ($Pill)" `
             -Path $instructionsPath -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-            Set-Content -Path $instructionsPath -Value $script:StockInstructions -Encoding utf8
+            Set-Content -Path $instructionsPath -Value $content -Encoding utf8
         }
     }
 
     # Write vault README
     $vaultReadme = Join-Path $ws "vault\README.md"
     if (-not (Test-Path $vaultReadme)) {
+        $readmeContent = if ($Pill -eq "blue") { $script:VaultReadmeBlue } else { $script:VaultReadme }
         Invoke-TxOp -Operation "CREATE_FILE" -Description "Write vault/README.md" `
             -Path $vaultReadme -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-            Set-Content -Path $vaultReadme -Value $script:VaultReadme -Encoding utf8
+            Set-Content -Path $vaultReadme -Value $readmeContent -Encoding utf8
         }
     }
 
@@ -623,118 +624,120 @@ function New-WorkspaceScaffold {
         }
     }
 
-    # Write agent identity files — pill-aware (PRD §10.3)
+    # Write agent identity files (pill-aware: Blue = ai-maker.md only, Red = both)
     $agentsDir = Join-Path $ws ".github\agents"
-    $agentSource = Join-Path $PSScriptRoot "agents"
-    if (-not (Test-Path $agentSource)) {
-        throw "New-WorkspaceScaffold: agents source directory not found at $agentSource. Cannot install agent identities."
-    }
-
-    # Blue always gets ai-maker.md; Red gets both
-    $agentFiles = if ($Pill -eq "blue") {
-        @("ai-maker.md")
-    } else {
-        @("ai-maker.md", "ai-workbench.md")
-    }
-
-    foreach ($fileName in $agentFiles) {
-        $src = Join-Path $agentSource $fileName
-        if (-not (Test-Path $src)) {
-            throw "New-WorkspaceScaffold: required agent file '$fileName' not found in $agentSource."
-        }
-        $dest = Join-Path $agentsDir $fileName
-        if (-not (Test-Path $dest)) {
-            Invoke-TxOp -Operation "CREATE_FILE" -Description "Write agent: $fileName" `
-                -Path $dest -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-                Copy-Item $src $dest -Force
+    # Check multiple locations for agent source files
+    $agentSource = if ($AgentsSource -and (Test-Path $AgentsSource)) { $AgentsSource }
+                   elseif (Test-Path (Join-Path $PSScriptRoot "agents")) { Join-Path $PSScriptRoot "agents" }
+                   elseif (Test-Path (Join-Path $PSScriptRoot "..\agents")) { (Resolve-Path (Join-Path $PSScriptRoot "..\agents")).Path }
+                   else { $null }
+    if ($agentSource) {
+        $allowedAgents = if ($Pill -eq "blue") { @("ai-maker.md") } else { @("ai-maker.md", "ai-workbench.md") }
+        foreach ($agentFile in (Get-ChildItem $agentSource -Filter "*.md")) {
+            if ($agentFile.Name -notin $allowedAgents) { continue }
+            $dest = Join-Path $agentsDir $agentFile.Name
+            if (-not (Test-Path $dest)) {
+                Invoke-TxOp -Operation "CREATE_FILE" -Description "Write agent: $($agentFile.Name)" `
+                    -Path $dest -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+                    Copy-Item $agentFile.FullName $dest -Force
+                }
             }
-        }
-    }
-
-    # Verify scaffold completed (verify-or-throw — PRD §15)
-    if (-not $WhatIf) {
-        $expectedMarker = if ($Pill -eq "blue") { "ai-maker.md" } else { "ai-workbench.md" }
-        $checkPath = Join-Path $agentsDir $expectedMarker
-        if (-not (Test-Path $checkPath)) {
-            throw "New-WorkspaceScaffold: post-scaffold verification failed — $expectedMarker not present at $checkPath"
         }
     }
 }
 
-# ═══════════════════════════════════════════════════════════════
-# §5b. MCP LIVENESS PROBE (PRD §8 — activation gate verification)
-# ═══════════════════════════════════════════════════════════════
-
-function Test-McpLiveness {
+function Repair-WorkspaceAssets {
     <#
     .SYNOPSIS
-        Non-fatal liveness check for Agency MCP server (WorkIQ).
-        Spawns the MCP transport, waits for response, kills process.
-        Returns $true if alive, $false with warning if not.
+        Idempotent repair — runs on every install to fix missing/incorrect workspace assets.
+        Fixes Blue Purity violations from prior installs, adds missing agent files.
     #>
     [CmdletBinding()]
     param(
-        [string]$ServerName = "workiq",
-        [int]$TimeoutSeconds = 10
+        [Parameter(Mandatory)][ValidateSet("blue","red")][string]$Pill,
+        [string]$AgentsSource,
+        [switch]$WhatIf
     )
 
-    $agencyExe = Get-Command agency -EA SilentlyContinue | Select-Object -ExpandProperty Source
-    if (-not $agencyExe) {
-        Write-Warning "Test-McpLiveness: agency.exe not found in PATH — skipping liveness check"
-        return $false
+    $ws = $script:AIMakerConfig.WorkspacePath
+    if (-not (Test-Path $ws)) { return }  # Nothing to repair if workspace doesn't exist
+
+    # Blue Purity: remove vault\workbench if this is a Blue install
+    $workbenchVault = Join-Path $ws "vault\workbench"
+    if ($Pill -eq "blue" -and (Test-Path $workbenchVault)) {
+        # Only remove if it's empty (don't destroy user data)
+        $contents = Get-ChildItem $workbenchVault -EA SilentlyContinue
+        if (-not $contents) {
+            Invoke-TxOp -Operation "REMOVE_DIR" -Description "Remove vault\workbench (Blue Purity)" `
+                -Path $workbenchVault -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
+                Remove-Item $workbenchVault -Force
+            }
+        }
     }
 
-    try {
-        $proc = Start-Process -FilePath $agencyExe `
-            -ArgumentList "mcp", $ServerName, "--transport", "http" `
-            -PassThru -NoNewWindow -RedirectStandardOutput "$env:TEMP\mcp-probe-out.txt" `
-            -RedirectStandardError "$env:TEMP\mcp-probe-err.txt"
+    # Red: ensure vault\workbench exists
+    if ($Pill -eq "red" -and -not (Test-Path $workbenchVault)) {
+        Invoke-TxOp -Operation "CREATE_DIR" -Description "Create vault\workbench (Red)" `
+            -Path $workbenchVault -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+            New-Item -Path $workbenchVault -ItemType Directory -Force | Out-Null
+        }
+    }
 
-        # Wait for process to start and respond
-        $elapsed = 0
-        $alive = $false
-        while ($elapsed -lt $TimeoutSeconds) {
-            Start-Sleep -Milliseconds 500
-            $elapsed += 0.5
+    # Ensure vault\maker exists
+    $makerVault = Join-Path $ws "vault\maker"
+    if (-not (Test-Path $makerVault)) {
+        Invoke-TxOp -Operation "CREATE_DIR" -Description "Create vault\maker" `
+            -Path $makerVault -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+            New-Item -Path $makerVault -ItemType Directory -Force | Out-Null
+        }
+    }
 
-            if ($proc.HasExited) {
-                # Process exited — check if it output anything before dying
-                $output = Get-Content "$env:TEMP\mcp-probe-out.txt" -EA SilentlyContinue -Raw
-                if ($output -and $output.Length -gt 0) {
-                    $alive = $true
+    # Upgrade copilot-instructions.md if pill changed (Blue→Red or Red→Blue)
+    $instructionsPath = Join-Path $ws ".github\copilot-instructions.md"
+    if (Test-Path $instructionsPath) {
+        $currentContent = Get-Content $instructionsPath -Raw
+        $isBlueStock = $currentContent -match '# AI Maker Workspace'
+        $isRedStock = ($currentContent -match '# AI Workspace') -and -not $isBlueStock
+        if ($Pill -eq "red" -and $isBlueStock) {
+            # Upgrading Blue→Red: replace Blue instructions with Red
+            Invoke-TxOp -Operation "UPDATE_FILE" -Description "Upgrade copilot-instructions.md (Blue→Red)" `
+                -Path $instructionsPath -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+                Set-Content -Path $instructionsPath -Value $script:StockInstructions -Encoding utf8
+            }
+        }
+    }
+
+    # Repair agent identity files
+    $agentsDir = Join-Path $ws ".github\agents"
+    if (-not (Test-Path $agentsDir)) {
+        New-Item -Path $agentsDir -ItemType Directory -Force | Out-Null
+    }
+    $agentSource = if ($AgentsSource -and (Test-Path $AgentsSource)) { $AgentsSource }
+                   elseif (Test-Path (Join-Path $PSScriptRoot "agents")) { Join-Path $PSScriptRoot "agents" }
+                   elseif (Test-Path (Join-Path $PSScriptRoot "..\agents")) { (Resolve-Path (Join-Path $PSScriptRoot "..\agents")).Path }
+                   else { $null }
+    if ($agentSource) {
+        $allowedAgents = if ($Pill -eq "blue") { @("ai-maker.md") } else { @("ai-maker.md", "ai-workbench.md") }
+        foreach ($agentFile in (Get-ChildItem $agentSource -Filter "*.md")) {
+            if ($agentFile.Name -notin $allowedAgents) { continue }
+            $dest = Join-Path $agentsDir $agentFile.Name
+            if (-not (Test-Path $dest)) {
+                Invoke-TxOp -Operation "CREATE_FILE" -Description "Repair agent: $($agentFile.Name)" `
+                    -Path $dest -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+                    Copy-Item $agentFile.FullName $dest -Force
                 }
-                break
-            }
-
-            # If still running after 2s, it's responding (MCP server stays alive)
-            if ($elapsed -ge 2) {
-                $alive = $true
-                break
             }
         }
-
-        # Kill the probe process
-        if (-not $proc.HasExited) {
-            Stop-Process -Id $proc.Id -Force -EA SilentlyContinue
+        # Blue Purity: remove ai-workbench.md if present on Blue
+        if ($Pill -eq "blue") {
+            $wbAgent = Join-Path $agentsDir "ai-workbench.md"
+            if (Test-Path $wbAgent) {
+                Invoke-TxOp -Operation "REMOVE_FILE" -Description "Remove ai-workbench.md (Blue Purity)" `
+                    -Path $wbAgent -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
+                    Remove-Item $wbAgent -Force
+                }
+            }
         }
-
-        # Cleanup temp files
-        Remove-Item "$env:TEMP\mcp-probe-out.txt" -EA SilentlyContinue
-        Remove-Item "$env:TEMP\mcp-probe-err.txt" -EA SilentlyContinue
-
-        if ($alive) {
-            Write-Host "  ✓ MCP server '$ServerName' is responding" -ForegroundColor Green
-            return $true
-        }
-        else {
-            $errContent = Get-Content "$env:TEMP\mcp-probe-err.txt" -EA SilentlyContinue -Raw
-            Write-Warning "Test-McpLiveness: MCP server '$ServerName' did not respond within ${TimeoutSeconds}s. Error: $errContent"
-            return $false
-        }
-    }
-    catch {
-        Write-Warning "Test-McpLiveness: probe failed — $($_.Exception.Message)"
-        return $false
     }
 }
 
@@ -786,7 +789,11 @@ function Install-Skills {
 
         Invoke-TxOp -Operation "INSTALL_SKILL" -Description "Install skill: $($folder.Name)" `
             -Path $targetPath -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-            Copy-Item $folder.FullName $targetPath -Recurse -Force
+            # Ensure target exists, then copy contents (not the folder itself) to avoid nesting
+            if (-not (Test-Path $targetPath)) {
+                New-Item -Path $targetPath -ItemType Directory -Force | Out-Null
+            }
+            Copy-Item (Join-Path $folder.FullName "*") $targetPath -Recurse -Force
         }
 
         $installed += @{
@@ -1019,6 +1026,71 @@ AI Workbench skills live here. Use this side for:
 - Security and dependency checks
 - Prompt engineering (building new skills)
 - GitHub and repo management
+
+## What goes in the vault vs. your project folders
+
+The vault is for **ongoing context** — things that make your skills smarter over time. Examples: a style guide you want writing to follow, a glossary of terms, a set of example outputs you liked.
+
+Your actual project files (code, documents, deliverables) should stay in your project folders. The vault is context, not storage.
+
+## Keeping it clean
+
+If a skill folder has grown large with files you no longer need, clear it out. Old context can confuse new work just as much as no context.
+'@
+
+$script:StockInstructionsBlue = @'
+# AI Maker Workspace — Copilot Instructions
+
+This is your personal AI workspace. It's where you work with Copilot on anything from research and writing to design thinking and day-to-day tasks.
+
+## What this workspace is for
+
+This workspace is set up for creative and analytical work:
+
+- **vault/maker** — your creative toolkit: research, brainstorming, design thinking, writing, and strategy
+
+Use this when you're exploring ideas, producing content, analyzing data, or working through decisions.
+
+## How to work with Copilot here
+
+Just describe what you want to do. If you want to research something, brainstorm ideas, draft a document, or analyze data — start talking and Copilot will figure out which skills apply.
+
+You don't need to remember command names or skill names. Natural language works fine.
+
+## A few things to know
+
+- Your vault is yours. Nothing in it is shared unless you share it.
+- Skills are installed in your local profile. They update when you run the installer again.
+- If something isn't working the way you expect, describe the behavior and Copilot will help diagnose it.
+
+## Tone
+
+Be direct. You don't need to be polite to get good results. If a response isn't useful, say so and ask for something different.
+
+## Memory
+
+Save important decisions, preferences, and context to your vault so you remember them next time. If I tell you something I want you to remember, save it.
+
+## Ready for more?
+
+When you want the full engineering toolkit (code, automation, testing, security), upgrade to Red Pill. It adds AI Workbench and 11 more skills. Run the installer again and pick option 2.
+'@
+
+$script:VaultReadmeBlue = @'
+# vault
+
+This folder holds the context and content that powers your AI Maker skills.
+
+## vault/maker
+
+AI Maker skills live here. Use this for:
+
+- Research and synthesis
+- Brainstorming and ideation
+- Design thinking and strategy
+- Writing, editing, and content creation
+- Data exploration and analysis
+- Canvas and presentation work
 
 ## What goes in the vault vs. your project folders
 
