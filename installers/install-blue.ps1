@@ -195,7 +195,7 @@ if (-not $SkillsOnly) {
         Write-Host "  ✓ Workspace already exists" -ForegroundColor Green
     }
     else {
-        New-WorkspaceScaffold -WhatIf:$WhatIf
+        New-WorkspaceScaffold -Pill "blue" -WhatIf:$WhatIf
         Write-Host "  ✓ Workspace created at $($script:AIMakerConfig.WorkspacePath)" -ForegroundColor Green
     }
 }

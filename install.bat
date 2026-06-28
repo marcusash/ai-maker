@@ -5,7 +5,7 @@ echo   AI Maker v3 - Install
 echo   =====================
 echo.
 
-:: Unblock files
+:: Unblock files (if running from extracted zip)
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Get-ChildItem '%~dp0' -Recurse -Filter *.ps1 | Unblock-File" 2>nul
 
 :: Check if pwsh exists
@@ -67,21 +67,61 @@ goto :run_installer
 echo.
 echo   Running Blue Pill installer...
 echo.
-pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-blue.ps1" -SkillsSource "%~dp0skills"
+:: Check if local files exist (extracted zip mode), else download from latest release (PRD §7)
+if exist "%~dp0installers\install-blue.ps1" (
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0installers\install-blue.ps1" -SkillsSource "%~dp0skills"
+) else if exist "%~dp0install-blue.ps1" (
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-blue.ps1" -SkillsSource "%~dp0skills"
+) else (
+    echo   Downloading installer files...
+    curl.exe --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
+    if %ERRORLEVEL% neq 0 ( echo   ERROR: Failed to download ai-maker-lib.ps1 & pause & exit /b 1 )
+    echo   [OK] ai-maker-lib.ps1
+    curl.exe --silent -L -o "%TEMP%\install-blue.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/install-blue.ps1"
+    if %ERRORLEVEL% neq 0 ( echo   ERROR: Failed to download install-blue.ps1 & pause & exit /b 1 )
+    echo   [OK] install-blue.ps1
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\install-blue.ps1"
+)
 goto :done
 
 :red
 echo.
 echo   Running Red Pill installer...
 echo.
-pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-red.ps1" -SkillsSource "%~dp0skills"
+if exist "%~dp0installers\install-red.ps1" (
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0installers\install-red.ps1" -SkillsSource "%~dp0skills"
+) else if exist "%~dp0install-red.ps1" (
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-red.ps1" -SkillsSource "%~dp0skills"
+) else (
+    echo   Downloading installer files...
+    curl.exe --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
+    if %ERRORLEVEL% neq 0 ( echo   ERROR: Failed to download ai-maker-lib.ps1 & pause & exit /b 1 )
+    echo   [OK] ai-maker-lib.ps1
+    curl.exe --silent -L -o "%TEMP%\install-red.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/install-red.ps1"
+    if %ERRORLEVEL% neq 0 ( echo   ERROR: Failed to download install-red.ps1 & pause & exit /b 1 )
+    echo   [OK] install-red.ps1
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\install-red.ps1"
+)
 goto :done
 
 :migrate
 echo.
 echo   Running Migration tool...
 echo.
-pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0migrate.ps1" -SkillsSource "%~dp0skills"
+if exist "%~dp0installers\migrate.ps1" (
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0installers\migrate.ps1" -SkillsSource "%~dp0skills"
+) else if exist "%~dp0migrate.ps1" (
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0migrate.ps1" -SkillsSource "%~dp0skills"
+) else (
+    echo   Downloading installer files...
+    curl.exe --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
+    if %ERRORLEVEL% neq 0 ( echo   ERROR: Failed to download ai-maker-lib.ps1 & pause & exit /b 1 )
+    echo   [OK] ai-maker-lib.ps1
+    curl.exe --silent -L -o "%TEMP%\migrate.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/migrate.ps1"
+    if %ERRORLEVEL% neq 0 ( echo   ERROR: Failed to download migrate.ps1 & pause & exit /b 1 )
+    echo   [OK] migrate.ps1
+    pwsh -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\migrate.ps1"
+)
 goto :done
 
 :done

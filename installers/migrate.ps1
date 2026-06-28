@@ -418,7 +418,7 @@ else {
 Write-Host "`nStep 8: Creating workspace and copying data..." -ForegroundColor White
 
 # Create scaffold (idempotent)
-New-WorkspaceScaffold -WhatIf:$WhatIf
+New-WorkspaceScaffold -Pill $pillTarget -WhatIf:$WhatIf
 Write-Host "  ✓ Workspace scaffold ready" -ForegroundColor Green
 
 # Copy vault data

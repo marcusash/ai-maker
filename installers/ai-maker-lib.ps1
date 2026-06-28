@@ -6,7 +6,7 @@
     Shared functions for install-blue.ps1, install-red.ps1, and migrate.ps1.
     Covers: manifest management, detection matrix, transaction log, scaffold creation.
 .VERSION
-    1.0.0
+    3.0.13
 #>
 
 # ═══════════════════════════════════════════════════════════════
@@ -14,7 +14,7 @@
 # ═══════════════════════════════════════════════════════════════
 
 $script:AIMakerConfig = @{
-    Version          = "3.0.0"
+    Version          = "3.0.13"
     ManifestFile     = ".ai-maker-manifest.json"
     SchemaVersion    = 1
     SkillsPath       = Join-Path $env:USERPROFILE ".copilot\skills"
@@ -561,22 +561,31 @@ function Get-InstallScenario {
 function New-WorkspaceScaffold {
     <#
     .SYNOPSIS
-        Creates the ai-workspace project folder with vault structure and templates.
+        Creates the ai-workspace project folder with pill-aware vault and agent structure.
+    .DESCRIPTION
+        PRD §10.3: Blue = ai-maker.md + vault/maker/ ONLY; Red = both agents + both vaults.
+    .PARAMETER Pill
+        "blue" or "red" — determines which agents and vault dirs are created.
     #>
     [CmdletBinding()]
-    param([switch]$WhatIf)
+    param(
+        [Parameter(Mandatory)][ValidateSet("blue","red")][string]$Pill,
+        [switch]$WhatIf
+    )
 
     $ws = $script:AIMakerConfig.WorkspacePath
 
-    # Create directory structure
+    # Create directory structure — pill-aware (PRD §10.3)
     $dirs = @(
         $ws,
         (Join-Path $ws "vault"),
         (Join-Path $ws "vault\maker"),
-        (Join-Path $ws "vault\workbench"),
         (Join-Path $ws ".github"),
         (Join-Path $ws ".github\agents")
     )
+    if ($Pill -eq "red") {
+        $dirs += (Join-Path $ws "vault\workbench")
+    }
 
     foreach ($dir in $dirs) {
         if (-not (Test-Path $dir)) {
@@ -614,19 +623,118 @@ function New-WorkspaceScaffold {
         }
     }
 
-    # Write agent identity files
+    # Write agent identity files — pill-aware (PRD §10.3)
     $agentsDir = Join-Path $ws ".github\agents"
     $agentSource = Join-Path $PSScriptRoot "agents"
-    if (Test-Path $agentSource) {
-        foreach ($agentFile in (Get-ChildItem $agentSource -Filter "*.md")) {
-            $dest = Join-Path $agentsDir $agentFile.Name
-            if (-not (Test-Path $dest)) {
-                Invoke-TxOp -Operation "CREATE_FILE" -Description "Write agent: $($agentFile.Name)" `
-                    -Path $dest -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-                    Copy-Item $agentFile.FullName $dest -Force
-                }
+    if (-not (Test-Path $agentSource)) {
+        throw "New-WorkspaceScaffold: agents source directory not found at $agentSource. Cannot install agent identities."
+    }
+
+    # Blue always gets ai-maker.md; Red gets both
+    $agentFiles = if ($Pill -eq "blue") {
+        @("ai-maker.md")
+    } else {
+        @("ai-maker.md", "ai-workbench.md")
+    }
+
+    foreach ($fileName in $agentFiles) {
+        $src = Join-Path $agentSource $fileName
+        if (-not (Test-Path $src)) {
+            throw "New-WorkspaceScaffold: required agent file '$fileName' not found in $agentSource."
+        }
+        $dest = Join-Path $agentsDir $fileName
+        if (-not (Test-Path $dest)) {
+            Invoke-TxOp -Operation "CREATE_FILE" -Description "Write agent: $fileName" `
+                -Path $dest -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+                Copy-Item $src $dest -Force
             }
         }
+    }
+
+    # Verify scaffold completed (verify-or-throw — PRD §15)
+    if (-not $WhatIf) {
+        $expectedMarker = if ($Pill -eq "blue") { "ai-maker.md" } else { "ai-workbench.md" }
+        $checkPath = Join-Path $agentsDir $expectedMarker
+        if (-not (Test-Path $checkPath)) {
+            throw "New-WorkspaceScaffold: post-scaffold verification failed — $expectedMarker not present at $checkPath"
+        }
+    }
+}
+
+# ═══════════════════════════════════════════════════════════════
+# §5b. MCP LIVENESS PROBE (PRD §8 — activation gate verification)
+# ═══════════════════════════════════════════════════════════════
+
+function Test-McpLiveness {
+    <#
+    .SYNOPSIS
+        Non-fatal liveness check for Agency MCP server (WorkIQ).
+        Spawns the MCP transport, waits for response, kills process.
+        Returns $true if alive, $false with warning if not.
+    #>
+    [CmdletBinding()]
+    param(
+        [string]$ServerName = "workiq",
+        [int]$TimeoutSeconds = 10
+    )
+
+    $agencyExe = Get-Command agency -EA SilentlyContinue | Select-Object -ExpandProperty Source
+    if (-not $agencyExe) {
+        Write-Warning "Test-McpLiveness: agency.exe not found in PATH — skipping liveness check"
+        return $false
+    }
+
+    try {
+        $proc = Start-Process -FilePath $agencyExe `
+            -ArgumentList "mcp", $ServerName, "--transport", "http" `
+            -PassThru -NoNewWindow -RedirectStandardOutput "$env:TEMP\mcp-probe-out.txt" `
+            -RedirectStandardError "$env:TEMP\mcp-probe-err.txt"
+
+        # Wait for process to start and respond
+        $elapsed = 0
+        $alive = $false
+        while ($elapsed -lt $TimeoutSeconds) {
+            Start-Sleep -Milliseconds 500
+            $elapsed += 0.5
+
+            if ($proc.HasExited) {
+                # Process exited — check if it output anything before dying
+                $output = Get-Content "$env:TEMP\mcp-probe-out.txt" -EA SilentlyContinue -Raw
+                if ($output -and $output.Length -gt 0) {
+                    $alive = $true
+                }
+                break
+            }
+
+            # If still running after 2s, it's responding (MCP server stays alive)
+            if ($elapsed -ge 2) {
+                $alive = $true
+                break
+            }
+        }
+
+        # Kill the probe process
+        if (-not $proc.HasExited) {
+            Stop-Process -Id $proc.Id -Force -EA SilentlyContinue
+        }
+
+        # Cleanup temp files
+        Remove-Item "$env:TEMP\mcp-probe-out.txt" -EA SilentlyContinue
+        Remove-Item "$env:TEMP\mcp-probe-err.txt" -EA SilentlyContinue
+
+        if ($alive) {
+            Write-Host "  ✓ MCP server '$ServerName' is responding" -ForegroundColor Green
+            return $true
+        }
+        else {
+            $errContent = Get-Content "$env:TEMP\mcp-probe-err.txt" -EA SilentlyContinue -Raw
+            Write-Warning "Test-McpLiveness: MCP server '$ServerName' did not respond within ${TimeoutSeconds}s. Error: $errContent"
+            return $false
+        }
+    }
+    catch {
+        Write-Warning "Test-McpLiveness: probe failed — $($_.Exception.Message)"
+        return $false
     }
 }
 

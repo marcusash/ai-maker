@@ -3,8 +3,8 @@
 .SYNOPSIS
     AI Maker v3 — Red Pill Installer
 .DESCRIPTION
-    Installs the full experience: Copilot App + 22 skills + git-backed workspace.
-    Includes GitHub Copilot CLI, git, gh CLI, repo creation, and push.
+    Installs the full experience: Copilot App (via Agency) + 22 skills + git-backed workspace.
+    Includes git, repo creation, and push. GitHub CLI handled by the App.
     Target: technical users who want backup, restore, and version history.
 .PARAMETER WhatIf
     Preview all changes without executing.
@@ -160,48 +160,12 @@ if (-not $SkillsOnly) {
         Write-Host "  ✓ Git installed" -ForegroundColor Green
     }
 
-    # GitHub CLI
-    $hasGh = (Get-Command gh -EA Silent) -ne $null
-    if ($hasGh) {
-        $ghVer = (gh --version 2>$null | Select-Object -First 1) -replace "gh version ", "" -replace " .*", ""
-        Write-Host "  ✓ GitHub CLI $ghVer already installed" -ForegroundColor Green
-    }
-    else {
-        Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub CLI" `
-            -Path "GitHub.cli" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
-            winget install GitHub.cli --accept-source-agreements --accept-package-agreements --silent
-            if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.cli (exit: $LASTEXITCODE)" }
-        }
-        $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH", "User")
-        Write-Host "  ✓ GitHub CLI installed" -ForegroundColor Green
-    }
+    # NOTE: GitHub CLI and Copilot CLI extension are no longer installed separately.
+    # The Copilot App (installed via agency gh-app) handles this. PRD §6.2.
 
-    # GitHub Copilot App
-    $appInstalled = (winget list --id GitHub.CopilotApp --accept-source-agreements 2>$null) -match "GitHub.CopilotApp"
-    if ($appInstalled) {
-        Write-Host "  ✓ Copilot App already installed" -ForegroundColor Green
-    }
-    else {
-        Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub Copilot App" `
-            -Path "GitHub.CopilotApp" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
-            winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
-            if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.CopilotApp (exit: $LASTEXITCODE)" }
-        }
-        Write-Host "  ✓ Copilot App installed" -ForegroundColor Green
-    }
-
-    # GitHub Copilot CLI extension
-    $hasCopilotExt = (gh extension list 2>$null) -match "copilot"
-    if ($hasCopilotExt) {
-        Write-Host "  ✓ Copilot CLI extension already installed" -ForegroundColor Green
-    }
-    else {
-        Invoke-TxOp -Operation "GH_EXTENSION_INSTALL" -Description "Install Copilot CLI extension" `
-            -Path "github/gh-copilot" -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
-            gh extension install github/gh-copilot 2>$null
-        }
-        Write-Host "  ✓ Copilot CLI extension installed" -ForegroundColor Green
-    }
+    # GitHub Copilot App — installed via agency gh-app (PRD §8 mandate)
+    # agency gh-app downloads + installs the App on first run.
+    # We no longer use winget install GitHub.CopilotApp.
 }
 
 # ═══════════════════════════════════════════════════════════════
@@ -286,7 +250,7 @@ if (-not $SkillsOnly) {
         Write-Host "  ✓ Workspace already exists" -ForegroundColor Green
     }
     else {
-        New-WorkspaceScaffold -WhatIf:$WhatIf
+        New-WorkspaceScaffold -Pill "red" -WhatIf:$WhatIf
         Write-Host "  ✓ Workspace created at $wsPath" -ForegroundColor Green
     }
 }
