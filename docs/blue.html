@@ -99,6 +99,72 @@
 
   .footer { text-align: center; margin-top: 2.5rem; color: var(--text-muted); font-size: 0.78rem; }
   .footer a { color: var(--green); text-decoration: none; }
+
+  /* Copy button */
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(42, 111, 255, 0.12);
+    border: 1px solid var(--blue-border);
+    border-radius: 6px;
+    color: var(--blue);
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .copy-btn:hover { background: rgba(42, 111, 255, 0.22); border-color: var(--blue); }
+  .copy-btn.copied { background: rgba(0, 204, 102, 0.15); border-color: var(--green); color: var(--green); }
+
+  /* Prompt cards section */
+  .prompts-section {
+    margin-top: 2rem;
+  }
+  .prompts-section h3 {
+    font-size: 1rem;
+    color: var(--text-primary);
+    margin-bottom: 0.4rem;
+  }
+  .prompts-section .subtitle {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    margin-bottom: 1.25rem;
+  }
+  .prompt-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 600px) { .prompt-grid { grid-template-columns: 1fr; } }
+  .prompt-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    position: relative;
+    transition: border-color 0.3s;
+  }
+  .prompt-card:hover { border-color: var(--blue-border); }
+  .prompt-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--blue);
+    margin-bottom: 0.5rem;
+  }
+  .prompt-text {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    padding-right: 2rem;
+  }
+  .prompt-card .copy-btn { top: 10px; right: 10px; }
 </style>
 </head>
 <body>
@@ -142,7 +208,9 @@
         </ul>
         <p style="margin-top: 0.75rem;">Or paste this into any terminal:</p>
         <div class="cmd-block">
-          <span class="prompt">PS&gt;</span> irm https://github.com/marcusash/ai-maker/releases/download/v3.0.0/install-blue.ps1 | iex
+          <span class="prompt">&gt;&gt; PASTE INTO POWERSHELL</span><br>
+          irm https://github.com/marcusash/ai-maker/releases/latest/download/install-blue.ps1 | iex
+          <button class="copy-btn" onclick="copyText(this, 'irm https://github.com/marcusash/ai-maker/releases/latest/download/install-blue.ps1 | iex')">COPY</button>
         </div>
       </div>
     </div>
@@ -182,9 +250,49 @@
     </ul>
   </div>
 
+  <div class="prompts-section">
+    <h3>Try these</h3>
+    <p class="subtitle">Click to copy, then paste into AI Maker.</p>
+    <div class="prompt-grid">
+      <div class="prompt-card">
+        <div class="prompt-label">CANVAS</div>
+        <div class="prompt-text">Build me a dashboard that shows my team's project status with card layout, progress bars, and RAG indicators</div>
+        <button class="copy-btn" onclick="copyText(this, this.parentElement.querySelector('.prompt-text').textContent)">COPY</button>
+      </div>
+      <div class="prompt-card">
+        <div class="prompt-label">AGENCY</div>
+        <div class="prompt-text">What's my best next step? I have a meeting with my VP in 2 hours and three competing priorities</div>
+        <button class="copy-btn" onclick="copyText(this, this.parentElement.querySelector('.prompt-text').textContent)">COPY</button>
+      </div>
+      <div class="prompt-card">
+        <div class="prompt-label">BRAINSTORM · VOICE</div>
+        <div class="prompt-text">Red-team my proposal: we're moving from weekly to daily standups. What will go wrong?</div>
+        <button class="copy-btn" onclick="copyText(this, this.parentElement.querySelector('.prompt-text').textContent)">COPY</button>
+      </div>
+      <div class="prompt-card">
+        <div class="prompt-label">DESIGN</div>
+        <div class="prompt-text">Create a one-pager for my project that I can share with leadership — clean, visual, professional</div>
+        <button class="copy-btn" onclick="copyText(this, this.parentElement.querySelector('.prompt-text').textContent)">COPY</button>
+      </div>
+    </div>
+  </div>
+
   <div class="footer">
     <p>Want GitHub backup and cross-machine sync? <a href="pro/index.html">Choose Red Pill instead →</a></p>
   </div>
 </div>
+
+<script>
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text.trim()).then(function() {
+    btn.textContent = '✓ COPIED';
+    btn.classList.add('copied');
+    setTimeout(function() {
+      btn.textContent = 'COPY';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+</script>
 </body>
 </html>
