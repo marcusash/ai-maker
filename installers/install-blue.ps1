@@ -96,6 +96,14 @@ if (Test-Path $wsManifest) {
     Write-Host "  ✓ Workspace already exists" -ForegroundColor Green
 }
 else {
+    Write-Host "  Downloading agent identities..." -ForegroundColor Gray
+    $agentsZip = Join-Path $env:TEMP "ai-maker-agents.zip"
+    $agentsDir = Join-Path $PSScriptRoot "agents"
+    Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/agents.zip" -OutFile $agentsZip
+    New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
+    Expand-Archive -Path $agentsZip -DestinationPath $agentsDir -Force
+    Remove-Item $agentsZip -EA SilentlyContinue
+
     New-WorkspaceScaffold -Pill "blue"
     Write-Host "  ✓ Workspace created at $($script:AIMakerConfig.WorkspacePath)" -ForegroundColor Green
 }
