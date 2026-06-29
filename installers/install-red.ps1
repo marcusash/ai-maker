@@ -207,37 +207,18 @@ if (-not $SkillsOnly) {
 
 Write-Host "`nStep 5: Installing all skills (22)..." -ForegroundColor White
 
-if (-not $SkillsSource) {
-    $releaseUrl = "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip"
-    $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
-    $extractPath = Join-Path $env:TEMP "ai-maker-skills"
-    Remove-Item $extractPath -Recurse -Force -EA SilentlyContinue
+Write-Host "  Downloading skills..." -ForegroundColor Gray
+$zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
+$extractPath = Join-Path $env:TEMP "ai-maker-skills"
+Remove-Item $extractPath -Recurse -Force -EA SilentlyContinue
+Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip" -OutFile $zipPath
+Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+$SkillsSource = Join-Path $extractPath "skills"
 
-    if (-not $WhatIf) {
-        Write-Host "  Downloading skills..." -ForegroundColor Gray
-        Invoke-RestMethod -Uri $releaseUrl -OutFile $zipPath
-        if (-not (Test-Path $zipPath)) { throw "skills.zip download failed" }
-        Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-        $SkillsSource = Join-Path $extractPath "skills"
-        if (-not (Test-Path $SkillsSource)) { throw "skills.zip extracted but no skills/ folder inside" }
-    }
-    else {
-        Write-Host "  [WhatIf] Would download skills from $releaseUrl" -ForegroundColor Cyan
-        $SkillsSource = "DOWNLOAD"
-    }
-}
-
-if (-not $WhatIf) {
-    $existingManifest = Read-AIMakerManifest
-    $installedSkills = Install-Skills -Pill "red" -SourcePath $SkillsSource -Manifest $existingManifest -WhatIf:$WhatIf
-
-    $makerCount = ($installedSkills | Where-Object { $_.id -like "ai-maker-*" }).Count
-    $workbenchCount = ($installedSkills | Where-Object { $_.id -like "ai-workbench-*" }).Count
-    Write-Host "  ✓ $makerCount AI Maker + $workbenchCount AI Workbench skills installed ($($installedSkills.Count) total)" -ForegroundColor Green
-}
-else {
-    Write-Host "  [WhatIf] Would install 22 skills (11 ai-maker + 11 ai-workbench) to ~/.copilot/skills/" -ForegroundColor Cyan
-    $installedSkills = @()
+$installedSkills = Install-Skills -Pill "red" -SourcePath $SkillsSource -Manifest (Read-AIMakerManifest)
+$makerCount = ($installedSkills | Where-Object { $_.id -like "ai-maker-*" }).Count
+$workbenchCount = ($installedSkills | Where-Object { $_.id -like "ai-workbench-*" }).Count
+Write-Host "  ✓ $makerCount AI Maker + $workbenchCount AI Workbench skills installed ($($installedSkills.Count) total)" -ForegroundColor Green
 }
 
 # ═══════════════════════════════════════════════════════════════

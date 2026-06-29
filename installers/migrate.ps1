@@ -376,36 +376,16 @@ else {
 
 Write-Host "`nStep 7: Installing skills..." -ForegroundColor White
 
-# Auto-detect local skills folder
-if (-not $SkillsSource) {
-    $releaseUrl = "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip"
-    $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
-    $extractPath = Join-Path $env:TEMP "ai-maker-skills"
-    Remove-Item $extractPath -Recurse -Force -EA SilentlyContinue
+Write-Host "  Downloading skills..." -ForegroundColor Gray
+$zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
+$extractPath = Join-Path $env:TEMP "ai-maker-skills"
+Remove-Item $extractPath -Recurse -Force -EA SilentlyContinue
+Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip" -OutFile $zipPath
+Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+$SkillsSource = Join-Path $extractPath "skills"
 
-    if (-not $WhatIf) {
-        Write-Host "  Downloading skills..." -ForegroundColor Gray
-        Invoke-RestMethod -Uri $releaseUrl -OutFile $zipPath
-        if (-not (Test-Path $zipPath)) { throw "skills.zip download failed" }
-        Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-        $SkillsSource = Join-Path $extractPath "skills"
-        if (-not (Test-Path $SkillsSource)) { throw "skills.zip extracted but no skills/ folder inside" }
-    }
-    else {
-        Write-Host "  [WhatIf] Would download skills from $releaseUrl" -ForegroundColor Cyan
-        $SkillsSource = "DOWNLOAD"
-    }
-}
-
-if (-not $WhatIf) {
-    $existingManifest = Read-AIMakerManifest
-    $installedSkills = Install-Skills -Pill $pillTarget -SourcePath $SkillsSource -Manifest $existingManifest -WhatIf:$WhatIf
-    Write-Host "  ✓ $($installedSkills.Count) skills installed" -ForegroundColor Green
-}
-else {
-    Write-Host "  [WhatIf] Would install skills ($skillCountLabel) to ~/.copilot/skills/" -ForegroundColor Cyan
-    $installedSkills = @()
-}
+$installedSkills = Install-Skills -Pill $pillTarget -SourcePath $SkillsSource -Manifest (Read-AIMakerManifest)
+Write-Host "  ✓ $($installedSkills.Count) skills installed" -ForegroundColor Green
 
 # ═══════════════════════════════════════════════════════════════
 # STEP 8: CREATE WORKSPACE & COPY DATA
