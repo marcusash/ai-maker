@@ -133,10 +133,41 @@ else {
 }
 
 # ═══════════════════════════════════════════════════════════════
-# STEP 6: GIT INIT + REMOTE
+# STEP 6: INSTALL AGENCY + REGISTER MCP SERVERS
 # ═══════════════════════════════════════════════════════════════
 
-Write-Host "`nStep 6: Setting up git repository..." -ForegroundColor White
+Write-Host "`nStep 6: Configuring Agency + MCP servers..." -ForegroundColor White
+
+Invoke-RestMethod -Uri "https://aka.ms/InstallTool.ps1" | Invoke-Expression
+
+$agencyPaths = @(
+    (Join-Path $env:LOCALAPPDATA "Programs\Agency\agency.exe"),
+    (Join-Path $env:ProgramFiles "Agency\agency.exe"),
+    (Get-Command agency -EA SilentlyContinue | Select-Object -Expand Source)
+) | Where-Object { $_ -and (Test-Path $_) }
+
+if ($agencyPaths) {
+    $agency = $agencyPaths[0]
+
+    & $agency mcp add workiq
+    & $agency mcp add bluebird
+    & $agency config set --global --mcp teams/outlook/planner
+    Write-Host "  ✓ MCP servers registered (workiq, bluebird, teams/outlook/planner)" -ForegroundColor Green
+
+    $gitSh = (Get-Command sh -EA SilentlyContinue | Select-Object -Expand Source)
+    if ($gitSh) {
+        [Environment]::SetEnvironmentVariable("SHELL", $gitSh, "User")
+    }
+}
+else {
+    Write-Host "  ⚠ Agency not found — MCP registration skipped" -ForegroundColor Yellow
+}
+
+# ═══════════════════════════════════════════════════════════════
+# STEP 7: GIT INIT + REMOTE
+# ═══════════════════════════════════════════════════════════════
+
+Write-Host "`nStep 7: Setting up git repository..." -ForegroundColor White
 
 $gitDir = Join-Path $wsPath ".git"
 
