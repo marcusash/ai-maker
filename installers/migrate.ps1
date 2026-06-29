@@ -6,12 +6,8 @@
     Migrates existing CLI-based AI Maker / AI Workbench installations to the new
     App-first model. Copy-first approach: data is copied (never moved or deleted).
     Legacy folders are preserved. User confirmation required before any data copy.
-.PARAMETER WhatIf
-    Preview all changes without executing.
 .PARAMETER Doctor
     Run health check diagnostics.
-.PARAMETER SkillsSource
-    Path to skills source directory (default: downloads from release).
 .PARAMETER Force
     Skip confirmation prompts (for automation/testing).
 .PARAMETER MarkLegacy
@@ -19,9 +15,7 @@
 #>
 [CmdletBinding()]
 param(
-    [switch]$WhatIf,
     [switch]$Doctor,
-    [string]$SkillsSource,
     [switch]$Force,
     [switch]$MarkLegacy
 )
@@ -47,7 +41,7 @@ function Show-Banner {
 
 $libPath = Join-Path $PSScriptRoot "ai-maker-lib.ps1"
 if (-not (Test-Path $libPath)) {
-    $libUrl = "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
+    $libUrl = "https://github.com/marcusash/ai-maker/releases/download/v3.0.0/ai-maker-lib.ps1"
     $libPath = Join-Path $env:TEMP "ai-maker-lib.ps1"
     Write-Host "  Downloading core library..." -ForegroundColor Gray
     Invoke-RestMethod -Uri $libUrl -OutFile $libPath
@@ -63,10 +57,6 @@ Show-Banner
 if ($Doctor) {
     Invoke-HealthCheck
     return
-}
-
-if ($WhatIf) {
-    Write-Host "  -- DRY RUN MODE -- Nothing will be modified.`n" -ForegroundColor Cyan
 }
 
 # ═══════════════════════════════════════════════════════════════
@@ -97,7 +87,7 @@ if ($scenario.scenario -notin $migrationScenarios) {
     }
     elseif ($scenario.scenario -eq "rerun" -or $scenario.scenario -eq "stale-skills") {
         Write-Host "`n  You're already on the App-first model." -ForegroundColor Green
-        Write-Host "  No migration needed. Run install-red.ps1 -SkillsOnly to update skills." -ForegroundColor Gray
+        Write-Host "  No migration needed. Run install-red.ps1 to update skills." -ForegroundColor Gray
         return
     }
     elseif ($scenario.scenario -eq "remote-conflict" -or $scenario.scenario -eq "remote-unrelated") {
@@ -266,7 +256,7 @@ if ($state.hasLegacyRemote) {
 
 Write-Host ""
 
-if (-not $Force -and -not $WhatIf) {
+if (-not $Force) {
     $confirm = Read-Host "  Proceed with migration? [Y/n]"
     if ($confirm -and $confirm -notmatch "^[Yy]") {
         Write-Host "`n  Migration cancelled." -ForegroundColor Yellow
@@ -286,7 +276,7 @@ if ($appInstalled) {
 }
 else {
     Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub Copilot App" `
-        -Path "GitHub.CopilotApp" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
+        -Path "GitHub.CopilotApp" -Reversible $false -ScriptBlock {
         winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
         if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.CopilotApp (exit: $LASTEXITCODE)" }
     }
@@ -307,7 +297,7 @@ if ($isRedMigration) {
     }
     else {
         Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install Git" `
-            -Path "Git.Git" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
+            -Path "Git.Git" -Reversible $false -ScriptBlock {
             winget install Git.Git --accept-source-agreements --accept-package-agreements --silent
             if ($LASTEXITCODE -ne 0) { throw "winget install failed for Git.Git (exit: $LASTEXITCODE)" }
         }
@@ -322,7 +312,7 @@ if ($isRedMigration) {
     }
     else {
         Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub CLI" `
-            -Path "GitHub.cli" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
+            -Path "GitHub.cli" -Reversible $false -ScriptBlock {
             winget install GitHub.cli --accept-source-agreements --accept-package-agreements --silent
             if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.cli (exit: $LASTEXITCODE)" }
         }
@@ -337,7 +327,7 @@ if ($isRedMigration) {
     }
     else {
         Invoke-TxOp -Operation "GH_EXTENSION_INSTALL" -Description "Install Copilot CLI extension" `
-            -Path "github/gh-copilot" -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+            -Path "github/gh-copilot" -Reversible $true -ScriptBlock {
             gh extension install github/gh-copilot 2>$null
         }
         Write-Host "  ✓ Copilot CLI extension installed" -ForegroundColor Green
@@ -347,24 +337,19 @@ if ($isRedMigration) {
     $ghAuth = gh auth status 2>&1
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  ⚠ Not authenticated with GitHub." -ForegroundColor Yellow
-        if (-not $WhatIf) {
-            gh auth login --web --git-protocol https
-            if ($LASTEXITCODE -ne 0) {
-                Write-Host "  ✗ Authentication failed. Run 'gh auth login' manually and retry." -ForegroundColor Red
-                return
-            }
-        }
-        else {
-            Write-Host "  [WhatIf] Would run gh auth login" -ForegroundColor Cyan
+        gh auth login --web --git-protocol https
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "  ✗ Authentication failed. Run 'gh auth login' manually and retry." -ForegroundColor Red
+            return
         }
     }
 
     $ghUser = (gh api user --jq .login 2>$null)
-    if (-not $ghUser -and -not $WhatIf) {
+    if (-not $ghUser) {
         Write-Host "  ✗ Could not determine GitHub username." -ForegroundColor Red
         return
     }
-    if ($ghUser) { Write-Host "  ✓ Authenticated as: $ghUser" -ForegroundColor Green }
+    Write-Host "  ✓ Authenticated as: $ghUser" -ForegroundColor Green
 }
 else {
     Write-Host "`nStep 6: Skipped (Blue Pill — no dev tools needed)" -ForegroundColor Gray
@@ -376,16 +361,19 @@ else {
 
 Write-Host "`nStep 7: Installing skills..." -ForegroundColor White
 
-Write-Host "  Downloading skills..." -ForegroundColor Gray
-$zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
+$zipPath     = Join-Path $env:TEMP "ai-maker-skills.zip"
 $extractPath = Join-Path $env:TEMP "ai-maker-skills"
-Remove-Item $extractPath -Recurse -Force -EA SilentlyContinue
+
+Write-Host "  Downloading skills..." -ForegroundColor Gray
 Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip" -OutFile $zipPath
 Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-$SkillsSource = Join-Path $extractPath "skills"
 
-$installedSkills = Install-Skills -Pill $pillTarget -SourcePath $SkillsSource -Manifest (Read-AIMakerManifest)
+$existingManifest = Read-AIMakerManifest
+$installedSkills  = Install-Skills -Pill $pillTarget -SourcePath (Join-Path $extractPath "skills") -Manifest $existingManifest
 Write-Host "  ✓ $($installedSkills.Count) skills installed" -ForegroundColor Green
+
+Remove-Item $zipPath -EA SilentlyContinue
+Remove-Item $extractPath -Recurse -EA SilentlyContinue
 
 # ═══════════════════════════════════════════════════════════════
 # STEP 8: CREATE WORKSPACE & COPY DATA
@@ -393,22 +381,13 @@ Write-Host "  ✓ $($installedSkills.Count) skills installed" -ForegroundColor G
 
 Write-Host "`nStep 8: Creating workspace and copying data..." -ForegroundColor White
 
-# Create scaffold (idempotent) — download agents if not available locally
-$agentsDir = Join-Path $PSScriptRoot "agents"
-if (-not (Test-Path $agentsDir)) {
-    Write-Host "  Downloading agent identities..." -ForegroundColor Gray
-    $agentsZipUrl = "https://github.com/marcusash/ai-maker/releases/latest/download/agents.zip"
-    $agentsZipPath = Join-Path $env:TEMP "ai-maker-agents.zip"
-    Invoke-RestMethod -Uri $agentsZipUrl -OutFile $agentsZipPath
-    New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
-    Expand-Archive -Path $agentsZipPath -DestinationPath $agentsDir -Force
-}
-New-WorkspaceScaffold -Pill $pillTarget -WhatIf:$WhatIf
+# Create scaffold (idempotent)
+New-WorkspaceScaffold -Pill $pillTarget
 Write-Host "  ✓ Workspace scaffold ready" -ForegroundColor Green
 
 # Copy vault data
 Write-Host "  Copying vault data..." -ForegroundColor Gray
-Copy-VaultData -WhatIf:$WhatIf
+Copy-VaultData
 
 if ($inventory.makerVault) {
     Write-Host "  ✓ Maker vault copied to vault\maker\" -ForegroundColor Green
@@ -424,7 +403,7 @@ if ($inventory.makerInstructions -and $inventory.makerInstructions.modified) {
     # User customized it — preserve as .user.md
     $userDest = Join-Path $ws ".github\copilot-instructions.user.md"
     Invoke-TxOp -Operation "COPY" -Description "Preserve user-modified Maker instructions" `
-        -Path $userDest -From $inventory.makerInstructions.path -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+        -Path $userDest -From $inventory.makerInstructions.path -Reversible $true -ScriptBlock {
         Copy-Item $inventory.makerInstructions.path $userDest -Force
     }
     Write-Host "  ✓ User-modified instructions preserved as copilot-instructions.user.md" -ForegroundColor Green
@@ -433,7 +412,7 @@ if ($inventory.makerInstructions -and $inventory.makerInstructions.modified) {
 if ($inventory.workbenchInstructions -and $inventory.workbenchInstructions.modified) {
     $userDest = Join-Path $ws ".github\workbench-instructions.user.md"
     Invoke-TxOp -Operation "COPY" -Description "Preserve user-modified Workbench instructions" `
-        -Path $userDest -From $inventory.workbenchInstructions.path -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+        -Path $userDest -From $inventory.workbenchInstructions.path -Reversible $true -ScriptBlock {
         Copy-Item $inventory.workbenchInstructions.path $userDest -Force
     }
     Write-Host "  ✓ User-modified Workbench instructions preserved" -ForegroundColor Green
@@ -444,7 +423,7 @@ if ($inventory.legacyFiles.Count -gt 0) {
     $legacyDest = Join-Path $ws "legacy"
     if (-not (Test-Path $legacyDest)) {
         Invoke-TxOp -Operation "CREATE_DIR" -Description "Create legacy folder" `
-            -Path $legacyDest -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+            -Path $legacyDest -Reversible $true -ScriptBlock {
             New-Item -Path $legacyDest -ItemType Directory -Force | Out-Null
         }
     }
@@ -452,7 +431,7 @@ if ($inventory.legacyFiles.Count -gt 0) {
     foreach ($file in $inventory.legacyFiles) {
         $dest = Join-Path $legacyDest "$($file.source)_$($file.name)"
         Invoke-TxOp -Operation "COPY" -Description "Copy legacy file: $($file.name)" `
-            -Path $dest -From $file.path -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+            -Path $dest -From $file.path -Reversible $true -ScriptBlock {
             Copy-Item $file.path $dest -Force
         }
     }
@@ -474,7 +453,7 @@ if ($isRedMigration) {
     }
     else {
         Invoke-TxOp -Operation "GIT_INIT" -Description "Initialize git repository" `
-            -Path $ws -Reversible $true -WhatIf:$WhatIf -ScriptBlock {
+            -Path $ws -Reversible $true -ScriptBlock {
             Push-Location $ws
             git init --initial-branch=main 2>$null
             git config user.name $ghUser
@@ -486,61 +465,51 @@ if ($isRedMigration) {
 
     # Create/validate remote
     $repoName = "ai-workspace"
-    if (-not $WhatIf) {
-        $repoExists = $null -ne (gh repo view "$ghUser/$repoName" --json name 2>$null)
-        if ($repoExists) {
-            Write-Host "  ✓ Remote repo exists" -ForegroundColor Green
-        }
-        else {
-            Invoke-TxOp -Operation "GH_REPO_CREATE" -Description "Create private GitHub repo: $ghUser/$repoName" `
-                -Path "$ghUser/$repoName" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
-                gh repo create $repoName --private --description "AI Maker v3 workspace — migrated from CLI"
-                if ($LASTEXITCODE -ne 0) { throw "gh repo create failed (exit: $LASTEXITCODE)" }
-            }
-            Write-Host "  ✓ Created private repo: $ghUser/$repoName" -ForegroundColor Green
-        }
-
-        # Set remote
-        Push-Location $ws
-        $existingRemote = git remote get-url origin 2>$null
-        if (-not $existingRemote) {
-            git remote add origin "https://github.com/$ghUser/$repoName.git"
-            Write-Host "  ✓ Remote 'origin' set" -ForegroundColor Green
-        }
-        Pop-Location
+    $repoExists = $null -ne (gh repo view "$ghUser/$repoName" --json name 2>$null)
+    if ($repoExists) {
+        Write-Host "  ✓ Remote repo exists" -ForegroundColor Green
     }
     else {
-        Write-Host "  [WhatIf] Would create repo and set remote" -ForegroundColor Cyan
+        Invoke-TxOp -Operation "GH_REPO_CREATE" -Description "Create private GitHub repo: $ghUser/$repoName" `
+            -Path "$ghUser/$repoName" -Reversible $false -ScriptBlock {
+            gh repo create $repoName --private --description "AI Maker v3 workspace — migrated from CLI"
+            if ($LASTEXITCODE -ne 0) { throw "gh repo create failed (exit: $LASTEXITCODE)" }
+        }
+        Write-Host "  ✓ Created private repo: $ghUser/$repoName" -ForegroundColor Green
     }
+
+    # Set remote
+    Push-Location $ws
+    $existingRemote = git remote get-url origin 2>$null
+    if (-not $existingRemote) {
+        git remote add origin "https://github.com/$ghUser/$repoName.git"
+        Write-Host "  ✓ Remote 'origin' set" -ForegroundColor Green
+    }
+    Pop-Location
 
     # Commit + push
-    if (-not $WhatIf) {
-        Push-Location $ws
-        git add -A 2>$null
-        $status = git status --porcelain 2>$null
-        if ($status) {
-            Invoke-TxOp -Operation "GIT_COMMIT" -Description "Migration commit" `
-                -Path $ws -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
-                git commit -m "AI Maker v3 — migrated from CLI (vault + config preserved)" 2>$null
-                if ($LASTEXITCODE -ne 0) { throw "git commit failed" }
-            }
-            Write-Host "  ✓ Committed" -ForegroundColor Green
+    Push-Location $ws
+    git add -A 2>$null
+    $status = git status --porcelain 2>$null
+    if ($status) {
+        Invoke-TxOp -Operation "GIT_COMMIT" -Description "Migration commit" `
+            -Path $ws -Reversible $false -ScriptBlock {
+            git commit -m "AI Maker v3 — migrated from CLI (vault + config preserved)" 2>$null
+            if ($LASTEXITCODE -ne 0) { throw "git commit failed" }
+        }
+        Write-Host "  ✓ Committed" -ForegroundColor Green
 
-            Invoke-TxOp -Operation "GIT_PUSH" -Description "Push to GitHub" `
-                -Path "$ghUser/$repoName" -Reversible $false -WhatIf:$WhatIf -ScriptBlock {
-                git push -u origin main 2>$null
-                if ($LASTEXITCODE -ne 0) { throw "git push failed (exit: $LASTEXITCODE)" }
-            }
-            Write-Host "  ✓ Pushed to GitHub" -ForegroundColor Green
+        Invoke-TxOp -Operation "GIT_PUSH" -Description "Push to GitHub" `
+            -Path "$ghUser/$repoName" -Reversible $false -ScriptBlock {
+            git push -u origin main 2>$null
+            if ($LASTEXITCODE -ne 0) { throw "git push failed (exit: $LASTEXITCODE)" }
         }
-        else {
-            Write-Host "  ✓ No changes to commit" -ForegroundColor Green
-        }
-        Pop-Location
+        Write-Host "  ✓ Pushed to GitHub" -ForegroundColor Green
     }
     else {
-        Write-Host "  [WhatIf] Would commit migrated data and push" -ForegroundColor Cyan
+        Write-Host "  ✓ No changes to commit" -ForegroundColor Green
     }
+    Pop-Location
 }
 else {
     Write-Host "`nStep 9: Skipped (Blue Pill — no git)" -ForegroundColor Gray
@@ -561,14 +530,14 @@ $manifest.legacy.legacy_paths_preserved = $true
 $manifest.legacy.original_paths = @($script:AIMakerConfig.LegacyMakerPath, $script:AIMakerConfig.LegacyWorkbenchPath) |
     Where-Object { Test-Path $_ }
 
-Write-AIMakerManifest -Manifest $manifest -WhatIf:$WhatIf
+Write-AIMakerManifest -Manifest $manifest
 Write-Host "  ✓ Manifest written (migrated_from: cli-v2)" -ForegroundColor Green
 
 # ═══════════════════════════════════════════════════════════════
 # STEP 11: MARK LEGACY (OPTIONAL)
 # ═══════════════════════════════════════════════════════════════
 
-if ($MarkLegacy -and -not $WhatIf) {
+if ($MarkLegacy) {
     Write-Host "`nStep 11: Marking legacy folders as migrated..." -ForegroundColor White
 
     $marker = @{
@@ -584,9 +553,6 @@ if ($MarkLegacy -and -not $WhatIf) {
             Write-Host "  ✓ Marked: $legacyPath" -ForegroundColor Green
         }
     }
-}
-elseif ($MarkLegacy -and $WhatIf) {
-    Write-Host "`n  [WhatIf] Would mark legacy folders with .ai-maker-migrated.json" -ForegroundColor Cyan
 }
 else {
     Write-Host "`nStep 11: Skipped (use -MarkLegacy to mark old folders)" -ForegroundColor Gray
@@ -632,13 +598,8 @@ if ($isRedMigration -and $ghUser) {
 }
 
 # Launch App
-if (-not $WhatIf) {
-    $appPath = (Get-Command "GitHub Copilot" -EA Silent).Source
-    if (-not $appPath) {
-        $appPath = Join-Path $env:LOCALAPPDATA "Programs\GitHub Copilot\GitHub Copilot.exe"
-    }
-    if (Test-Path $appPath) {
-        Write-Host "  Launching Copilot App..." -ForegroundColor Gray
-        Start-Process $appPath
-    }
+$appExe = Join-Path $env:LOCALAPPDATA "Programs\GitHub Copilot\GitHub Copilot.exe"
+if (Test-Path $appExe) {
+    Write-Host "  Launching Copilot App..." -ForegroundColor Gray
+    Start-Process $appExe
 }
