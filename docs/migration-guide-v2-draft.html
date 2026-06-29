@@ -226,7 +226,7 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
         <div class="step-title text-md">Preview what will happen (optional but recommended)</div>
         <div class="step-text text-sm" style="margin-bottom:10px">Open PowerShell and run:</div>
         <div class="code-block">
-          <span id="whatifCmd">$f="$env:TEMP\migrate.ps1"; irm https://github.com/marcusash/ai-maker/releases/download/v3.0.6/migrate.ps1 -OutFile $f; &amp; $f -WhatIf</span>
+          <span id="whatifCmd">$f="$env:TEMP\migrate.ps1"; irm https://github.com/marcusash/ai-maker/releases/latest/download/migrate.ps1 -OutFile $f; &amp; $f -WhatIf</span>
           <button class="copy-btn" onclick="copyCode('whatifCmd')">COPY</button>
         </div>
         <div class="step-text text-sm" style="margin-top:8px">Downloads the script and runs it in preview mode. Shows you which flavor it detected (Blue or Red), what will be backed up, and which installer it will hand off to. Nothing changes on your machine.</div>
@@ -239,7 +239,7 @@ table.scenarios tr:hover td{background:rgba(0,59,0,.15)}
         <div class="step-title text-md">Run the migration</div>
         <div class="step-text text-sm" style="margin-bottom:10px">When you're ready:</div>
         <div class="code-block">
-          <span id="migrateCmd">irm https://github.com/marcusash/ai-maker/releases/download/v3.0.6/migrate.ps1 | iex</span>
+          <span id="migrateCmd">irm https://github.com/marcusash/ai-maker/releases/latest/download/migrate.ps1 | iex</span>
           <button class="copy-btn" onclick="copyCode('migrateCmd')">COPY</button>
         </div>
         <div class="step-text text-sm" style="margin-top:8px">The script detects your existing setup, identifies your flavor, and shows a summary. Type Y to proceed.</div>
