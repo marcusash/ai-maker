@@ -67,11 +67,8 @@ goto :run_installer
 echo.
 echo   Running Blue Pill installer...
 echo.
-:: Check if local files exist (extracted zip mode), else download from latest release (PRD §7)
 if exist "%~dp0installers\install-blue.ps1" (
     pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0installers\install-blue.ps1" -SkillsSource "%~dp0skills"
-) else if exist "%~dp0install-blue.ps1" (
-    pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-blue.ps1" -SkillsSource "%~dp0skills"
 ) else (
     echo   Downloading installer files...
     curl.exe --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
@@ -90,8 +87,6 @@ echo   Running Red Pill installer...
 echo.
 if exist "%~dp0installers\install-red.ps1" (
     pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0installers\install-red.ps1" -SkillsSource "%~dp0skills"
-) else if exist "%~dp0install-red.ps1" (
-    pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0install-red.ps1" -SkillsSource "%~dp0skills"
 ) else (
     echo   Downloading installer files...
     curl.exe --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
@@ -110,8 +105,6 @@ echo   Running Migration tool...
 echo.
 if exist "%~dp0installers\migrate.ps1" (
     pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0installers\migrate.ps1" -SkillsSource "%~dp0skills"
-) else if exist "%~dp0migrate.ps1" (
-    pwsh -NoProfile -ExecutionPolicy Bypass -File "%~dp0migrate.ps1" -SkillsSource "%~dp0skills"
 ) else (
     echo   Downloading installer files...
     curl.exe --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
