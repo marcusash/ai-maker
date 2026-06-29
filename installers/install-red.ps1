@@ -53,39 +53,38 @@ if (Test-Path $gitSh) {
     $env:SHELL = $gitSh
 }
 
-# Step 5: Install Agency CLI
+# Step 5: Install Agency CLI (save script, invoke with -ToolName)
 Write-Host "`nStep 3: Installing Agency..." -ForegroundColor White
-Invoke-RestMethod -Uri "https://aka.ms/InstallTool.ps1" | Invoke-Expression
+$installScript = Join-Path $env:TEMP "InstallTool.ps1"
+Invoke-RestMethod -Uri "https://aka.ms/InstallTool.ps1" -OutFile $installScript
+& $installScript -ToolName "agency"
+Remove-Item $installScript -EA SilentlyContinue
 
-# Step 6: Probe for agency.exe
-$agencyPaths = @(
-    (Get-Command agency -EA SilentlyContinue | Select-Object -Expand Source),
-    (Join-Path $env:LOCALAPPDATA "Programs\Agency\agency.exe"),
-    (Join-Path $env:ProgramFiles "Agency\agency.exe")
-) + @(Get-ChildItem "$env:LOCALAPPDATA\Agency\app-*\agency.exe" -EA SilentlyContinue | Select-Object -Expand FullName)
-$agency = $agencyPaths | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
-if (-not $agency) { throw "Agency installed but agency.exe not found in PATH or known locations" }
-Write-Host "  ✓ Agency found at $agency" -ForegroundColor Green
-
-# Step 7: Register MCP servers
-Write-Host "`nStep 4: Registering MCP servers..." -ForegroundColor White
-& $agency mcp add workiq
-& $agency mcp add bluebird
-Write-Host "  ✓ workiq + bluebird registered" -ForegroundColor Green
-
-# Step 8: Verify MCP registration
-$mcpConfig = Join-Path $env:APPDATA "GitHub Copilot\m-mcp-servers.json"
-if (Test-Path $mcpConfig) {
-    $mcpJson = Get-Content $mcpConfig -Raw | ConvertFrom-Json
-    $hasWorkiq = $mcpJson.PSObject.Properties.Name -contains "workiq"
-    $hasBluebird = $mcpJson.PSObject.Properties.Name -contains "bluebird"
-    if (-not $hasWorkiq -or -not $hasBluebird) { throw "MCP registration failed — workiq or bluebird missing from $mcpConfig" }
-    Write-Host "  ✓ MCP config verified" -ForegroundColor Green
+# Step 6: Probe for agency.exe (PATH → Velopack glob → error)
+$agency = (Get-Command agency -EA SilentlyContinue | Select-Object -Expand Source)
+if (-not $agency) {
+    $agency = Get-ChildItem "$env:APPDATA\agency\*\agency.exe" -EA SilentlyContinue |
+              Sort-Object LastWriteTime -Descending | Select-Object -First 1 -Expand FullName
 }
+if (-not $agency) { throw "agency.exe not found after install" }
+Write-Host "  ✓ Agency: $agency" -ForegroundColor Green
 
-# Step 9: Enable M365 MCPs
-& $agency config set --global --mcp teams/outlook/planner
-Write-Host "  ✓ M365 MCPs enabled (teams/outlook/planner)" -ForegroundColor Green
+# Step 7: Register MCP servers (direct JSON write per PRD §8.2)
+Write-Host "`nStep 4: Registering MCP servers..." -ForegroundColor White
+Register-AgencyMcpServers -AgencyExePath $agency
+
+# Step 8: Verify MCP registration (THROW if missing)
+$mcpFile = $script:AIMakerConfig.McpServersPath
+$mcpJson = Get-Content $mcpFile -Raw | ConvertFrom-Json
+if (-not $mcpJson.workiq) { throw "MCP registration failed: workiq missing from $mcpFile" }
+if (-not $mcpJson.bluebird) { throw "MCP registration failed: bluebird missing from $mcpFile" }
+Write-Host "  ✓ workiq + bluebird registered and verified" -ForegroundColor Green
+
+# Step 9: Enable M365 MCPs (mail + calendar replace "outlook" per agency CLI)
+foreach ($mcp in @('teams', 'mail', 'calendar', 'planner')) {
+    & $agency config set --global --mcp $mcp
+}
+Write-Host "  ✓ M365 MCPs enabled (teams, mail, calendar, planner)" -ForegroundColor Green
 
 # ═══════════════════════════════════════════════════════════════
 # PHASE 2: AI MAKER LAYER (PRD §6.2 steps 10-17)
@@ -96,7 +95,6 @@ Write-Host "`nStep 5: Installing all skills (22)..." -ForegroundColor White
 $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
 $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 Remove-Item $extractPath -Recurse -Force -EA SilentlyContinue
-Write-Host "  Downloading skills..." -ForegroundColor Gray
 Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip" -OutFile $zipPath
 Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
 $installedSkills = Install-Skills -Pill "red" -SourcePath (Join-Path $extractPath "skills") -Manifest (Read-AIMakerManifest)
@@ -106,7 +104,7 @@ Write-Host "  ✓ $makerCount AI Maker + $workbenchCount AI Workbench skills ($(
 Remove-Item $zipPath -EA SilentlyContinue
 Remove-Item $extractPath -Recurse -EA SilentlyContinue
 
-# Steps 11-13: Create workspace + write agents
+# Steps 11-13: Create workspace + agents
 Write-Host "`nStep 6: Creating workspace..." -ForegroundColor White
 $wsPath = $script:AIMakerConfig.WorkspacePath
 $wsManifest = Join-Path $wsPath $script:AIMakerConfig.ManifestFile
@@ -114,7 +112,6 @@ if (Test-Path $wsManifest) {
     Write-Host "  ✓ Workspace already exists" -ForegroundColor Green
 }
 else {
-    Write-Host "  Downloading agent identities..." -ForegroundColor Gray
     $agentsZip = Join-Path $env:TEMP "ai-maker-agents.zip"
     $agentsDir = Join-Path $PSScriptRoot "agents"
     Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/agents.zip" -OutFile $agentsZip

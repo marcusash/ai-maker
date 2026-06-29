@@ -387,6 +387,54 @@ function Test-McpLiveness {
 }
 
 # ═══════════════════════════════════════════════════════════════
+# §5c. REGISTER MCP SERVERS (PRD §8.2 — direct JSON write)
+# ═══════════════════════════════════════════════════════════════
+
+function Register-AgencyMcpServers {
+    <#
+    .SYNOPSIS
+        Writes workiq + bluebird entries to m-mcp-servers.json.
+        Does NOT use a CLI command — writes JSON directly per PRD §8.2.
+    .PARAMETER AgencyExePath
+        Full path to agency.exe (used as the command in MCP entries).
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)][string]$AgencyExePath
+    )
+
+    $mcpFile = $script:AIMakerConfig.McpServersPath
+    $mcpDir  = Split-Path $mcpFile -Parent
+    if (-not (Test-Path $mcpDir)) { New-Item -ItemType Directory -Path $mcpDir -Force | Out-Null }
+
+    # Read existing or seed empty
+    if (Test-Path $mcpFile) {
+        $config = Get-Content $mcpFile -Raw | ConvertFrom-Json -AsHashtable
+    }
+    else {
+        $config = @{}
+    }
+
+    # Merge workiq entry
+    $config["workiq"] = @{
+        command = $AgencyExePath
+        args    = @("mcp", "workiq")
+        tools   = @("*")
+    }
+
+    # Merge bluebird entry
+    $config["bluebird"] = @{
+        command = $AgencyExePath
+        args    = @("mcp", "bluebird")
+        tools   = @("*")
+    }
+
+    # Write UTF-8 no BOM
+    $json = $config | ConvertTo-Json -Depth 5
+    [System.IO.File]::WriteAllText($mcpFile, $json, [System.Text.UTF8Encoding]::new($false))
+}
+
+# ═══════════════════════════════════════════════════════════════
 # §6. SKILL INSTALLATION
 # ═══════════════════════════════════════════════════════════════
 
