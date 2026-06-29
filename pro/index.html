@@ -52,7 +52,9 @@ a:hover{color:#4DFFFF}
 .chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
 .chip:hover{border-color:var(--matrix-green)}
 .chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
-.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green)}
+.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green);display:flex;align-items:center;justify-content:space-between}
+.chip-copy-btn{background:var(--accent,var(--matrix-green));color:var(--black);border:none;padding:5px 14px;font-weight:700;font-size:11px;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:.08em;border-radius:3px;white-space:nowrap;transition:background .15s}
+.chip-copy-btn:hover{background:#FF4D4D}
 .footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6;font-size:14px}
 .footer a{color:var(--matrix-green)}
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
@@ -242,19 +244,19 @@ a:hover{color:#4DFFFF}
       <div class="chip-grid" style="margin-top:12px">
         <div class="chip" onclick="copyChip(this,'Read my emails, calendar entries that have transcripts or meeting notes, and Teams messages. Write a status report for the last 3 days that I can send to my team. Display it in a canvas for me to review and edit.')">
           <div class="chip-quote">Read my emails, meetings, and Teams. Write a status report for the last 3 days in a canvas.</div>
-          <div class="chip-tag">CANVAS</div>
+          <div class="chip-tag"><span>CANVAS</span><button class="chip-copy-btn" onclick="event.stopPropagation()">COPY</button></div>
         </div>
         <div class="chip" onclick="copyChip(this,'Write a Teams message to me that summarizes tomorrow\'s meetings and gives me advice on key things to prepare.')">
           <div class="chip-quote">Write a Teams message to me with tomorrow&rsquo;s meetings and prep advice.</div>
-          <div class="chip-tag">AGENCY</div>
+          <div class="chip-tag"><span>AGENCY</span><button class="chip-copy-btn" onclick="event.stopPropagation()">COPY</button></div>
         </div>
         <div class="chip" onclick="copyChip(this,'Play devil\'s advocate on a decision I\'m about to make.')">
           <div class="chip-quote">Play devil&rsquo;s advocate on a decision I&rsquo;m about to make. <em style="opacity:.6">(then speak your plan)</em></div>
-          <div class="chip-tag">BRAINSTORM · VOICE</div>
+          <div class="chip-tag"><span>BRAINSTORM · VOICE</span><button class="chip-copy-btn" onclick="event.stopPropagation()">COPY</button></div>
         </div>
         <div class="chip" onclick="copyChip(this,'I have a direct report who has been quietly disengaging , still delivering, but less energy, fewer ideas, going quiet in meetings. Help me prepare for my 1:1 with them: give me the exact words to open the conversation, three questions to ask, and what I should avoid saying.')">
           <div class="chip-quote">I have a hard 1:1 this week. Help me prepare, what to say, what to ask, what to avoid.</div>
-          <div class="chip-tag">OPS</div>
+          <div class="chip-tag"><span>OPS</span><button class="chip-copy-btn" onclick="event.stopPropagation()">COPY</button></div>
         </div>
       </div>
     </div>
@@ -364,10 +366,9 @@ function copyPrompt(id,btnId){
 }
 function copyChip(el,text){
   navigator.clipboard.writeText(text).then(function(){
-    var tag=el.querySelector('.chip-tag');
-    var orig=tag.textContent;
-    tag.textContent='COPIED!';
-    setTimeout(function(){tag.textContent=orig;},2000);
+    var btn=el.querySelector('.chip-copy-btn');
+    btn.textContent='COPIED!';
+    setTimeout(function(){btn.textContent='COPY';},2000);
     showToast();
   });
 }
