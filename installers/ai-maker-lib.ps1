@@ -96,138 +96,6 @@ AI Maker handles creative/strategic requests. AI Workbench handles technical/eng
 }
 
 # ═══════════════════════════════════════════════════════════════
-# §2. TRANSACTION LOG
-# ═══════════════════════════════════════════════════════════════
-
-function Initialize-TxLog {
-    <#
-    .SYNOPSIS
-        Ensures the transaction log directory exists.
-    #>
-    $logDir = Split-Path $script:AIMakerConfig.LogPath -Parent
-    if (-not (Test-Path $logDir)) {
-        New-Item -Path $logDir -ItemType Directory -Force | Out-Null
-    }
-}
-
-function Write-TxEntry {
-    <#
-    .SYNOPSIS
-        Appends an entry to the durable transaction log.
-    .PARAMETER Operation
-        The operation type (INSTALL_SKILL, CREATE_DIR, COPY, GH_REPO_CREATE, GIT_PUSH, etc.)
-    .PARAMETER Path
-        The path or target affected.
-    .PARAMETER From
-        Source path (for COPY operations).
-    .PARAMETER Reversible
-        Whether this operation can be rolled back.
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][string]$Operation,
-        [string]$Path,
-        [string]$From,
-        [bool]$Reversible = $true
-    )
-
-    $entry = @{
-        ts         = (Get-Date -Format "o")
-        op         = $Operation
-        path       = $Path
-        reversible = $Reversible
-    }
-    if ($From) { $entry.from = $From }
-
-    $json = $entry | ConvertTo-Json -Compress
-    Initialize-TxLog
-    Add-Content -Path $script:AIMakerConfig.LogPath -Value $json -Encoding utf8
-    Add-Content -Path $script:AIMakerConfig.TempLogPath -Value $json -Encoding utf8
-}
-
-function Invoke-TxOp {
-    <#
-    .SYNOPSIS
-        Executes a destructive operation through the transaction log.
-    .PARAMETER Operation
-        Operation type identifier.
-    .PARAMETER Description
-        Human-readable description.
-    .PARAMETER Path
-        Target path.
-    .PARAMETER From
-        Source path (for copies).
-    .PARAMETER Reversible
-        Whether rollback can undo this.
-    .PARAMETER ScriptBlock
-        The actual operation to execute.
-    #>
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory)][string]$Operation,
-        [Parameter(Mandatory)][string]$Description,
-        [string]$Path,
-        [string]$From,
-        [bool]$Reversible = $true,
-        [Parameter(Mandatory)][scriptblock]$ScriptBlock
-    )
-
-    Write-Host "  → $Description" -ForegroundColor Gray
-    Write-TxEntry -Operation $Operation -Path $Path -From $From -Reversible $Reversible
-
-    try {
-        & $ScriptBlock
-    }
-    catch {
-        Write-Host "  ✗ FAILED: $($_.Exception.Message)" -ForegroundColor Red
-        Write-TxEntry -Operation "FAILED_$Operation" -Path $Path -Reversible $false
-        throw
-    }
-}
-
-function Invoke-Rollback {
-    <#
-    .SYNOPSIS
-        Best-effort rollback of reversible operations from transaction log.
-    #>
-    [CmdletBinding()]
-    param()
-
-    if (-not (Test-Path $script:AIMakerConfig.LogPath)) {
-        Write-Host "No transaction log found. Nothing to roll back." -ForegroundColor Yellow
-        return
-    }
-
-    $entries = Get-Content $script:AIMakerConfig.LogPath | ForEach-Object { $_ | ConvertFrom-Json }
-    $reversible = $entries | Where-Object { $_.reversible -eq $true } | Sort-Object ts -Descending
-
-    Write-Host "`nRollback plan ($($reversible.Count) reversible operations):" -ForegroundColor Yellow
-
-    foreach ($entry in $reversible) {
-        switch ($entry.op) {
-            "INSTALL_SKILL" {
-                Write-Host "  ← Remove skill: $($entry.path)"
-                if (Test-Path $entry.path) { Remove-Item $entry.path -Recurse -Force }
-            }
-            "CREATE_DIR" {
-                Write-Host "  ← Remove directory: $($entry.path)"
-                if (Test-Path $entry.path) { Remove-Item $entry.path -Recurse -Force }
-            }
-            "COPY" {
-                Write-Host "  ← Remove copied file: $($entry.path)"
-                if (Test-Path $entry.path) { Remove-Item $entry.path -Recurse -Force }
-            }
-            default {
-                Write-Host "  ⚠ Cannot reverse: $($entry.op) $($entry.path)" -ForegroundColor Yellow
-            }
-        }
-    }
-
-    Remove-Item $script:AIMakerConfig.LogPath -Force
-    Write-Host "`n✓ Rollback complete." -ForegroundColor Green
-}
-
-# ═══════════════════════════════════════════════════════════════
 # §3. MANIFEST MANAGEMENT
 # ═══════════════════════════════════════════════════════════════
 
@@ -288,14 +156,8 @@ function Write-AIMakerManifest {
 
     $json = $Manifest | ConvertTo-Json -Depth 5
 
-    Invoke-TxOp -Operation "WRITE_MANIFEST" -Description "Write manifest to $Path" `
-        -Path $Path -Reversible $true -ScriptBlock {
-        # Snapshot existing manifest for rollback
-        if (Test-Path $Path) {
-            Copy-Item $Path "$Path.prev" -Force
-        }
-        Set-Content -Path $Path -Value $json -Encoding utf8
-    }
+    if (Test-Path $Path) { Copy-Item $Path "$Path.prev" -Force }
+    Set-Content -Path $Path -Value $json -Encoding utf8
 }
 
 function Read-AIMakerManifest {
@@ -363,162 +225,6 @@ function Get-SkillChecksum {
 }
 
 # ═══════════════════════════════════════════════════════════════
-# §4. DETECTION MATRIX
-# ═══════════════════════════════════════════════════════════════
-
-function Get-InstallScenario {
-    <#
-    .SYNOPSIS
-        Evaluates current system state and returns the detected scenario + recommended action.
-    .PARAMETER PathOverrides
-        Hashtable for test injection: Workspace, LegacyMaker, LegacyWorkbench, SkillsPath.
-        When provided, uses these paths instead of live filesystem checks.
-    .PARAMETER RemoteOverrides
-        Hashtable for test injection: HasNewRemote, HasLegacyRemote, IsOurRepo.
-        When provided, skips live gh calls and uses injected booleans.
-    .OUTPUTS
-        Hashtable with: scenario (string ID), action (string), details (hashtable of state)
-    #>
-    [CmdletBinding()]
-    param(
-        [switch]$SkipRemoteChecks,
-        [hashtable]$PathOverrides,
-        [hashtable]$RemoteOverrides,
-        [hashtable]$McpOverrides
-    )
-
-    # Path resolution — use overrides for testability, live checks otherwise
-    if ($PathOverrides) {
-        $ws = $PathOverrides.Workspace ?? $script:AIMakerConfig.WorkspacePath
-        $lm = $PathOverrides.LegacyMaker ?? $script:AIMakerConfig.LegacyMakerPath
-        $lw = $PathOverrides.LegacyWorkbench ?? $script:AIMakerConfig.LegacyWorkbenchPath
-        $sp = $PathOverrides.SkillsPath ?? $script:AIMakerConfig.SkillsPath
-    }
-    else {
-        $ws = $script:AIMakerConfig.WorkspacePath
-        $lm = $script:AIMakerConfig.LegacyMakerPath
-        $lw = $script:AIMakerConfig.LegacyWorkbenchPath
-        $sp = $script:AIMakerConfig.SkillsPath
-    }
-
-    $state = @{
-        hasLegacyMaker     = Test-Path (Join-Path $lm ".github")
-        hasLegacyWorkbench = Test-Path (Join-Path $lw ".github")
-        hasLegacyGit       = Test-Path (Join-Path $lm ".git")
-        hasNewWorkspace    = Test-Path (Join-Path $ws $script:AIMakerConfig.ManifestFile)
-        hasWorkspaceDir    = Test-Path $ws
-        hasLocalGit        = Test-Path (Join-Path $ws ".git")
-        hasAppSkills       = ((Get-ChildItem (Join-Path $sp "ai-maker-*") -Directory -EA Silent).Count -ge 1)
-        skillCount         = (Get-ChildItem (Join-Path $sp "ai-maker-*") -Directory -EA Silent).Count +
-                            (Get-ChildItem (Join-Path $sp "ai-workbench-*") -Directory -EA Silent).Count
-    }
-
-    # Remote checks — use injected values or live gh calls
-    if ($RemoteOverrides) {
-        $state.hasNewRemote  = [bool]$RemoteOverrides.HasNewRemote
-        $state.hasLegacyRemote = [bool]$RemoteOverrides.HasLegacyRemote
-        $state.remoteIsOurs  = [bool]$RemoteOverrides.IsOurRepo
-    }
-    elseif (-not $SkipRemoteChecks) {
-        $null = gh repo view ai-workspace --json name 2>$null
-        $state.hasNewRemote = ($LASTEXITCODE -eq 0)
-
-        $null = gh repo view pc-setup --json name 2>$null
-        $state.hasLegacyRemote = ($LASTEXITCODE -eq 0)
-
-        # Repo identity validation
-        if ($state.hasNewRemote) {
-            $null = gh api "repos/{owner}/ai-workspace/contents/$($script:AIMakerConfig.ManifestFile)" 2>$null
-            $state.remoteIsOurs = ($LASTEXITCODE -eq 0)
-        }
-        else {
-            $state.remoteIsOurs = $false
-        }
-    }
-
-    # MCP registration check — use injected value or live file inspection
-    if ($McpOverrides) {
-        $state.mcpRegistered        = [bool]$McpOverrides.McpRegistered
-        $state.mcpRegisteredServers = @($McpOverrides.McpRegisteredServers ?? @())
-    }
-    else {
-        $mcpPath = $script:AIMakerConfig.McpServersPath
-        $state.mcpRegistered        = $false
-        $state.mcpRegisteredServers = @()
-        if (Test-Path $mcpPath) {
-            try {
-                $mcpJson = Get-Content $mcpPath -Raw | ConvertFrom-Json -AsHashtable -ErrorAction Stop
-                $servers  = @($mcpJson.Keys)
-                if (($servers -contains 'workiq') -and ($servers -contains 'bluebird')) {
-                    $state.mcpRegistered        = $true
-                    $state.mcpRegisteredServers = $servers
-                }
-            }
-            catch { <# invalid JSON — mcpRegistered stays $false #> }
-        }
-    }
-
-    # Scenario detection (order matters — most specific first)
-    $scenario = if ($state.hasWorkspaceDir -and -not $state.hasNewWorkspace) {
-        # Workspace dir exists but no manifest → partial/interrupted install
-        @{ scenario = "partial-install"; action = "Resume from transaction log" }
-    }
-    elseif ($state.hasNewWorkspace -and $state.hasNewRemote -and -not $state.remoteIsOurs) {
-        # Both exist but remote isn't ours
-        @{ scenario = "remote-conflict"; action = "STOP — ask user: rename local or remote" }
-    }
-    elseif ($state.hasNewWorkspace -and $state.hasNewRemote -and $state.remoteIsOurs) {
-        # Re-run scenario
-        if ($state.skillCount -lt $script:AIMakerConfig.TotalSkillCount) {
-            @{ scenario = "stale-skills"; action = "Reinstall skills from source" }
-        }
-        else {
-            @{ scenario = "rerun"; action = "Pull latest, upgrade skills" }
-        }
-    }
-    elseif ($state.hasNewWorkspace -and -not $state.hasLocalGit -and -not $state.hasNewRemote) {
-        # Blue→Red upgrade
-        @{ scenario = "blue-to-red-upgrade"; action = "git init in place, create remote, push" }
-    }
-    elseif ($state.hasNewWorkspace -and $state.hasLocalGit -and -not $state.hasNewRemote) {
-        # Orphan local git
-        @{ scenario = "orphan-local-git"; action = "Create remote, push" }
-    }
-    elseif (-not $state.hasNewWorkspace -and -not $state.hasLegacyMaker -and -not $state.hasLegacyWorkbench) {
-        # Nothing local
-        if ($state.hasNewRemote -and $state.remoteIsOurs) {
-            @{ scenario = "returning-user-new-machine"; action = "Clone + install skills" }
-        }
-        elseif ($state.hasNewRemote -and -not $state.remoteIsOurs) {
-            @{ scenario = "remote-unrelated"; action = "STOP — ask user to rename remote or pick different name" }
-        }
-        elseif ($state.hasLegacyRemote) {
-            @{ scenario = "returning-user-legacy"; action = "Clone legacy, restructure, install skills" }
-        }
-        else {
-            @{ scenario = "fresh-install"; action = "Fresh install (Blue or Red)" }
-        }
-    }
-    elseif ($state.hasLegacyMaker -and -not $state.hasLegacyGit) {
-        # Legacy Maker, no git
-        @{ scenario = "legacy-maker-blue"; action = "CLI-to-App migration (Blue Pill path)" }
-    }
-    elseif (-not $state.hasLegacyMaker -and $state.hasLegacyWorkbench) {
-        # Workbench only (no Maker) — force Red
-        @{ scenario = "legacy-workbench-only"; action = "Force Red Pill path (Workbench users are technical)" }
-    }
-    elseif ($state.hasLegacyMaker -and $state.hasLegacyGit) {
-        # Legacy Maker with git
-        @{ scenario = "legacy-maker-red"; action = "CLI-to-App migration (Red Pill) → copy data, create repo" }
-    }
-    else {
-        @{ scenario = "unknown"; action = "Manual intervention required" }
-    }
-
-    $scenario.details = $state
-    return $scenario
-}
-
 # ═══════════════════════════════════════════════════════════════
 # §5. SCAFFOLD CREATION
 # ═══════════════════════════════════════════════════════════════
@@ -553,38 +259,26 @@ function New-WorkspaceScaffold {
 
     foreach ($dir in $dirs) {
         if (-not (Test-Path $dir)) {
-            Invoke-TxOp -Operation "CREATE_DIR" -Description "Create: $dir" `
-                -Path $dir -Reversible $true -ScriptBlock {
-                New-Item -Path $dir -ItemType Directory -Force | Out-Null
-            }
+            New-Item -Path $dir -ItemType Directory -Force | Out-Null
         }
     }
 
     # Write copilot-instructions.md (only if not exists)
     $instructionsPath = Join-Path $ws ".github\copilot-instructions.md"
     if (-not (Test-Path $instructionsPath)) {
-        Invoke-TxOp -Operation "CREATE_FILE" -Description "Write copilot-instructions.md" `
-            -Path $instructionsPath -Reversible $true -ScriptBlock {
-            Set-Content -Path $instructionsPath -Value $script:StockInstructions -Encoding utf8
-        }
+        Set-Content -Path $instructionsPath -Value $script:StockInstructions -Encoding utf8
     }
 
     # Write vault README
     $vaultReadme = Join-Path $ws "vault\README.md"
     if (-not (Test-Path $vaultReadme)) {
-        Invoke-TxOp -Operation "CREATE_FILE" -Description "Write vault/README.md" `
-            -Path $vaultReadme -Reversible $true -ScriptBlock {
-            Set-Content -Path $vaultReadme -Value $script:VaultReadme -Encoding utf8
-        }
+        Set-Content -Path $vaultReadme -Value $script:VaultReadme -Encoding utf8
     }
 
     # Write .gitignore
     $gitignorePath = Join-Path $ws ".gitignore"
     if (-not (Test-Path $gitignorePath)) {
-        Invoke-TxOp -Operation "CREATE_FILE" -Description "Write .gitignore" `
-            -Path $gitignorePath -Reversible $true -ScriptBlock {
-            Set-Content -Path $gitignorePath -Value $script:GitIgnoreTemplate -Encoding utf8
-        }
+        Set-Content -Path $gitignorePath -Value $script:GitIgnoreTemplate -Encoding utf8
     }
 
     # Write agent identity files — pill-aware (PRD §10.3)
@@ -603,10 +297,7 @@ function New-WorkspaceScaffold {
         }
         $dest = Join-Path $agentsDir $fileName
         if (-not (Test-Path $dest)) {
-            Invoke-TxOp -Operation "CREATE_FILE" -Description "Write agent: $fileName" `
-                -Path $dest -Reversible $true -ScriptBlock {
-                Copy-Item $src $dest -Force
-            }
+            Copy-Item $src $dest -Force
         }
     }
 
@@ -740,10 +431,7 @@ function Install-Skills {
             }
         }
 
-        Invoke-TxOp -Operation "INSTALL_SKILL" -Description "Install skill: $($folder.Name)" `
-            -Path $targetPath -Reversible $true -ScriptBlock {
-            Copy-Item $folder.FullName $targetPath -Recurse -Force
-        }
+        Copy-Item $folder.FullName $targetPath -Recurse -Force
 
         $installed += @{
             id        = $folder.Name
@@ -827,18 +515,12 @@ function Copy-VaultData {
 
     if (Test-Path $makerVault) {
         $dest = Join-Path $ws "vault\maker"
-        Invoke-TxOp -Operation "COPY" -Description "Copy Maker vault → vault\maker\" `
-            -Path $dest -From $makerVault -Reversible $true -ScriptBlock {
-            Copy-Item "$makerVault\*" $dest -Recurse -Force -EA Silent
-        }
+        Copy-Item "$makerVault\*" $dest -Recurse -Force -EA Silent
     }
 
     if (Test-Path $workbenchVault) {
         $dest = Join-Path $ws "vault\workbench"
-        Invoke-TxOp -Operation "COPY" -Description "Copy Workbench vault → vault\workbench\" `
-            -Path $dest -From $workbenchVault -Reversible $true -ScriptBlock {
-            Copy-Item "$workbenchVault\*" $dest -Recurse -Force -EA Silent
-        }
+        Copy-Item "$workbenchVault\*" $dest -Recurse -Force -EA Silent
     }
 }
 
@@ -1044,10 +726,8 @@ Set-Alias -Name Test-AIMManifest -Value Test-AIMakerManifest -Scope Script
 Set-Alias -Name Read-AIMManifest -Value Read-AIMakerManifest -Scope Script
 Set-Alias -Name Write-AIMManifest -Value Write-AIMakerManifest -Scope Script
 Set-Alias -Name New-AIMManifest -Value New-AIMakerManifest -Scope Script
-Set-Alias -Name Get-AIMScenario -Value Get-InstallScenario -Scope Script
 Set-Alias -Name Copy-AIMVault -Value Copy-VaultData -Scope Script
 Set-Alias -Name Test-AIMInstructionsModified -Value Test-CopilotInstructionsModified -Scope Script
-Set-Alias -Name Write-AIMTxEntry -Value Write-TxEntry -Scope Script
 
 # ═══════════════════════════════════════════════════════════════
 # EXPORTS
@@ -1055,13 +735,11 @@ Set-Alias -Name Write-AIMTxEntry -Value Write-TxEntry -Scope Script
 
 # When dot-sourced, all functions above are available.
 # Key entry points:
-#   Get-InstallScenario    — detect current state (§4)
 #   New-WorkspaceScaffold  — create project folder (§5)
 #   Install-Skills         — copy skills to App path (§6)
 #   New-AIMakerManifest    — create manifest object (§3)
 #   Write-AIMakerManifest  — persist manifest to disk (§3)
 #   Invoke-HealthCheck     — run -Doctor diagnostics (§8)
-#   Invoke-Rollback        — best-effort rollback (§2)
 #   Copy-VaultData         — migrate legacy vaults (§7)
 #   Test-CopilotInstructionsModified — hash check (§7)
 #   Get-DiskSpaceCheck     — verify free space (§7)

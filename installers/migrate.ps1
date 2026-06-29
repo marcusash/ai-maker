@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+#Requires -Version 7.0
 <#
 .SYNOPSIS
     AI Maker v3 — CLI-to-App Migration Script
@@ -65,81 +65,34 @@ if ($Doctor) {
 
 Write-Host "Step 1: Detecting existing installations..." -ForegroundColor White
 
-$scenario = Get-InstallScenario
-Write-Host "  Scenario: $($scenario.scenario)" -ForegroundColor Gray
-Write-Host "  Action: $($scenario.action)" -ForegroundColor Gray
+$ws = $script:AIMakerConfig.WorkspacePath
+$lm = $script:AIMakerConfig.LegacyMakerPath
+$lw = $script:AIMakerConfig.LegacyWorkbenchPath
 
-$state = $scenario.details
+$hasLegacyMaker     = Test-Path (Join-Path $lm ".github")
+$hasLegacyWorkbench = Test-Path (Join-Path $lw ".github")
+$hasLegacyGit       = Test-Path (Join-Path $lm ".git")
+$hasNewWorkspace    = Test-Path (Join-Path $ws $script:AIMakerConfig.ManifestFile)
 
-# Validate this is a migration scenario
-$migrationScenarios = @(
-    "legacy-maker-blue",
-    "legacy-maker-red",
-    "legacy-workbench-only",
-    "returning-user-legacy"
-)
-
-if ($scenario.scenario -notin $migrationScenarios) {
-    if ($scenario.scenario -eq "fresh-install") {
-        Write-Host "`n  No existing CLI installation found." -ForegroundColor Yellow
-        Write-Host "  Nothing to migrate. Run install-blue.ps1 or install-red.ps1 for a fresh install." -ForegroundColor Yellow
-        return
-    }
-    elseif ($scenario.scenario -eq "rerun" -or $scenario.scenario -eq "stale-skills") {
+# Must have at least one legacy installation to migrate
+if (-not $hasLegacyMaker -and -not $hasLegacyWorkbench) {
+    if ($hasNewWorkspace) {
         Write-Host "`n  You're already on the App-first model." -ForegroundColor Green
         Write-Host "  No migration needed. Run install-red.ps1 to update skills." -ForegroundColor Gray
-        return
+    } else {
+        Write-Host "`n  No existing CLI installation found." -ForegroundColor Yellow
+        Write-Host "  Nothing to migrate. Run install-blue.ps1 or install-red.ps1 for a fresh install." -ForegroundColor Yellow
     }
-    elseif ($scenario.scenario -eq "remote-conflict" -or $scenario.scenario -eq "remote-unrelated") {
-        Write-Host "`n  ✗ CONFLICT: 'ai-workspace' repo exists on GitHub but wasn't created by this installer." -ForegroundColor Red
-        Write-Host "  Rename the existing repo on GitHub before migrating." -ForegroundColor Yellow
-        return
-    }
-    else {
-        Write-Host "`n  Scenario '$($scenario.scenario)' is not a migration scenario." -ForegroundColor Yellow
-        Write-Host "  This tool handles CLI-to-App migration. Use install-blue.ps1 or install-red.ps1 instead." -ForegroundColor Yellow
-        return
-    }
-}
-
-# ═══════════════════════════════════════════════════════════════
-# STEP 2: PREREQUISITES
-# ═══════════════════════════════════════════════════════════════
-
-Write-Host "`nStep 2: Checking prerequisites..." -ForegroundColor White
-
-# Windows version
-$osVersion = [System.Environment]::OSVersion.Version
-if ($osVersion.Major -lt 10) {
-    Write-Host "  ✗ Windows 10 or later required." -ForegroundColor Red
     return
 }
-Write-Host "  ✓ Windows $($osVersion.Major).$($osVersion.Build)" -ForegroundColor Green
 
-# winget
-$hasWinget = (Get-Command winget -EA Silent) -ne $null
-if (-not $hasWinget) {
-    Write-Host "  ✗ winget not found. Install App Installer from the Microsoft Store." -ForegroundColor Red
-    return
-}
-Write-Host "  ✓ winget available" -ForegroundColor Green
-
-# Disk space
-$diskCheck = Get-DiskSpaceCheck
-if (-not $diskCheck.ok) {
-    Write-Host "  ✗ $($diskCheck.message)" -ForegroundColor Red
-    return
-}
-Write-Host "  ✓ Disk space OK" -ForegroundColor Green
-
-# Determine migration type
-$isRedMigration = ($scenario.scenario -eq "legacy-maker-red") -or
-                  ($scenario.scenario -eq "legacy-workbench-only") -or
-                  ($scenario.scenario -eq "returning-user-legacy") -or
-                  $state.hasLegacyGit
-
+# Determine migration type: Red if git exists or workbench-only
+$isRedMigration = $hasLegacyGit -or $hasLegacyWorkbench
 $pillTarget = if ($isRedMigration) { "red" } else { "blue" }
 
+Write-Host "  Legacy Maker: $(if ($hasLegacyMaker) { 'found' } else { 'none' })" -ForegroundColor Gray
+Write-Host "  Legacy Workbench: $(if ($hasLegacyWorkbench) { 'found' } else { 'none' })" -ForegroundColor Gray
+Write-Host "  Legacy Git: $(if ($hasLegacyGit) { 'found' } else { 'none' })" -ForegroundColor Gray
 Write-Host "  Migration target: $($pillTarget.ToUpper()) Pill" -ForegroundColor $(if ($isRedMigration) { "Red" } else { "Blue" })
 
 # ═══════════════════════════════════════════════════════════════
@@ -275,11 +228,8 @@ if ($appInstalled) {
     Write-Host "  ✓ Copilot App already installed" -ForegroundColor Green
 }
 else {
-    Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub Copilot App" `
-        -Path "GitHub.CopilotApp" -Reversible $false -ScriptBlock {
-        winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
-        if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.CopilotApp (exit: $LASTEXITCODE)" }
-    }
+    winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
+    if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.CopilotApp (exit: $LASTEXITCODE)" }
     Write-Host "  ✓ Copilot App installed" -ForegroundColor Green
 }
 
@@ -296,11 +246,8 @@ if ($isRedMigration) {
         Write-Host "  ✓ Git already installed" -ForegroundColor Green
     }
     else {
-        Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install Git" `
-            -Path "Git.Git" -Reversible $false -ScriptBlock {
-            winget install Git.Git --accept-source-agreements --accept-package-agreements --silent
-            if ($LASTEXITCODE -ne 0) { throw "winget install failed for Git.Git (exit: $LASTEXITCODE)" }
-        }
+        winget install Git.Git --accept-source-agreements --accept-package-agreements --silent
+        if ($LASTEXITCODE -ne 0) { throw "winget install failed for Git.Git (exit: $LASTEXITCODE)" }
         $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH", "User")
         Write-Host "  ✓ Git installed" -ForegroundColor Green
     }
@@ -311,11 +258,8 @@ if ($isRedMigration) {
         Write-Host "  ✓ GitHub CLI already installed" -ForegroundColor Green
     }
     else {
-        Invoke-TxOp -Operation "WINGET_INSTALL" -Description "Install GitHub CLI" `
-            -Path "GitHub.cli" -Reversible $false -ScriptBlock {
-            winget install GitHub.cli --accept-source-agreements --accept-package-agreements --silent
-            if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.cli (exit: $LASTEXITCODE)" }
-        }
+        winget install GitHub.cli --accept-source-agreements --accept-package-agreements --silent
+        if ($LASTEXITCODE -ne 0) { throw "winget install failed for GitHub.cli (exit: $LASTEXITCODE)" }
         $env:PATH = [System.Environment]::GetEnvironmentVariable("PATH", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("PATH", "User")
         Write-Host "  ✓ GitHub CLI installed" -ForegroundColor Green
     }
@@ -326,10 +270,7 @@ if ($isRedMigration) {
         Write-Host "  ✓ Copilot CLI extension already installed" -ForegroundColor Green
     }
     else {
-        Invoke-TxOp -Operation "GH_EXTENSION_INSTALL" -Description "Install Copilot CLI extension" `
-            -Path "github/gh-copilot" -Reversible $true -ScriptBlock {
-            gh extension install github/gh-copilot 2>$null
-        }
+        gh extension install github/gh-copilot 2>$null
         Write-Host "  ✓ Copilot CLI extension installed" -ForegroundColor Green
     }
 
@@ -400,21 +341,14 @@ if ($inventory.workbenchVault) {
 $instructionsDest = Join-Path $ws ".github\copilot-instructions.md"
 
 if ($inventory.makerInstructions -and $inventory.makerInstructions.modified) {
-    # User customized it — preserve as .user.md
     $userDest = Join-Path $ws ".github\copilot-instructions.user.md"
-    Invoke-TxOp -Operation "COPY" -Description "Preserve user-modified Maker instructions" `
-        -Path $userDest -From $inventory.makerInstructions.path -Reversible $true -ScriptBlock {
-        Copy-Item $inventory.makerInstructions.path $userDest -Force
-    }
+    Copy-Item $inventory.makerInstructions.path $userDest -Force
     Write-Host "  ✓ User-modified instructions preserved as copilot-instructions.user.md" -ForegroundColor Green
 }
 
 if ($inventory.workbenchInstructions -and $inventory.workbenchInstructions.modified) {
     $userDest = Join-Path $ws ".github\workbench-instructions.user.md"
-    Invoke-TxOp -Operation "COPY" -Description "Preserve user-modified Workbench instructions" `
-        -Path $userDest -From $inventory.workbenchInstructions.path -Reversible $true -ScriptBlock {
-        Copy-Item $inventory.workbenchInstructions.path $userDest -Force
-    }
+    Copy-Item $inventory.workbenchInstructions.path $userDest -Force
     Write-Host "  ✓ User-modified Workbench instructions preserved" -ForegroundColor Green
 }
 
@@ -422,18 +356,12 @@ if ($inventory.workbenchInstructions -and $inventory.workbenchInstructions.modif
 if ($inventory.legacyFiles.Count -gt 0) {
     $legacyDest = Join-Path $ws "legacy"
     if (-not (Test-Path $legacyDest)) {
-        Invoke-TxOp -Operation "CREATE_DIR" -Description "Create legacy folder" `
-            -Path $legacyDest -Reversible $true -ScriptBlock {
-            New-Item -Path $legacyDest -ItemType Directory -Force | Out-Null
-        }
+        New-Item -Path $legacyDest -ItemType Directory -Force | Out-Null
     }
 
     foreach ($file in $inventory.legacyFiles) {
         $dest = Join-Path $legacyDest "$($file.source)_$($file.name)"
-        Invoke-TxOp -Operation "COPY" -Description "Copy legacy file: $($file.name)" `
-            -Path $dest -From $file.path -Reversible $true -ScriptBlock {
-            Copy-Item $file.path $dest -Force
-        }
+        Copy-Item $file.path $dest -Force
     }
     Write-Host "  ✓ $($inventory.legacyFiles.Count) additional file(s) copied to legacy\" -ForegroundColor Green
 }
@@ -452,14 +380,11 @@ if ($isRedMigration) {
         Write-Host "  ✓ Git already initialized" -ForegroundColor Green
     }
     else {
-        Invoke-TxOp -Operation "GIT_INIT" -Description "Initialize git repository" `
-            -Path $ws -Reversible $true -ScriptBlock {
-            Push-Location $ws
-            git init --initial-branch=main 2>$null
-            git config user.name $ghUser
-            git config user.email "$ghUser@users.noreply.github.com"
-            Pop-Location
-        }
+        Push-Location $ws
+        git init --initial-branch=main 2>$null
+        git config user.name $ghUser
+        git config user.email "$ghUser@users.noreply.github.com"
+        Pop-Location
         Write-Host "  ✓ Git initialized (branch: main)" -ForegroundColor Green
     }
 
@@ -470,11 +395,8 @@ if ($isRedMigration) {
         Write-Host "  ✓ Remote repo exists" -ForegroundColor Green
     }
     else {
-        Invoke-TxOp -Operation "GH_REPO_CREATE" -Description "Create private GitHub repo: $ghUser/$repoName" `
-            -Path "$ghUser/$repoName" -Reversible $false -ScriptBlock {
-            gh repo create $repoName --private --description "AI Maker v3 workspace — migrated from CLI"
-            if ($LASTEXITCODE -ne 0) { throw "gh repo create failed (exit: $LASTEXITCODE)" }
-        }
+        gh repo create $repoName --private --description "AI Maker v3 workspace — migrated from CLI"
+        if ($LASTEXITCODE -ne 0) { throw "gh repo create failed (exit: $LASTEXITCODE)" }
         Write-Host "  ✓ Created private repo: $ghUser/$repoName" -ForegroundColor Green
     }
 
@@ -492,18 +414,12 @@ if ($isRedMigration) {
     git add -A 2>$null
     $status = git status --porcelain 2>$null
     if ($status) {
-        Invoke-TxOp -Operation "GIT_COMMIT" -Description "Migration commit" `
-            -Path $ws -Reversible $false -ScriptBlock {
-            git commit -m "AI Maker v3 — migrated from CLI (vault + config preserved)" 2>$null
-            if ($LASTEXITCODE -ne 0) { throw "git commit failed" }
-        }
+        git commit -m "AI Maker v3 — migrated from CLI (vault + config preserved)" 2>$null
+        if ($LASTEXITCODE -ne 0) { throw "git commit failed" }
         Write-Host "  ✓ Committed" -ForegroundColor Green
 
-        Invoke-TxOp -Operation "GIT_PUSH" -Description "Push to GitHub" `
-            -Path "$ghUser/$repoName" -Reversible $false -ScriptBlock {
-            git push -u origin main 2>$null
-            if ($LASTEXITCODE -ne 0) { throw "git push failed (exit: $LASTEXITCODE)" }
-        }
+        git push -u origin main 2>$null
+        if ($LASTEXITCODE -ne 0) { throw "git push failed (exit: $LASTEXITCODE)" }
         Write-Host "  ✓ Pushed to GitHub" -ForegroundColor Green
     }
     else {
