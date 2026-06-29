@@ -211,14 +211,15 @@ if (-not $SkillsSource) {
     $releaseUrl = "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip"
     $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
     $extractPath = Join-Path $env:TEMP "ai-maker-skills"
+    Remove-Item $extractPath -Recurse -Force -EA SilentlyContinue
 
     if (-not $WhatIf) {
         Write-Host "  Downloading skills..." -ForegroundColor Gray
         Invoke-RestMethod -Uri $releaseUrl -OutFile $zipPath
-        if (-not (Test-Path $zipPath)) { throw "skills.zip download failed — file not found at $zipPath" }
+        if (-not (Test-Path $zipPath)) { throw "skills.zip download failed" }
         Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
         $SkillsSource = Join-Path $extractPath "skills"
-        if (-not (Test-Path $SkillsSource)) { throw "skills.zip extracted but '$SkillsSource' not found — zip structure may be wrong" }
+        if (-not (Test-Path $SkillsSource)) { throw "skills.zip extracted but no skills/ folder inside" }
     }
     else {
         Write-Host "  [WhatIf] Would download skills from $releaseUrl" -ForegroundColor Cyan

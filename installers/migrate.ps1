@@ -378,29 +378,22 @@ Write-Host "`nStep 7: Installing skills..." -ForegroundColor White
 
 # Auto-detect local skills folder
 if (-not $SkillsSource) {
-    $localSkills = Join-Path $PSScriptRoot "skills"
-    $isDownloadMode = ($PSScriptRoot -eq $env:TEMP) -or ($PSScriptRoot -eq [System.IO.Path]::GetTempPath().TrimEnd('\'))
-    if (-not $isDownloadMode -and (Test-Path $localSkills) -and (Get-ChildItem $localSkills -Directory -Filter "ai-maker-*" -EA SilentlyContinue)) {
-        $SkillsSource = $localSkills
-        Write-Host "  Using local skills folder" -ForegroundColor Gray
+    $releaseUrl = "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip"
+    $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
+    $extractPath = Join-Path $env:TEMP "ai-maker-skills"
+    Remove-Item $extractPath -Recurse -Force -EA SilentlyContinue
+
+    if (-not $WhatIf) {
+        Write-Host "  Downloading skills..." -ForegroundColor Gray
+        Invoke-RestMethod -Uri $releaseUrl -OutFile $zipPath
+        if (-not (Test-Path $zipPath)) { throw "skills.zip download failed" }
+        Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+        $SkillsSource = Join-Path $extractPath "skills"
+        if (-not (Test-Path $SkillsSource)) { throw "skills.zip extracted but no skills/ folder inside" }
     }
     else {
-        $releaseUrl = "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip"
-        $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
-        $extractPath = Join-Path $env:TEMP "ai-maker-skills"
-
-        if (-not $WhatIf) {
-            Write-Host "  Downloading skills..." -ForegroundColor Gray
-            Invoke-RestMethod -Uri $releaseUrl -OutFile $zipPath
-            if (-not (Test-Path $zipPath)) { throw "skills.zip download failed — file not found at $zipPath" }
-            Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-            $SkillsSource = Join-Path $extractPath "skills"
-            if (-not (Test-Path $SkillsSource)) { throw "skills.zip extracted but '$SkillsSource' not found — zip structure may be wrong" }
-        }
-        else {
-            Write-Host "  [WhatIf] Would download skills from $releaseUrl" -ForegroundColor Cyan
-            $SkillsSource = "DOWNLOAD"
-        }
+        Write-Host "  [WhatIf] Would download skills from $releaseUrl" -ForegroundColor Cyan
+        $SkillsSource = "DOWNLOAD"
     }
 }
 
