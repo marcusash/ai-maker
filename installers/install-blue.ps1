@@ -148,9 +148,11 @@ Write-Host "`nStep 4: Installing AI Maker skills (11)..." -ForegroundColor White
 
 # Determine skills source
 if (-not $SkillsSource) {
-    # Check for local skills folder first (e.g., extracted from ZIP)
+    # Check for local skills folder (e.g., extracted from ZIP bundle)
+    # Only trust local skills if PSScriptRoot is NOT $env:TEMP (download mode)
     $localSkills = Join-Path $PSScriptRoot "skills"
-    if (Test-Path $localSkills) {
+    $isDownloadMode = ($PSScriptRoot -eq $env:TEMP) -or ($PSScriptRoot -eq [System.IO.Path]::GetTempPath().TrimEnd('\'))
+    if (-not $isDownloadMode -and (Test-Path $localSkills) -and (Get-ChildItem $localSkills -Directory -Filter "ai-maker-*" -EA SilentlyContinue)) {
         $SkillsSource = $localSkills
         Write-Host "  Using local skills from: $localSkills" -ForegroundColor Gray
     }
@@ -163,8 +165,10 @@ if (-not $SkillsSource) {
         if (-not $WhatIf) {
             Write-Host "  Downloading skills..." -ForegroundColor Gray
             Invoke-RestMethod -Uri $releaseUrl -OutFile $zipPath
+            if (-not (Test-Path $zipPath)) { throw "skills.zip download failed — file not found at $zipPath" }
             Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
             $SkillsSource = Join-Path $extractPath "skills"
+            if (-not (Test-Path $SkillsSource)) { throw "skills.zip extracted but '$SkillsSource' not found — zip structure may be wrong" }
         }
         else {
             Write-Host "  [WhatIf] Would download skills from $releaseUrl" -ForegroundColor Cyan
@@ -195,6 +199,17 @@ if (-not $SkillsOnly) {
         Write-Host "  ✓ Workspace already exists" -ForegroundColor Green
     }
     else {
+        # Ensure agents are available (download if running from TEMP)
+        $agentsDir = Join-Path $PSScriptRoot "agents"
+        if (-not (Test-Path $agentsDir)) {
+            Write-Host "  Downloading agent identities..." -ForegroundColor Gray
+            $agentsZipUrl = "https://github.com/marcusash/ai-maker/releases/latest/download/agents.zip"
+            $agentsZipPath = Join-Path $env:TEMP "ai-maker-agents.zip"
+            Invoke-RestMethod -Uri $agentsZipUrl -OutFile $agentsZipPath
+            New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
+            Expand-Archive -Path $agentsZipPath -DestinationPath $agentsDir -Force
+            Write-Host "  [OK] agents downloaded" -ForegroundColor Green
+        }
         New-WorkspaceScaffold -Pill "blue" -WhatIf:$WhatIf
         Write-Host "  ✓ Workspace created at $($script:AIMakerConfig.WorkspacePath)" -ForegroundColor Green
     }
