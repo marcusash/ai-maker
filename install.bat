@@ -1,18 +1,31 @@
 @echo off
-where pwsh >nul 2>nul || (
-    echo   Installing PowerShell 7...
-    winget install Microsoft.PowerShell --accept-source-agreements --accept-package-agreements --silent
-)
+:: Find pwsh — check PATH, then common install locations
+set "PWSH="
+where pwsh >nul 2>nul && set "PWSH=pwsh" && goto :found_pwsh
+if exist "%ProgramFiles%\PowerShell\7\pwsh.exe" set "PWSH=%ProgramFiles%\PowerShell\7\pwsh.exe" && goto :found_pwsh
+if exist "%LOCALAPPDATA%\Microsoft\PowerShell\pwsh.exe" set "PWSH=%LOCALAPPDATA%\Microsoft\PowerShell\pwsh.exe" && goto :found_pwsh
 
-:: Resolve pwsh path (may not be on PATH yet after fresh install)
-set "PWSH=pwsh"
-where pwsh >nul 2>nul || set "PWSH=%ProgramFiles%\PowerShell\7\pwsh.exe"
-if not exist "%PWSH%" (
-    echo   ERROR: PowerShell 7 not found. Please install manually:
-    echo          winget install Microsoft.PowerShell
-    pause
-    exit /b 1
-)
+:: Not found — install per-user (no admin needed)
+echo.
+echo   PowerShell 7 not found. Installing (no admin required)...
+echo.
+winget install Microsoft.PowerShell --accept-source-agreements --accept-package-agreements --scope user
+echo.
+
+:: Re-check after install
+where pwsh >nul 2>nul && set "PWSH=pwsh" && goto :found_pwsh
+if exist "%ProgramFiles%\PowerShell\7\pwsh.exe" set "PWSH=%ProgramFiles%\PowerShell\7\pwsh.exe" && goto :found_pwsh
+if exist "%LOCALAPPDATA%\Microsoft\PowerShell\pwsh.exe" set "PWSH=%LOCALAPPDATA%\Microsoft\PowerShell\pwsh.exe" && goto :found_pwsh
+
+echo.
+echo   ERROR: Could not install PowerShell 7.
+echo   Try running this in an admin terminal:
+echo     winget install Microsoft.PowerShell
+echo.
+pause
+exit /b 1
+
+:found_pwsh
 
 echo.
 echo.
