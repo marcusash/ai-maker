@@ -14,7 +14,8 @@ echo Write-Host ''
 echo Write-Host "  $d ア ァ カ サ タ ナ ハ マ ヤ ャ ラ ワ ガ ザ ダ バ パ イ ィ キ シ チ$n"
 echo Write-Host ''
 echo Write-Host "  $gb       ▄▀▄ █   █▀▄▀█ ▄▀▄ █▄▀ █▀▀ █▀▄$n"
-echo Write-Host "  $gb       █▀█ █   █ ▀ █ █▀█ █ █ ██▄ █▀▄$n"
+echo Write-Host "  $gb       █▀█ █   █ ▀ █ █▀█ █▀▄ █▀▀ █▀▄$n"
+echo Write-Host "  $gb       █ █ █▄▄ █   █ █ █ █ █ █▄▄ █ █$n"
 echo Write-Host ''
 echo Write-Host "  $g       C H O O S E   Y O U R   R E A L I T Y$n"
 echo Write-Host "  $w  The story you tell yourself about what you are capable of.$n"
