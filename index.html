@@ -315,17 +315,17 @@ function toggleWYG(){
 }
 function copyInstall(){
   var cmd=document.getElementById("installCmd").textContent;
-  navigator.clipboard.writeText(cmd).then(function(){
-    var btn=document.getElementById("installBtn");
-    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
-  });
+  var btn=document.getElementById("installBtn");
+  btn.textContent="COPIED!";
+  setTimeout(function(){btn.textContent="COPY"},2000);
+  navigator.clipboard.writeText(cmd).then(function(){showToast()}).catch(function(){});
 }
 function copyReset(){
   var cmd=document.getElementById("resetCmd").textContent;
-  navigator.clipboard.writeText(cmd).then(function(){
-    var btn=document.getElementById("resetBtn");
-    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
-  });
+  var btn=document.getElementById("resetBtn");
+  btn.textContent="COPIED!";
+  setTimeout(function(){btn.textContent="COPY"},2000);
+  navigator.clipboard.writeText(cmd).then(function(){showToast()}).catch(function(){});
 }
 function copyPrompt(id,btnId){
   var text=document.getElementById(id).innerText;
@@ -337,9 +337,10 @@ function copyPrompt(id,btnId){
   });
 }
 function copyChip(btn,text){
-  navigator.clipboard.writeText(text).then(function(){
-    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
-  });
+  var orig=btn.textContent;
+  btn.textContent="COPIED!";
+  setTimeout(function(){btn.textContent=orig},2000);
+  navigator.clipboard.writeText(text).then(function(){showToast()}).catch(function(){});
 }
 var canvas=document.getElementById("matrix");
 var ctx=canvas.getContext("2d");
