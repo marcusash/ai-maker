@@ -2,7 +2,16 @@
 where pwsh >nul 2>nul || (
     echo   Installing PowerShell 7...
     winget install Microsoft.PowerShell --accept-source-agreements --accept-package-agreements --silent
-    set "PATH=%PATH%;%ProgramFiles%\PowerShell\7"
+)
+
+:: Resolve pwsh path (may not be on PATH yet after fresh install)
+set "PWSH=pwsh"
+where pwsh >nul 2>nul || set "PWSH=%ProgramFiles%\PowerShell\7\pwsh.exe"
+if not exist "%PWSH%" (
+    echo   ERROR: PowerShell 7 not found. Please install manually:
+    echo          winget install Microsoft.PowerShell
+    pause
+    exit /b 1
 )
 
 echo.
@@ -52,5 +61,5 @@ if not defined S (
 
 curl.exe --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
 curl.exe --silent -L -o "%TEMP%\%S%" "https://github.com/marcusash/ai-maker/releases/latest/download/%S%"
-pwsh -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\%S%"
+"%PWSH%" -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\%S%"
 pause
