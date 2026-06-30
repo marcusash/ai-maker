@@ -39,12 +39,6 @@ echo          - ~5 minutes to install (requires GitHub account)
 echo.
 echo   ___________________________________________________________________________
 echo.
-echo     [3]  MIGRATION                                         coming soon
-echo.
-echo          Installs side by side. Your existing CLI setup is untouched.
-echo.
-echo   ___________________________________________________________________________
-echo.
 echo.
 
 set /p "C=  Enter 1 or 2: "
