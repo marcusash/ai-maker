@@ -22,7 +22,7 @@ echo Write-Host "  $w  The story you tell yourself about what you are capable of
 echo Write-Host ''
 echo Write-Host "  $d ア ァ カ サ タ ナ ハ マ ヤ ャ ラ ワ ガ ザ ダ バ パ イ ィ キ シ チ$n"
 echo Write-Host ''
-echo Write-Host "  $bb ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$n"
+echo Write-Host "  $bb ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$n"
 echo Write-Host "  $bb [1]  B L U E   P I L L$n"
 echo Write-Host "  $bb ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━$n"
 echo Write-Host "       $w Stay comfortable. Fastest path to your AI assistant.$n"
