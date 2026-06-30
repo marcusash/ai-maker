@@ -59,7 +59,9 @@ a:hover{color:#4DFFFF}
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
 .pill-blue{opacity:.5}
 .pill-blue:hover{opacity:1;transform:scale(1.05)}
-.pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2)}
+.pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2);position:relative;overflow:hidden}
+.pill-red::before{content:'';position:absolute;top:-30%;left:0;right:0;height:30%;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.1) 35%,rgba(255,255,255,.18) 50%,rgba(255,255,255,.1) 65%,transparent);animation:scanline 4.5s linear infinite;pointer-events:none;z-index:1}
+@keyframes scanline{0%{top:-30%}100%{top:100%}}
 .pill-red:hover{transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
 .pill-current::after{content:">>> YOU ARE HERE";position:absolute;bottom:-52px;left:50%;transform:translateX(-50%);color:var(--red-pill-light);text-shadow:0 0 8px var(--red-glow);animation:blink 1.5s infinite;font-size:12px;letter-spacing:.1em;white-space:nowrap}
 .plus-badge{display:inline-block;background:rgba(206,17,38,.2);border:1px solid var(--red-pill);color:var(--matrix-green);font-size:12px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:3px;margin-left:8px;vertical-align:middle}
@@ -154,9 +156,9 @@ a:hover{color:#4DFFFF}
     <span style="margin-left:auto;opacity:.6">AI-MAKER-PRO.EXE</span>
   </div>
   <div class="terminal-body">
-    <div class="text-lg" style="margin-bottom:16px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; WHAT IS AI MAKER?</div>
-    <div class="text-base" style="opacity:.9">For power users who want version control and the full technical skill set. Two AI agents, 22 skills, private GitHub repo that backs up your work, and restores it on any machine in minutes.</div>
-    <div class="text-sm" style="margin-top:12px;opacity:.6">Everything the Blue Pill gives you, plus <strong style="color:var(--matrix-green)">AI workbench</strong>, <strong style="color:var(--matrix-green)">GitHub backup</strong>, and <strong style="color:var(--matrix-green)">cross-machine restore</strong>.</div>
+    <div class="text-lg" style="margin-bottom:16px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; WHAT DO YOU GET?</div>
+    <div class="text-base" style="opacity:.9">Everything in the Blue Pill, plus a second agent and GitHub backup. Your creative agent handles writing, research, design, and communication (11 skills). AI Workbench handles the technical side: code, automation, security, debugging (11 more skills). Your workspace is a private GitHub repo that syncs and restores on any machine.</div>
+    <div class="text-sm" style="margin-top:12px;opacity:.6">Two agents, 22 skills, <strong style="color:var(--matrix-green)">AI Workbench</strong>, <strong style="color:var(--matrix-green)">GitHub backup</strong>, <strong style="color:var(--matrix-green)">cross-machine restore</strong>.</div>
   </div>
 </div>
 
@@ -230,7 +232,7 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">6</div>
     <div class="flow-content">
       <div class="flow-title">Start your first session</div>
-      <div class="flow-desc">Open a new session in the App and say hello. AI maker greets you and asks what you&rsquo;re working on. If it&rsquo;s technical, AI maker spins up AI workbench in a new session automatically. All 22 skills are always active.</div>
+      <div class="flow-desc">Open a new session in the App and say hello. Your creative agent greets you and asks what you&rsquo;re working on. If it&rsquo;s technical, it hands off to AI Workbench automatically. Both agents and all 22 skills are always available.</div>
     </div>
   </div>
 
@@ -268,7 +270,7 @@ a:hover{color:#4DFFFF}
   <div class="section-title text-lg">&gt; WHAT YOU GET</div>
   <button onclick="toggleWYG()" id="wyg-toggle-btn" style="background:transparent;border:1px solid rgba(0,255,65,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;letter-spacing:.1em;padding:8px 20px;cursor:pointer;margin-bottom:16px;display:block">+ SHOW ALL 22 SKILLS</button>
   <div id="wyg-body" style="display:none"><div class="terminal"><div class="terminal-body">
-    <div style="opacity:.7;font-size:14px;margin-bottom:16px">Two AI agents, 22 skills, GitHub-backed workspace. Describe what you need, they route automatically.</div>
+    <div style="opacity:.7;font-size:14px;margin-bottom:16px">Two agents, 22 skills, GitHub-backed workspace. Describe what you need, they route automatically.</div>
     <div style="font-size:11px;font-weight:700;letter-spacing:2px;opacity:.5;text-transform:uppercase;margin-bottom:8px">AI maker, 11 skills</div>
     <div class="skill-list">
       <div class="skill-row"><div class="skill-name">Canvas</div><div class="skill-body"><div class="skill-desc">Generates a live HTML page in your browser, dashboards, status boards, trackers, comparison views.</div><div class="skill-trigger">Trigger: &ldquo;Build me a canvas that shows&hellip;&rdquo; / &ldquo;Display this in a canvas.&rdquo;</div></div></div>
