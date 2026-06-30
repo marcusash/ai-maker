@@ -5,7 +5,7 @@ where pwsh >nul 2>nul || (
     set "PATH=%PATH%;%ProgramFiles%\PowerShell\7"
 )
 
-:: Write menu script to temp, then run it (avoids cmd.exe caret/bracket issues)
+:: Write colored menu to temp script (avoids cmd caret/bracket issues)
 set "MENU=%TEMP%\ai-maker-menu.ps1"
 (
 echo $e=[char]27
@@ -49,11 +49,16 @@ echo Write-Host "  $rb  │$n       $d· ~5 minutes to install (requires GitHub 
 echo Write-Host "  $rb  │$n                                                                 $rb│$n"
 echo Write-Host "  $rb  └─────────────────────────────────────────────────────────────────┘$n"
 echo Write-Host ''
+echo $choice = Read-Host "  Enter 1 or 2"
+echo Set-Content -Path "$env:TEMP\pill-choice.txt" -Value $choice -NoNewline
 ) > "%MENU%"
+
 pwsh -NoProfile -ExecutionPolicy Bypass -File "%MENU%"
 del "%MENU%" >nul 2>nul
 
-set /p "C=  Enter 1 or 2: "
+set /p C=<"%TEMP%\pill-choice.txt"
+del "%TEMP%\pill-choice.txt" >nul 2>nul
+
 if "%C%"=="1" set "S=install-blue.ps1"
 if "%C%"=="2" set "S=install-red.ps1"
 if not defined S (
