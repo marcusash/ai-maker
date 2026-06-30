@@ -3,24 +3,37 @@
 .SYNOPSIS
     AI Maker v3 — Red Pill Installer
 .DESCRIPTION
-    Implements PRD §6.2 exactly: Agency + Dev Tools → AI Maker Layer → Launch
+    Full experience: Dev Tools + all skills + GitHub backup + WorkIQ
+    Installs Git, GitHub CLI, creates private repo, 22 skills, WorkIQ plugin.
+.NOTES
+    SIDE-BY-SIDE INSTALL: This installer creates a fresh environment at C:\GitHub\ai-workspace.
+    It does NOT touch, modify, or merge anything from previous CLI-based installs (C:\AIMaker,
+    C:\AIWorkbench). Your existing CLI setup continues to work as-is. A migration tool to move
+    old vault/state into this new environment is planned for a future release.
 #>
 [CmdletBinding()]
 param()
 
 $ErrorActionPreference = "Stop"
 
-. (Join-Path $PSScriptRoot "ai-maker-lib.ps1")
+# Load shared library — download from release if running via irm | iex ($PSScriptRoot is empty)
+if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "ai-maker-lib.ps1"))) {
+    . (Join-Path $PSScriptRoot "ai-maker-lib.ps1")
+} else {
+    $libTemp = Join-Path $env:TEMP "ai-maker-lib.ps1"
+    Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1" -OutFile $libTemp
+    . $libTemp
+}
 
 Write-Host ""
 Write-Host "  +------------------------------------------+" -ForegroundColor Red
-Write-Host "  |       AI Maker v3 — Red Pill             |" -ForegroundColor Red
-Write-Host "  |   See the truth. Full technical power.   |" -ForegroundColor Red
+Write-Host "  |       AI Maker v3 - Red Pill             |" -ForegroundColor Red
+Write-Host "  |   Full experience with GitHub backup     |" -ForegroundColor Red
 Write-Host "  +------------------------------------------+" -ForegroundColor Red
 Write-Host ""
 
 # ═══════════════════════════════════════════════════════════════
-# PHASE 1: AGENCY + DEVELOPER TOOLS (PRD §6.2 steps 1-9)
+# PHASE 1: DEVELOPER TOOLS
 # ═══════════════════════════════════════════════════════════════
 
 # Step 1: Prerequisites
@@ -34,7 +47,7 @@ $diskCheck = Get-DiskSpaceCheck
 if (-not $diskCheck.ok) { throw $diskCheck.message }
 Write-Host "  ✓ Disk space OK" -ForegroundColor Green
 
-# Step 3: Install Git
+# Step 2: Install Git
 Write-Host "`nStep 2: Installing Git..." -ForegroundColor White
 if (Get-Command git -EA Silent) {
     Write-Host "  ✓ Git already installed" -ForegroundColor Green
@@ -46,65 +59,60 @@ else {
     Write-Host "  ✓ Git installed" -ForegroundColor Green
 }
 
-# Step 4: Set SHELL env var
+# Set SHELL env var
 $gitSh = Join-Path $env:ProgramFiles "Git\usr\bin\sh.exe"
 if (Test-Path $gitSh) {
     [Environment]::SetEnvironmentVariable("SHELL", $gitSh, "User")
     $env:SHELL = $gitSh
 }
 
-# Step 5: Install Agency CLI (save script, invoke with -ToolName)
-Write-Host "`nStep 3: Installing Agency..." -ForegroundColor White
-$installScript = Join-Path $env:TEMP "InstallTool.ps1"
-Invoke-RestMethod -Uri "https://aka.ms/InstallTool.ps1" -OutFile $installScript
-& $installScript -ToolName "agency"
-Remove-Item $installScript -EA SilentlyContinue
-
-# Step 6: Probe for agency.exe (PATH → Velopack glob → error)
-$agency = (Get-Command agency -EA SilentlyContinue | Select-Object -Expand Source)
-if (-not $agency) {
-    $agency = Get-ChildItem "$env:APPDATA\agency\*\agency.exe" -EA SilentlyContinue |
-              Sort-Object LastWriteTime -Descending | Select-Object -First 1 -Expand FullName
+# Step 3: GitHub Copilot App
+Write-Host "`nStep 3: Installing GitHub Copilot App..." -ForegroundColor White
+$copilotExe = Join-Path $env:LOCALAPPDATA "Programs\GitHub Copilot\github.exe"
+if (Test-Path $copilotExe) {
+    Write-Host "  ✓ GitHub Copilot App already installed" -ForegroundColor Green
+} else {
+    winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "  ✓ GitHub Copilot App installed" -ForegroundColor Green
+    } else {
+        Write-Host "  ⚠ Could not auto-install. Get it from: https://aka.ms/githubcopilotapp" -ForegroundColor Yellow
+    }
 }
-if (-not $agency) { throw "agency.exe not found after install" }
-Write-Host "  ✓ Agency: $agency" -ForegroundColor Green
 
-# Step 7: Register MCP servers (direct JSON write per PRD §8.2)
-Write-Host "`nStep 4: Registering MCP servers..." -ForegroundColor White
-Register-AgencyMcpServers -AgencyExePath $agency
-
-# Step 8: Verify MCP registration (THROW if missing)
-$mcpFile = $script:AIMakerConfig.McpServersPath
-$mcpJson = Get-Content $mcpFile -Raw | ConvertFrom-Json
-if (-not $mcpJson.workiq) { throw "MCP registration failed: workiq missing from $mcpFile" }
-if (-not $mcpJson.bluebird) { throw "MCP registration failed: bluebird missing from $mcpFile" }
-Write-Host "  ✓ workiq + bluebird registered and verified" -ForegroundColor Green
-
-# Step 9: Enable M365 MCPs (mail + calendar replace "outlook" per agency CLI)
-foreach ($mcp in @('teams', 'mail', 'calendar', 'planner')) {
-    & $agency config set --global --mcp $mcp
-}
-Write-Host "  ✓ M365 MCPs enabled (teams, mail, calendar, planner)" -ForegroundColor Green
+# Step 4: WorkIQ plugin
+Write-Host "`nStep 4: Installing WorkIQ plugin..." -ForegroundColor White
+$pluginZip = Join-Path $env:TEMP "ai-maker-workiq-plugin.zip"
+$pluginDir = Join-Path $env:TEMP "ai-maker-workiq-plugin"
+Remove-Item $pluginDir -Recurse -Force -EA SilentlyContinue
+Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/workiq-plugin.zip" -OutFile $pluginZip
+Expand-Archive -Path $pluginZip -DestinationPath $pluginDir -Force
+Install-WorkiqPlugin -SourcePath $pluginDir
+$wiqDir = Join-Path $env:USERPROFILE ".copilot\installed-plugins\copilot-plugins\workiq"
+if (-not (Test-Path (Join-Path $wiqDir ".mcp.json"))) { throw "WorkIQ plugin install failed: .mcp.json missing" }
+Write-Host "  ✓ WorkIQ plugin installed and enabled" -ForegroundColor Green
+Remove-Item $pluginZip -EA SilentlyContinue
+Remove-Item $pluginDir -Recurse -EA SilentlyContinue
 
 # ═══════════════════════════════════════════════════════════════
-# PHASE 2: AI MAKER LAYER (PRD §6.2 steps 10-17)
+# PHASE 2: AI MAKER LAYER (skills + workspace)
 # ═══════════════════════════════════════════════════════════════
 
-# Step 10: Download + install 22 skills
+# Step 5: Install all 22 skills
 Write-Host "`nStep 5: Installing all skills (22)..." -ForegroundColor White
 $zipPath = Join-Path $env:TEMP "ai-maker-skills.zip"
 $extractPath = Join-Path $env:TEMP "ai-maker-skills"
 Remove-Item $extractPath -Recurse -Force -EA SilentlyContinue
 Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/skills.zip" -OutFile $zipPath
 Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-$installedSkills = Install-Skills -Pill "red" -SourcePath (Join-Path $extractPath "skills") -Manifest (Read-AIMakerManifest)
+$installedSkills = Install-Skills -Pill "red" -SourcePath $extractPath -Manifest (Read-AIMakerManifest)
 $makerCount = ($installedSkills | Where-Object { $_.id -like "ai-maker-*" }).Count
 $workbenchCount = ($installedSkills | Where-Object { $_.id -like "ai-workbench-*" }).Count
 Write-Host "  ✓ $makerCount AI Maker + $workbenchCount AI Workbench skills ($($installedSkills.Count) total)" -ForegroundColor Green
 Remove-Item $zipPath -EA SilentlyContinue
 Remove-Item $extractPath -Recurse -EA SilentlyContinue
 
-# Steps 11-13: Create workspace + agents
+# Step 6: Create workspace + agents
 Write-Host "`nStep 6: Creating workspace..." -ForegroundColor White
 $wsPath = $script:AIMakerConfig.WorkspacePath
 $wsManifest = Join-Path $wsPath $script:AIMakerConfig.ManifestFile
@@ -113,16 +121,22 @@ if (Test-Path $wsManifest) {
 }
 else {
     $agentsZip = Join-Path $env:TEMP "ai-maker-agents.zip"
-    $agentsDir = Join-Path $PSScriptRoot "agents"
+    $agentsDir = Join-Path $env:TEMP "ai-maker-agents"
+    Remove-Item $agentsDir -Recurse -Force -EA SilentlyContinue
     Invoke-RestMethod -Uri "https://github.com/marcusash/ai-maker/releases/latest/download/agents.zip" -OutFile $agentsZip
     New-Item -ItemType Directory -Path $agentsDir -Force | Out-Null
     Expand-Archive -Path $agentsZip -DestinationPath $agentsDir -Force
     Remove-Item $agentsZip -EA SilentlyContinue
-    New-WorkspaceScaffold -Pill "red"
+    New-WorkspaceScaffold -Pill "red" -AgentSourcePath $agentsDir
+    Remove-Item $agentsDir -Recurse -EA SilentlyContinue
     Write-Host "  ✓ Workspace created at $wsPath" -ForegroundColor Green
 }
 
-# Step 14: Git init + config
+# ═══════════════════════════════════════════════════════════════
+# PHASE 3: GITHUB BACKUP (git + private repo)
+# ═══════════════════════════════════════════════════════════════
+
+# Step 7: Git init
 Write-Host "`nStep 7: Setting up git..." -ForegroundColor White
 $gitDir = Join-Path $wsPath ".git"
 if (-not (Test-Path $gitDir)) {
@@ -135,8 +149,15 @@ else {
     Write-Host "  ✓ Git already initialized" -ForegroundColor Green
 }
 
-# Step 15: GitHub authentication
+# Step 8: GitHub CLI + authentication
 Write-Host "`nStep 8: GitHub authentication..." -ForegroundColor White
+if (-not (Get-Command gh -EA SilentlyContinue)) {
+    Write-Host "  Installing GitHub CLI..." -ForegroundColor Yellow
+    winget install GitHub.cli --accept-source-agreements --accept-package-agreements --silent
+    if ($LASTEXITCODE -ne 0) { throw "Failed to install GitHub CLI" }
+    $env:PATH += ";${env:ProgramFiles}\GitHub CLI"
+    Write-Host "  ✓ GitHub CLI installed" -ForegroundColor Green
+}
 $ghAuth = gh auth status 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Host "  Launching GitHub login..." -ForegroundColor Yellow
@@ -153,7 +174,7 @@ git config user.name $ghUser
 git config user.email "$ghUser@users.noreply.github.com"
 Pop-Location
 
-# Step 16: Create private repo + push
+# Step 9: Create private repo + push
 Write-Host "`nStep 9: Creating GitHub repo..." -ForegroundColor White
 $repoName = "ai-workspace"
 $repoExists = $null -ne (gh repo view "$ghUser/$repoName" --json name 2>$null)
@@ -183,14 +204,14 @@ else {
 }
 Pop-Location
 
-# Step 17: Write manifest
+# Step 10: Write manifest
 Write-Host "`nStep 10: Writing manifest..." -ForegroundColor White
 $manifest = New-AIMakerManifest -Pill "red" -Skills $installedSkills
 Write-AIMakerManifest -Manifest $manifest
 Write-Host "  ✓ Manifest written" -ForegroundColor Green
 
 # ═══════════════════════════════════════════════════════════════
-# PHASE 3: LAUNCH (PRD §6.2 steps 18-19)
+# PHASE 4: LAUNCH
 # ═══════════════════════════════════════════════════════════════
 
 Write-Host ""
@@ -200,17 +221,24 @@ Write-Host "  +------------------------------------------+" -ForegroundColor Gre
 Write-Host ""
 Write-Host "  What you got:" -ForegroundColor White
 Write-Host "    • 22 skills (11 AI Maker + 11 AI Workbench)" -ForegroundColor Gray
+Write-Host "    • WorkIQ plugin (M365 data via natural language)" -ForegroundColor Gray
 Write-Host "    • Git-backed workspace: $wsPath" -ForegroundColor Gray
 Write-Host "    • Private repo: https://github.com/$ghUser/$repoName" -ForegroundColor Gray
 Write-Host ""
+
+# Launch Copilot App
 Write-Host "  Opening the Copilot App..." -ForegroundColor White
-
-# Step 18: Launch via Agency
-& $agency gh-app
+$copilotExe = Join-Path $env:LOCALAPPDATA "Programs\GitHub Copilot\github.exe"
+if (Test-Path $copilotExe) {
+    Start-Process $copilotExe -ArgumentList $wsPath
+} else {
+    Write-Host "  ⚠ Could not find the app. Launch 'GitHub Copilot' from the Start menu." -ForegroundColor Yellow
+}
 
 Write-Host ""
-Write-Host "  Add the workspace as a project in the App:" -ForegroundColor Cyan
-Write-Host "  $wsPath" -ForegroundColor Cyan
+Write-Host "  Next: Connect WorkIQ to Microsoft 365" -ForegroundColor Yellow
+Write-Host "    Settings > MCP servers > Plugins tab > click Sign in next to workiq" -ForegroundColor Cyan
+Write-Host "    Sign in with your alias@microsoft.com account." -ForegroundColor Cyan
 Write-Host ""
-
-
+Write-Host "  Your workspace is at: $wsPath" -ForegroundColor Cyan
+Write-Host ""
