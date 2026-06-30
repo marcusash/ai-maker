@@ -1,6 +1,44 @@
 @echo off
 echo.
-echo   AI Maker v3 - Install
+echo.
+echo                       A I   M A K E R   v 3
+echo.
+echo              C H O O S E   Y O U R   R E A L I T Y
+echo.
+echo       The story you tell yourself about what you are capable of.
+echo.
+echo.
+echo   ___________________________________________________________________________
+echo.
+echo     [1]  BLUE PILL
+echo.
+echo          Stay comfortable. Fastest path to your AI assistant.
+echo.
+echo          - 1 AI agent (AI Maker), 11 skills
+echo          - WorkIQ: reads your M365 email, calendar, Teams
+echo          - No GitHub account needed
+echo          - ~2 minutes to install
+echo.
+echo   ___________________________________________________________________________
+echo.
+echo     [2]  RED PILL
+echo.
+echo          See the truth. Two agents, full technical power.
+echo.
+echo          - 2 AI agents (AI Maker + AI Workbench), 22 skills
+echo          - WorkIQ: reads your M365 email, calendar, Teams
+echo          - Private GitHub repo backs up your workspace
+echo          - Restore on any machine in minutes
+echo          - ~5 minutes to install (requires GitHub account)
+echo.
+echo   ___________________________________________________________________________
+echo.
+echo     [3]  MIGRATION
+echo.
+echo          Upgrading from the old CLI setup.
+echo.
+echo   ___________________________________________________________________________
+echo.
 echo.
 
 where pwsh >nul 2>nul || (
@@ -9,8 +47,7 @@ where pwsh >nul 2>nul || (
     set "PATH=%PATH%;%ProgramFiles%\PowerShell\7"
 )
 
-echo   [1] Blue Pill   [2] Red Pill   [3] Migration
-set /p "C=  Choice: "
+set /p "C=  Enter 1, 2, or 3: "
 if "%C%"=="1" set "S=install-blue.ps1"
 if "%C%"=="2" set "S=install-red.ps1"
 if "%C%"=="3" set "S=migrate.ps1"
