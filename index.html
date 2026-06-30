@@ -52,8 +52,7 @@ a:hover{color:#4DFFFF}
 .chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
 .chip:hover{border-color:var(--matrix-green)}
 .chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
-.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green);display:flex;justify-content:space-between;align-items:center}
-.chip-copy-btn{background:var(--matrix-green);color:#000;border:none;padding:4px 12px;font-weight:700;font-size:11px;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:.08em;border-radius:2px;white-space:nowrap}
+.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green)}
 .footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6;font-size:14px}
 .footer a{color:var(--matrix-green)}
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
@@ -114,7 +113,6 @@ a:hover{color:#4DFFFF}
 .chip{border-color:var(--accent-dim)}
 .chip:hover{border-color:var(--accent)}
 .chip-tag{color:var(--accent);border-top-color:var(--accent-dim)}
-.chip-copy-btn{background:var(--accent);color:#FFF}
 .skill-list{border-color:var(--accent-dim)}
 .skill-row{border-bottom-color:rgba(74,144,217,.1)}
 .skill-name{color:var(--accent);text-shadow:0 0 6px var(--accent-glow)}
@@ -218,7 +216,11 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">5</div>
     <div class="flow-content">
       <div class="flow-title">Start your first session</div>
-      <div class="flow-desc">Open a new session in the App and say hello. AI maker greets you and asks what you&rsquo;re working on. All 11 skills are always active, just describe what you need.</div>
+      <div class="flow-desc">Open a new session in the App. Paste this as your first message (click to copy):</div>
+      <div class="chip" style="margin-top:10px" onclick="copyChip(this,'Bootstrap: Create a session named AI Maker. Read .github/agents/ai-maker.md and use that as the full agent identity. Set kickoff mode to autopilot and coordinate_with_creator to false. After creating it, delete this session so AI Maker appears at root level in the sidebar.')">
+        <div class="chip-quote">Bootstrap: Create a session named AI Maker. Read .github/agents/ai-maker.md and use that as the full agent identity. Set kickoff mode to autopilot and coordinate_with_creator to false. After creating it, delete this session so AI Maker appears at root level in the sidebar.</div>
+        <div class="chip-tag">SETUP</div>
+      </div>
     </div>
   </div>
 
@@ -239,21 +241,21 @@ a:hover{color:#4DFFFF}
         <span><strong style="color:var(--matrix-green);letter-spacing:.05em">TIP</strong>&nbsp; Hit <code>Win+H</code> to use voice typing. Enter prompts or add context faster.</span>
       </div>
       <div class="chip-grid" style="margin-top:12px">
-        <div class="chip">
+        <div class="chip" onclick="copyChip(this,'Read my emails, calendar entries that have transcripts or meeting notes, and Teams messages. Write a status report for the last 3 days that I can send to my team. Display it in a canvas for me to review and edit.')">
           <div class="chip-quote">Read my emails, meetings, and Teams. Write a status report for the last 3 days in a canvas.</div>
-          <div class="chip-tag"><span>CANVAS</span><button class="chip-copy-btn" onclick="copyChip(this,'Read my emails, calendar entries that have transcripts or meeting notes, and Teams messages. Write a status report for the last 3 days that I can send to my team. Display it in a canvas for me to review and edit.')">COPY</button></div>
+          <div class="chip-tag">CANVAS</div>
         </div>
-        <div class="chip">
+        <div class="chip" onclick="copyChip(this,'Summarize tomorrow\'s meetings and give me advice on key things to prepare.')">
           <div class="chip-quote">Summarize tomorrow&rsquo;s meetings and give me advice on key things to prepare.</div>
-          <div class="chip-tag"><span>WORKIQ</span><button class="chip-copy-btn" onclick="copyChip(this,'Summarize tomorrow\'s meetings and give me advice on key things to prepare.')">COPY</button></div>
+          <div class="chip-tag">WORKIQ</div>
         </div>
-        <div class="chip">
+        <div class="chip" onclick="copyChip(this,'Play devil\'s advocate on a decision I\'m about to make.')">
           <div class="chip-quote">Play devil&rsquo;s advocate on a decision I&rsquo;m about to make. <em style="opacity:.6">(then speak your plan)</em></div>
-          <div class="chip-tag"><span>BRAINSTORM · VOICE</span><button class="chip-copy-btn" onclick="copyChip(this,'Play devil\'s advocate on a decision I\'m about to make.')">COPY</button></div>
+          <div class="chip-tag">BRAINSTORM · VOICE</div>
         </div>
-        <div class="chip">
+        <div class="chip" onclick="copyChip(this,'Design a system diagram that shows how you store memory about my profile , what you learn from our conversations, where it lives, and how it gets used to improve future sessions. Show the feedback loop that makes you more useful over time.')">
           <div class="chip-quote">Design a system diagram of how you learn and remember things about me.</div>
-          <div class="chip-tag"><span>DESIGN</span><button class="chip-copy-btn" onclick="copyChip(this,'Design a system diagram that shows how you store memory about my profile , what you learn from our conversations, where it lives, and how it gets used to improve future sessions. Show the feedback loop that makes you more useful over time.')">COPY</button></div>
+          <div class="chip-tag">DESIGN</div>
         </div>
       </div>
     </div>
@@ -264,12 +266,12 @@ a:hover{color:#4DFFFF}
   <div class="section-title text-lg">&gt; WHAT YOU GET</div>
   <button onclick="toggleWYG()" id="wyg-toggle-btn" style="background:transparent;border:1px solid rgba(0,255,65,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;letter-spacing:.1em;padding:8px 20px;cursor:pointer;margin-bottom:16px;display:block">+ SHOW ALL 11 SKILLS</button>
   <div id="wyg-body" style="display:none"><div class="terminal"><div class="terminal-body">
-    <div style="opacity:.7;font-size:14px;margin-bottom:16px">One AI agent with 11 skills (10 active, Agency coming soon). Describe what you need, it routes automatically.</div>
+    <div style="opacity:.7;font-size:14px;margin-bottom:16px">One AI agent with 11 skills (10 included, Agency optional). Describe what you need, it routes automatically.</div>
     <div class="skill-list">
       <div class="skill-row"><div class="skill-name">Canvas</div><div class="skill-body"><div class="skill-desc">Generates a live HTML page in your browser, dashboards, status boards, trackers, comparison views.</div><div class="skill-trigger">Trigger: &ldquo;Build me a canvas that shows&hellip;&rdquo; / &ldquo;Display this in a canvas.&rdquo;</div></div></div>
       <div class="skill-row"><div class="skill-name">Vault</div><div class="skill-body"><div class="skill-desc">Writes notes, decisions, and context to a local file on your PC. Findable and reusable across future sessions.</div><div class="skill-trigger">Trigger: &ldquo;Save this to my vault as a [decision / note / log entry].&rdquo;</div></div></div>
       <div class="skill-row"><div class="skill-name">WorkIQ</div><div class="skill-body"><div class="skill-desc">Reads your Microsoft 365, email, calendar, Teams, Planner tasks. Returns summaries and answers. Makes no changes. Auto-installed as a Copilot App plugin.</div><div class="skill-trigger">Trigger: &ldquo;What&rsquo;s on my calendar this week?&rdquo; / &ldquo;Catch me up on what I missed in Teams.&rdquo;</div></div></div>
-      <div class="skill-row" style="opacity:.35"><div class="skill-name">Agency</div><div class="skill-body"><div class="skill-desc">Coming soon. Acts on your Microsoft 365: send emails, post to Teams, create meetings. Your approval required before anything sends. The Agency team is resolving known issues in the Copilot App.</div><div class="skill-trigger">Trigger: &ldquo;Send a Teams message to [person] that says&hellip;&rdquo; / &ldquo;Create a meeting with&hellip;&rdquo;</div></div></div>
+      <div class="skill-row" style="opacity:.5"><div class="skill-name">Agency</div><div class="skill-body"><div class="skill-desc">Optional add-on. Acts on your Microsoft 365: sends emails, posts to Teams, creates meetings, adds Planner tasks. Your approval is required before anything sends. Install separately with the full installer (no <code>-SkipAgency</code> flag).</div><div class="skill-trigger">Trigger: &ldquo;Send a Teams message to [person] that says&hellip;&rdquo; / &ldquo;Create a meeting with&hellip;&rdquo;</div></div></div>
       <div class="skill-row"><div class="skill-name">Research</div><div class="skill-body"><div class="skill-desc">Analyzes a document, dataset, or topic and returns structured findings, key patterns, or a brief you can act on.</div><div class="skill-trigger">Trigger: &ldquo;Research [topic]&rdquo; / &ldquo;Analyze this document and tell me what stands out.&rdquo;</div></div></div>
       <div class="skill-row"><div class="skill-name">Design</div><div class="skill-body"><div class="skill-desc">Visual direction, deck structure, layout critique, brand review. Gets your work to a presentation-ready standard.</div><div class="skill-trigger">Trigger: &ldquo;Give me [N] rules for&hellip;&rdquo; / &ldquo;Review this design for&hellip;&rdquo;</div></div></div>
       <div class="skill-row"><div class="skill-name">Writing</div><div class="skill-body"><div class="skill-desc">Drafts and edits that preserve your voice, emails, announcements, feedback, scripts, talking points.</div><div class="skill-trigger">Trigger: &ldquo;Write a [type] for [situation].&rdquo; / &ldquo;Help me say this better.&rdquo;</div></div></div>
@@ -315,17 +317,17 @@ function toggleWYG(){
 }
 function copyInstall(){
   var cmd=document.getElementById("installCmd").textContent;
-  var btn=document.getElementById("installBtn");
-  btn.textContent="COPIED!";
-  setTimeout(function(){btn.textContent="COPY"},2000);
-  navigator.clipboard.writeText(cmd).then(function(){showToast()}).catch(function(){});
+  navigator.clipboard.writeText(cmd).then(function(){
+    var btn=document.getElementById("installBtn");
+    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
+  });
 }
 function copyReset(){
   var cmd=document.getElementById("resetCmd").textContent;
-  var btn=document.getElementById("resetBtn");
-  btn.textContent="COPIED!";
-  setTimeout(function(){btn.textContent="COPY"},2000);
-  navigator.clipboard.writeText(cmd).then(function(){showToast()}).catch(function(){});
+  navigator.clipboard.writeText(cmd).then(function(){
+    var btn=document.getElementById("resetBtn");
+    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
+  });
 }
 function copyPrompt(id,btnId){
   var text=document.getElementById(id).innerText;
@@ -336,11 +338,14 @@ function copyPrompt(id,btnId){
     showToast();
   });
 }
-function copyChip(btn,text){
-  var orig=btn.textContent;
-  btn.textContent="COPIED!";
-  setTimeout(function(){btn.textContent=orig},2000);
-  navigator.clipboard.writeText(text).then(function(){showToast()}).catch(function(){});
+function copyChip(el,text){
+  navigator.clipboard.writeText(text).then(function(){
+    var tag=el.querySelector('.chip-tag');
+    var orig=tag.textContent;
+    tag.textContent='COPIED!';
+    setTimeout(function(){tag.textContent=orig;},2000);
+    showToast();
+  });
 }
 var canvas=document.getElementById("matrix");
 var ctx=canvas.getContext("2d");
