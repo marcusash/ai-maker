@@ -228,9 +228,9 @@ a:hover{color:#4DFFFF}
     <div class="flow-content">
       <div class="flow-title">Start your first session</div>
       <div class="flow-desc">Open a new session in the App. Paste this as your first message (click to copy):</div>
-      <div class="chip" style="margin-top:10px" onclick="copyChip(this,'Bootstrap: Create two sessions. First, create a session named AI Maker with kickoff prompt: Read .github/agents/ai-maker.md and load that identity completely. You are AI Maker. Greet the user briefly and wait for instructions. Second, create a session named AI Workbench with kickoff prompt: Read .github/agents/ai-workbench.md and load that identity completely. You are AI Workbench. Acknowledge briefly and wait for instructions. Set both to kickoff mode autopilot and coordinate_with_creator false. After creating both, delete this session so they appear at root level in the sidebar.')">
-        <div class="chip-quote">Bootstrap: Create two sessions &mdash; &ldquo;AI Maker&rdquo; (from .github/agents/ai-maker.md) and &ldquo;AI Workbench&rdquo; (from .github/agents/ai-workbench.md). Then delete this session.</div>
-        <div class="chip-tag">SETUP</div>
+      <div class="chip" style="margin-top:10px">
+        <div class="chip-quote">Bootstrap: Create two sessions &ndash; &ldquo;AI Maker&rdquo; (from .github/agents/ai-maker.md) and &ldquo;AI Workbench&rdquo; (from .github/agents/ai-workbench.md). Then delete this session.</div>
+        <div class="chip-tag"><span>SETUP</span><button class="chip-copy-btn" onclick="copyChip(this,'Bootstrap: Create two sessions. First, create a session named AI Maker with kickoff prompt: Read .github/agents/ai-maker.md and load that identity completely. You are AI Maker. Greet the user briefly and wait for instructions. Second, create a session named AI Workbench with kickoff prompt: Read .github/agents/ai-workbench.md and load that identity completely. You are AI Workbench. Acknowledge briefly and wait for instructions. Set both to kickoff mode autopilot and coordinate_with_creator false. After creating both, delete this session so they appear at root level in the sidebar.')">COPY</button></div>
       </div>
     </div>
   </div>
@@ -252,21 +252,21 @@ a:hover{color:#4DFFFF}
         <span><strong style="color:var(--matrix-green);letter-spacing:.05em">TIP</strong>&nbsp; Hit <code>Win+H</code> to use voice typing. Enter prompts or add context faster.</span>
       </div>
       <div class="chip-grid" style="margin-top:12px">
-        <div class="chip" onclick="copyChip(this,'Read my emails, calendar entries that have transcripts or meeting notes, and Teams messages. Write a status report for the last 3 days that I can send to my team. Display it in a canvas for me to review and edit.')">
+        <div class="chip">
           <div class="chip-quote">Read my emails, meetings, and Teams. Write a status report for the last 3 days in a canvas.</div>
-          <div class="chip-tag">CANVAS</div>
+          <div class="chip-tag"><span>CANVAS</span><button class="chip-copy-btn" onclick="copyChip(this,'Read my emails, calendar entries that have transcripts or meeting notes, and Teams messages. Write a status report for the last 3 days that I can send to my team. Display it in a canvas for me to review and edit.')">COPY</button></div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Write a Teams message to me that summarizes tomorrow\'s meetings and gives me advice on key things to prepare.')">
-          <div class="chip-quote">Write a Teams message to me with tomorrow&rsquo;s meetings and prep advice.</div>
-          <div class="chip-tag">AGENCY</div>
+        <div class="chip">
+          <div class="chip-quote">Summarize tomorrow&rsquo;s meetings and give me advice on key things to prepare.</div>
+          <div class="chip-tag"><span>WORKIQ</span><button class="chip-copy-btn" onclick="copyChip(this,'Summarize tomorrow\'s meetings and give me advice on key things to prepare.')">COPY</button></div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Play devil\'s advocate on a decision I\'m about to make.')">
+        <div class="chip">
           <div class="chip-quote">Play devil&rsquo;s advocate on a decision I&rsquo;m about to make. <em style="opacity:.6">(then speak your plan)</em></div>
-          <div class="chip-tag">BRAINSTORM · VOICE</div>
+          <div class="chip-tag"><span>BRAINSTORM · VOICE</span><button class="chip-copy-btn" onclick="copyChip(this,'Play devil\'s advocate on a decision I\'m about to make.')">COPY</button></div>
         </div>
-        <div class="chip" onclick="copyChip(this,'I have a direct report who has been quietly disengaging , still delivering, but less energy, fewer ideas, going quiet in meetings. Help me prepare for my 1:1 with them: give me the exact words to open the conversation, three questions to ask, and what I should avoid saying.')">
+        <div class="chip">
           <div class="chip-quote">I have a hard 1:1 this week. Help me prepare, what to say, what to ask, what to avoid.</div>
-          <div class="chip-tag">OPS</div>
+          <div class="chip-tag"><span>OPS</span><button class="chip-copy-btn" onclick="copyChip(this,'I have a direct report who has been quietly disengaging , still delivering, but less energy, fewer ideas, going quiet in meetings. Help me prepare for my 1:1 with them: give me the exact words to open the conversation, three questions to ask, and what I should avoid saying.')">COPY</button></div>
         </div>
       </div>
     </div>
@@ -353,35 +353,30 @@ function toggleWYG(){
 }
 function copyInstall(){
   var cmd=document.getElementById("installCmd").textContent;
-  navigator.clipboard.writeText(cmd).then(function(){
-    var btn=document.getElementById("installBtn");
-    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
-  });
+  var btn=document.getElementById("installBtn");
+  btn.textContent="COPIED!";
+  setTimeout(function(){btn.textContent="COPY"},2000);
+  navigator.clipboard.writeText(cmd).then(function(){showToast()}).catch(function(){});
 }
 function copyReset(){
   var cmd=document.getElementById("resetCmd").textContent;
-  navigator.clipboard.writeText(cmd).then(function(){
-    var btn=document.getElementById("resetBtn");
-    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
-  });
+  var btn=document.getElementById("resetBtn");
+  btn.textContent="COPIED!";
+  setTimeout(function(){btn.textContent="COPY"},2000);
+  navigator.clipboard.writeText(cmd).then(function(){showToast()}).catch(function(){});
 }
 function copyPrompt(id,btnId){
   var text=document.getElementById(id).innerText;
-  navigator.clipboard.writeText(text).then(function(){
-    var btn=document.getElementById(btnId);
-    btn.textContent="COPIED!";btn.classList.add("copied");
-    setTimeout(function(){btn.textContent="COPY THIS PROMPT";btn.classList.remove("copied")},2000);
-    showToast();
-  });
+  var btn=document.getElementById(btnId);
+  btn.textContent="COPIED!";btn.classList.add("copied");
+  setTimeout(function(){btn.textContent="COPY THIS PROMPT";btn.classList.remove("copied")},2000);
+  navigator.clipboard.writeText(text).then(function(){showToast()}).catch(function(){});
 }
-function copyChip(el,text){
-  navigator.clipboard.writeText(text).then(function(){
-    var tag=el.querySelector('.chip-tag');
-    var orig=tag.textContent;
-    tag.textContent='COPIED!';
-    setTimeout(function(){tag.textContent=orig;},2000);
-    showToast();
-  });
+function copyChip(btn,text){
+  var orig=btn.textContent;
+  btn.textContent="COPIED!";
+  setTimeout(function(){btn.textContent=orig},2000);
+  navigator.clipboard.writeText(text).then(function(){showToast()}).catch(function(){});
 }
 var canvas=document.getElementById("matrix");
 var ctx=canvas.getContext("2d");
