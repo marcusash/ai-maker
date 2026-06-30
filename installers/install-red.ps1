@@ -53,7 +53,7 @@ if (Get-Command git -EA Silent) {
     Write-Host "  ✓ Git already installed" -ForegroundColor Green
 }
 else {
-    winget install Git.Git --accept-source-agreements --accept-package-agreements --silent
+    winget install Git.Git --source winget --accept-source-agreements --accept-package-agreements --silent
     if ($LASTEXITCODE -ne 0) { throw "Failed to install Git" }
     $env:PATH += ";${env:ProgramFiles}\Git\cmd"
     Write-Host "  ✓ Git installed" -ForegroundColor Green
@@ -72,7 +72,7 @@ $copilotExe = Join-Path $env:LOCALAPPDATA "Programs\GitHub Copilot\github.exe"
 if (Test-Path $copilotExe) {
     Write-Host "  ✓ GitHub Copilot App already installed" -ForegroundColor Green
 } else {
-    winget install GitHub.CopilotApp --accept-source-agreements --accept-package-agreements --silent
+    winget install GitHub.CopilotApp --source winget --accept-source-agreements --accept-package-agreements --silent
     if ($LASTEXITCODE -eq 0) {
         Write-Host "  ✓ GitHub Copilot App installed" -ForegroundColor Green
     } else {
@@ -153,7 +153,7 @@ else {
 Write-Host "`nStep 8: GitHub authentication..." -ForegroundColor White
 if (-not (Get-Command gh -EA SilentlyContinue)) {
     Write-Host "  Installing GitHub CLI..." -ForegroundColor Yellow
-    winget install GitHub.cli --accept-source-agreements --accept-package-agreements --silent
+    winget install GitHub.cli --source winget --accept-source-agreements --accept-package-agreements --silent
     if ($LASTEXITCODE -ne 0) { throw "Failed to install GitHub CLI" }
     $env:PATH += ";${env:ProgramFiles}\GitHub CLI"
     Write-Host "  ✓ GitHub CLI installed" -ForegroundColor Green
