@@ -14,8 +14,8 @@ $ErrorActionPreference = "Stop"
 
 Write-Host ""
 Write-Host "  +------------------------------------------+" -ForegroundColor Red
-Write-Host "  |       AI Maker v3 - Red Pill             |" -ForegroundColor Red
-Write-Host "  |   Full experience with GitHub backup     |" -ForegroundColor Red
+Write-Host "  |       AI Maker v3 — Red Pill             |" -ForegroundColor Red
+Write-Host "  |   Two agents. Full technical power.      |" -ForegroundColor Red
 Write-Host "  +------------------------------------------+" -ForegroundColor Red
 Write-Host ""
 
@@ -209,7 +209,8 @@ Write-Host "  Opening the Copilot App..." -ForegroundColor White
 & $agency gh-app
 
 Write-Host ""
-Write-Host "  Add $wsPath as a project in the App." -ForegroundColor Cyan
+Write-Host "  Add the workspace as a project in the App:" -ForegroundColor Cyan
+Write-Host "  $wsPath" -ForegroundColor Cyan
 Write-Host ""
 
 

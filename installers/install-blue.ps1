@@ -14,8 +14,8 @@ $ErrorActionPreference = "Stop"
 
 Write-Host ""
 Write-Host "  +------------------------------------------+" -ForegroundColor Blue
-Write-Host "  |       AI Maker v3 - Blue Pill            |" -ForegroundColor Blue
-Write-Host "  |   Your AI assistant in 5 minutes         |" -ForegroundColor Blue
+Write-Host "  |       AI Maker v3 — Blue Pill            |" -ForegroundColor Blue
+Write-Host "  |   Your AI assistant in ~2 minutes        |" -ForegroundColor Blue
 Write-Host "  +------------------------------------------+" -ForegroundColor Blue
 Write-Host ""
 
@@ -131,8 +131,13 @@ Write-Host "  ✓ Manifest written" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "  +------------------------------------------+" -ForegroundColor Green
-Write-Host "  |       ✓ Installation complete!           |" -ForegroundColor Green
+Write-Host "  |       ✓ Blue Pill installed!             |" -ForegroundColor Green
 Write-Host "  +------------------------------------------+" -ForegroundColor Green
+Write-Host ""
+Write-Host "  What you got:" -ForegroundColor White
+Write-Host "    • 11 skills (AI Maker)" -ForegroundColor Gray
+Write-Host "    • WorkIQ (M365 email, calendar, Teams)" -ForegroundColor Gray
+Write-Host "    • Workspace: $($script:AIMakerConfig.WorkspacePath)" -ForegroundColor Gray
 Write-Host ""
 Write-Host "  Opening the Copilot App..." -ForegroundColor White
 
@@ -140,6 +145,6 @@ Write-Host "  Opening the Copilot App..." -ForegroundColor White
 & $agency gh-app
 
 Write-Host ""
-Write-Host "  Add this folder as a project in the App:" -ForegroundColor White
+Write-Host "  Add the workspace as a project in the App:" -ForegroundColor Cyan
 Write-Host "  $($script:AIMakerConfig.WorkspacePath)" -ForegroundColor Cyan
 Write-Host ""
