@@ -15,7 +15,7 @@ $ErrorActionPreference = "Stop"
 Write-Host ""
 Write-Host "  +------------------------------------------+" -ForegroundColor Red
 Write-Host "  |       AI Maker v3 — Red Pill             |" -ForegroundColor Red
-Write-Host "  |   Two agents. Full technical power.      |" -ForegroundColor Red
+Write-Host "  |   See the truth. Full technical power.   |" -ForegroundColor Red
 Write-Host "  +------------------------------------------+" -ForegroundColor Red
 Write-Host ""
 
