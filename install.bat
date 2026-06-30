@@ -33,12 +33,6 @@ echo          - ~5 minutes to install (requires GitHub account)
 echo.
 echo   ___________________________________________________________________________
 echo.
-echo     [3]  MIGRATION
-echo.
-echo          Upgrading from the old CLI setup.
-echo.
-echo   ___________________________________________________________________________
-echo.
 echo.
 
 where pwsh >nul 2>nul || (
@@ -47,10 +41,14 @@ where pwsh >nul 2>nul || (
     set "PATH=%PATH%;%ProgramFiles%\PowerShell\7"
 )
 
-set /p "C=  Enter 1, 2, or 3: "
+set /p "C=  Enter 1 or 2: "
 if "%C%"=="1" set "S=install-blue.ps1"
 if "%C%"=="2" set "S=install-red.ps1"
-if "%C%"=="3" set "S=migrate.ps1"
+if not defined S (
+    echo   Invalid choice. Run again.
+    pause
+    exit /b 1
+)
 
 curl.exe --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
 curl.exe --silent -L -o "%TEMP%\%S%" "https://github.com/marcusash/ai-maker/releases/latest/download/%S%"
