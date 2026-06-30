@@ -52,7 +52,8 @@ a:hover{color:#4DFFFF}
 .chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
 .chip:hover{border-color:var(--matrix-green)}
 .chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
-.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green)}
+.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green);display:flex;justify-content:space-between;align-items:center}
+.chip-copy-btn{background:var(--matrix-green);color:#000;border:none;padding:4px 12px;font-weight:700;font-size:11px;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:.08em;border-radius:2px;white-space:nowrap}
 .footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6;font-size:14px}
 .footer a{color:var(--matrix-green)}
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
@@ -113,6 +114,7 @@ a:hover{color:#4DFFFF}
 .chip{border-color:var(--accent-dim)}
 .chip:hover{border-color:var(--accent)}
 .chip-tag{color:var(--accent);border-top-color:var(--accent-dim)}
+.chip-copy-btn{background:var(--accent);color:#FFF}
 .skill-list{border-color:var(--accent-dim)}
 .skill-row{border-bottom-color:rgba(74,144,217,.1)}
 .skill-name{color:var(--accent);text-shadow:0 0 6px var(--accent-glow)}
@@ -237,21 +239,21 @@ a:hover{color:#4DFFFF}
         <span><strong style="color:var(--matrix-green);letter-spacing:.05em">TIP</strong>&nbsp; Hit <code>Win+H</code> to use voice typing. Enter prompts or add context faster.</span>
       </div>
       <div class="chip-grid" style="margin-top:12px">
-        <div class="chip" onclick="copyChip(this,'Read my emails, calendar entries that have transcripts or meeting notes, and Teams messages. Write a status report for the last 3 days that I can send to my team. Display it in a canvas for me to review and edit.')">
+        <div class="chip">
           <div class="chip-quote">Read my emails, meetings, and Teams. Write a status report for the last 3 days in a canvas.</div>
-          <div class="chip-tag">CANVAS</div>
+          <div class="chip-tag"><span>CANVAS</span><button class="chip-copy-btn" onclick="copyChip(this,'Read my emails, calendar entries that have transcripts or meeting notes, and Teams messages. Write a status report for the last 3 days that I can send to my team. Display it in a canvas for me to review and edit.')">COPY</button></div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Summarize tomorrow\'s meetings and give me advice on key things to prepare.')">
+        <div class="chip">
           <div class="chip-quote">Summarize tomorrow&rsquo;s meetings and give me advice on key things to prepare.</div>
-          <div class="chip-tag">WORKIQ</div>
+          <div class="chip-tag"><span>WORKIQ</span><button class="chip-copy-btn" onclick="copyChip(this,'Summarize tomorrow\'s meetings and give me advice on key things to prepare.')">COPY</button></div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Play devil\'s advocate on a decision I\'m about to make.')">
+        <div class="chip">
           <div class="chip-quote">Play devil&rsquo;s advocate on a decision I&rsquo;m about to make. <em style="opacity:.6">(then speak your plan)</em></div>
-          <div class="chip-tag">BRAINSTORM · VOICE</div>
+          <div class="chip-tag"><span>BRAINSTORM · VOICE</span><button class="chip-copy-btn" onclick="copyChip(this,'Play devil\'s advocate on a decision I\'m about to make.')">COPY</button></div>
         </div>
-        <div class="chip" onclick="copyChip(this,'Design a system diagram that shows how you store memory about my profile , what you learn from our conversations, where it lives, and how it gets used to improve future sessions. Show the feedback loop that makes you more useful over time.')">
+        <div class="chip">
           <div class="chip-quote">Design a system diagram of how you learn and remember things about me.</div>
-          <div class="chip-tag">DESIGN</div>
+          <div class="chip-tag"><span>DESIGN</span><button class="chip-copy-btn" onclick="copyChip(this,'Design a system diagram that shows how you store memory about my profile , what you learn from our conversations, where it lives, and how it gets used to improve future sessions. Show the feedback loop that makes you more useful over time.')">COPY</button></div>
         </div>
       </div>
     </div>
@@ -334,13 +336,9 @@ function copyPrompt(id,btnId){
     showToast();
   });
 }
-function copyChip(el,text){
+function copyChip(btn,text){
   navigator.clipboard.writeText(text).then(function(){
-    var tag=el.querySelector('.chip-tag');
-    var orig=tag.textContent;
-    tag.textContent='COPIED!';
-    setTimeout(function(){tag.textContent=orig;},2000);
-    showToast();
+    btn.textContent="COPIED!";setTimeout(function(){btn.textContent="COPY"},2000);showToast();
   });
 }
 var canvas=document.getElementById("matrix");
