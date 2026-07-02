@@ -140,8 +140,8 @@ a:hover{color:#4DFFFF}
     </a>
   </div>
   <div style="display:flex;justify-content:center;gap:100px;margin-top:72px;font-size:12px;color:var(--matrix-green);letter-spacing:.08em">
-    <div style="width:280px;text-align:center;opacity:.55">Fastest setup. No GitHub required.</div>
-    <div style="width:280px;text-align:center;opacity:.55">More agents. GitHub backup.</div>
+    <div style="width:280px;text-align:center;opacity:.55">One agent. 11 skills.</div>
+    <div style="width:280px;text-align:center;opacity:.55">Two agents. 22 skills.</div>
   </div>
 </div>
 
@@ -153,8 +153,8 @@ a:hover{color:#4DFFFF}
   </div>
   <div class="terminal-body">
     <div class="text-lg" style="margin-bottom:16px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; WHAT IS AI MAKER?</div>
-    <div class="text-base" style="opacity:.9">Your AI assistant for research, writing, brainstorming, data analysis, design, and communication. One agent, 11 skills, two minutes to set up.</div>
-    <div class="text-sm" style="margin-top:12px;opacity:.6">Runs in the <strong style="color:var(--matrix-green)">GitHub Copilot App</strong>. You also get the GitHub Copilot CLI for quick answers from your terminal.</div>
+    <div class="text-base" style="opacity:.9">Your AI assistant for research, writing, brainstorming, data analysis, design, and communication. One agent, 11 skills, backed up to GitHub, two minutes to set up.</div>
+    <div class="text-sm" style="margin-top:12px;opacity:.6">Your workspace is a private GitHub repo. Restore on any machine. You also get the GitHub Copilot CLI for quick answers from your terminal.</div>
   </div>
 </div>
 
@@ -180,13 +180,13 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">2</div>
     <div class="flow-content">
       <div class="flow-title">Download &amp; run</div>
-      <div class="flow-desc">Click the button below to download the installer. Save it anywhere, then <strong style="color:var(--blue-pill-light)">double-click to run</strong>. It installs Git, GitHub CLI, authenticates you, sets up your workspace, and opens the Copilot App &mdash; all automatically.</div>
+      <div class="flow-desc">Click the button below to download the installer. Save it anywhere, then <strong style="color:var(--blue-pill-light)">double-click to run</strong>. It installs Git, GitHub CLI, authenticates you, sets up your workspace, and opens the Copilot App.</div>
 <div class="install-hero">
   <div class="install-label">&gt;&gt; ONE FILE. DOUBLE-CLICK. DONE.</div>
   <div style="text-align:center;padding:8px 0">
     <a href="https://marcusash.github.io/ai-maker/bootstrap-blue.bat" download="bootstrap-blue.bat" id="downloadBtn" style="display:inline-block;background:#4A90D9;color:#FFF;text-decoration:none;padding:16px 40px;font-size:18px;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.1em;border-radius:4px;box-shadow:0 0 20px rgba(74,144,217,.4);transition:all .15s">DOWNLOAD INSTALLER</a>
   </div>
-  <div class="install-note" style="text-align:center;margin-top:12px">Windows may show a security warning &mdash; click <strong style="color:var(--matrix-green)">&ldquo;More info&rdquo;</strong> then <strong style="color:var(--matrix-green)">&ldquo;Run anyway&rdquo;</strong>. This is normal for downloaded .bat files.</div>
+  <div class="install-note" style="text-align:center;margin-top:12px">Windows may show a security warning. Click <strong style="color:var(--matrix-green)">&ldquo;More info&rdquo;</strong> then <strong style="color:var(--matrix-green)">&ldquo;Run anyway&rdquo;</strong>. This is normal for downloaded .bat files.</div>
 </div>
 
     </div>
@@ -194,6 +194,20 @@ a:hover{color:#4DFFFF}
 
   <div class="flow-step">
     <div class="flow-num">3</div>
+    <div class="flow-content">
+      <div class="flow-title">What you'll see after install</div>
+      <div class="flow-desc">Two new shortcuts on your desktop:</div>
+      <div class="flow-req" style="margin-top:8px">
+        <ul>
+          <li><strong style="color:var(--matrix-green)">GitHub Copilot</strong> (white octocat on dark background) opens the App where your AI Maker agent lives</li>
+          <li><strong style="color:var(--matrix-green)">AI Agents</strong> (dark octocat on white background) opens GitHub Copilot CLI in Windows Terminal for quick answers from the command line</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="flow-step">
+    <div class="flow-num">4</div>
     <div class="flow-content">
       <div class="flow-title">Open the GitHub Copilot App</div>
       <div class="flow-desc">The app opens automatically after install. Or search <strong style="color:var(--matrix-green)">&ldquo;GitHub Copilot&rdquo;</strong> in the Start menu. Add your project folder: click <strong>+</strong> next to Sessions &rarr; <strong>Add local folder</strong> &rarr; select <code style="white-space:nowrap">C:\GitHub\ai-workspace</code>.</div>
@@ -209,7 +223,7 @@ a:hover{color:#4DFFFF}
   </div>
 
   <div class="flow-step">
-    <div class="flow-num">4</div>
+    <div class="flow-num">5</div>
     <div class="flow-content">
       <div class="flow-title">Start your first session</div>
       <div class="flow-desc">Open a new session in the App. Paste this as your first message (click to copy):</div>
@@ -221,23 +235,23 @@ a:hover{color:#4DFFFF}
   </div>
 
   <div class="flow-step">
-    <div class="flow-num">5</div>
+    <div class="flow-num">6</div>
     <div class="flow-content">
       <div class="flow-title">Connect WorkIQ (Microsoft 365)</div>
-      <div class="flow-desc">Go to <strong>Settings</strong> (gear icon, bottom-left) &rarr; <strong>MCP servers</strong> &rarr; click the <strong>Plugins</strong> tab &rarr; click <strong>Sign in</strong> next to <strong>workiq</strong>. A browser window opens &mdash; sign in with your <code>alias@microsoft.com</code> account. You&rsquo;ll see &ldquo;Authorization Successful&rdquo; &mdash; close the tab and return to the app.</div>
+      <div class="flow-desc">Go to <strong>Settings</strong> (gear icon, bottom-left) &rarr; <strong>MCP servers</strong> &rarr; click the <strong>Plugins</strong> tab &rarr; click <strong>Sign in</strong> next to <strong>workiq</strong>. A browser window opens. Sign in with your <code>alias@microsoft.com</code> account. You&rsquo;ll see &ldquo;Authorization Successful&rdquo;. Close the tab and return to the app.</div>
     </div>
   </div>
 
   <div class="flow-step" style="opacity:.45">
-    <div class="flow-num" style="background:#555;box-shadow:none">6</div>
+    <div class="flow-num" style="background:#555;box-shadow:none">7</div>
     <div class="flow-content">
-      <div class="flow-title" style="color:#888;text-shadow:none">Connect Agency <span style="font-size:12px;letter-spacing:.1em;opacity:.7">&mdash; TEMPORARILY DISABLED</span></div>
-      <div class="flow-desc">Agency lets AI Maker send emails, post to Teams, and create meetings on your behalf. It&rsquo;s currently disabled while the team fixes a compatibility issue. We&rsquo;ll update this page when it&rsquo;s back.</div>
+      <div class="flow-title" style="color:#888;text-shadow:none">Connect Agency <span style="font-size:12px;letter-spacing:.1em;opacity:.7">TEMPORARILY DISABLED</span></div>
+      <div class="flow-desc">Agency lets AI Maker send emails, post to Teams, and create meetings on your behalf. Currently disabled while the team fixes a compatibility issue. This page will update when it&rsquo;s back.</div>
     </div>
   </div>
 
   <div class="flow-step">
-    <div class="flow-num">7</div>
+    <div class="flow-num">8</div>
     <div class="flow-content">
       <div class="flow-title">Try these. Click to copy, then paste into AI maker.</div>
       <div style="display:inline-flex;align-items:center;gap:8px;font-size:12px;opacity:.7;margin:8px 0 14px;padding:5px 10px;border:1px solid rgba(0,255,65,.25);border-radius:3px">
@@ -302,8 +316,6 @@ a:hover{color:#4DFFFF}
 </div>
 
 <div class="footer">
-  <div style="margin-bottom:12px">You also get a desktop shortcut called <strong style="color:var(--matrix-green)">AI Agents</strong> that opens GitHub Copilot CLI in Windows Terminal — quick access to Copilot from your terminal if you prefer.</div>
-  <div style="margin-bottom:12px">Want more? <a href="https://marcusash.github.io/ai-maker/pro/">Take the red pill</a>, 2 agents, GitHub backup. Upgrading from CLI? <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html">Migration guide</a>.</div>
   <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
 </div>
 </div>
