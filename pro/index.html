@@ -185,14 +185,14 @@ a:hover{color:#4DFFFF}
   <div class="flow-step">
     <div class="flow-num">2</div>
     <div class="flow-content">
-      <div class="flow-title">Install</div>
-      <div class="flow-desc">Open PowerShell (<code>Win+X</code> &rarr; Terminal) and paste this command. When prompted, choose <strong style="color:var(--red-pill-light)">option 2 (Red Pill)</strong>:</div>
+      <div class="flow-title">Download &amp; run</div>
+      <div class="flow-desc">Click the button below to download the installer. Save it anywhere, then <strong style="color:var(--red-pill-light)">double-click to run</strong>. It installs Git, GitHub CLI, authenticates you, creates your private <code>ai-workspace</code> repo, sets up both agents, and opens the Copilot App &mdash; all automatically.</div>
 <div class="install-hero">
-  <div class="install-label">&gt;&gt; PASTE INTO POWERSHELL</div>
-  <div class="install-cmd-wrap">
-    <span id="installCmd" class="install-cmd">curl.exe -sSL -o $env:TEMP\install.bat https://github.com/marcusash/ai-maker/releases/latest/download/install.bat; &amp; $env:TEMP\install.bat</span>
-    <button onclick="copyInstall()" id="installBtn" class="install-copy-btn">COPY</button>
+  <div class="install-label">&gt;&gt; ONE FILE. DOUBLE-CLICK. EVERYTHING.</div>
+  <div style="text-align:center;padding:8px 0">
+    <a href="https://marcusash.github.io/ai-maker/bootstrap-red.bat" download="bootstrap-red.bat" id="downloadBtn" style="display:inline-block;background:var(--red-pill);color:#FFF;text-decoration:none;padding:16px 40px;font-size:18px;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.1em;border-radius:4px;box-shadow:0 0 20px var(--red-glow);transition:all .15s">DOWNLOAD INSTALLER</a>
   </div>
+  <div class="install-note" style="text-align:center;margin-top:12px">Windows may show a security warning &mdash; click <strong style="color:var(--matrix-green)">&ldquo;More info&rdquo;</strong> then <strong style="color:var(--matrix-green)">&ldquo;Run anyway&rdquo;</strong>. This is normal for downloaded .bat files.</div>
 </div>
 
     </div>
@@ -201,18 +201,10 @@ a:hover{color:#4DFFFF}
   <div class="flow-step">
     <div class="flow-num">3</div>
     <div class="flow-content">
-      <div class="flow-title">Authenticate with GitHub</div>
-      <div class="flow-desc">The installer opens a browser window and prompts you to sign in to GitHub. This creates your private <code>ai-workspace</code> repo and pushes your first backup. One-time step.</div>
-    </div>
-  </div>
-
-  <div class="flow-step">
-    <div class="flow-num">4</div>
-    <div class="flow-content">
       <div class="flow-title">Open the GitHub Copilot App</div>
-      <div class="flow-desc">The app opens automatically after install. Or search <strong style="color:var(--matrix-green)">&ldquo;GitHub Copilot&rdquo;</strong> in the Start menu.</div>
+      <div class="flow-desc">The app opens automatically after install. Or search <strong style="color:var(--matrix-green)">&ldquo;GitHub Copilot&rdquo;</strong> in the Start menu. Add your project folder: click <strong>+</strong> next to Sessions &rarr; <strong>Add local folder</strong> &rarr; select <code style="white-space:nowrap">C:\GitHub\ai-workspace</code>.</div>
       <div class="flow-req" style="margin-top:12px">
-        <strong style="color:var(--matrix-green)">When asked to sign in:</strong>
+        <strong style="color:var(--matrix-green)">When asked to sign in to the App:</strong>
         <ul style="margin-top:8px">
           <li>Go to <a href="https://github.com" target="_blank">github.com</a> and sign in with your enterprise credentials, your <code>alias_microsoft</code> account</li>
           <li>The app will show you a code, enter it on GitHub when prompted to authorize the device</li>
@@ -223,15 +215,7 @@ a:hover{color:#4DFFFF}
   </div>
 
   <div class="flow-step">
-    <div class="flow-num">5</div>
-    <div class="flow-content">
-      <div class="flow-title">Add your project folder</div>
-      <div class="flow-desc">In the App's left rail, find the <strong>Sessions</strong> section and click the <strong>+</strong> button next to it. Choose <strong>Add local folder</strong> and select <code style="white-space:nowrap">C:\GitHub\ai-workspace</code>. This is where both AI agents live, the folder was created during install.</div>
-    </div>
-  </div>
-
-  <div class="flow-step">
-    <div class="flow-num">6</div>
+    <div class="flow-num">4</div>
     <div class="flow-content">
       <div class="flow-title">Start your first session</div>
       <div class="flow-desc">Open a new session in the App. Paste this as your first message (click to copy):</div>
@@ -243,15 +227,23 @@ a:hover{color:#4DFFFF}
   </div>
 
   <div class="flow-step">
-    <div class="flow-num">7</div>
+    <div class="flow-num">5</div>
     <div class="flow-content">
       <div class="flow-title">Connect WorkIQ (Microsoft 365)</div>
       <div class="flow-desc">Go to <strong>Settings</strong> (gear icon, bottom-left) &rarr; <strong>MCP servers</strong> &rarr; click the <strong>Plugins</strong> tab &rarr; click <strong>Sign in</strong> next to <strong>workiq</strong>. A browser window opens &mdash; sign in with your <code>alias@microsoft.com</code> account. You&rsquo;ll see &ldquo;Authorization Successful&rdquo; &mdash; close the tab and return to the app.</div>
     </div>
   </div>
 
+  <div class="flow-step" style="opacity:.45">
+    <div class="flow-num" style="background:#555;box-shadow:none">6</div>
+    <div class="flow-content">
+      <div class="flow-title" style="color:#888;text-shadow:none">Connect Agency <span style="font-size:12px;letter-spacing:.1em;opacity:.7">&mdash; TEMPORARILY DISABLED</span></div>
+      <div class="flow-desc">Agency lets your agents send emails, post to Teams, and create meetings on your behalf. It&rsquo;s currently disabled while the team fixes a compatibility issue. We&rsquo;ll update this page when it&rsquo;s back.</div>
+    </div>
+  </div>
+
   <div class="flow-step">
-    <div class="flow-num">8</div>
+    <div class="flow-num">7</div>
     <div class="flow-content">
       <div class="flow-title">Try these. Click to copy, then paste into AI maker.</div>
       <div style="display:inline-flex;align-items:center;gap:8px;font-size:12px;opacity:.7;margin:8px 0 14px;padding:5px 10px;border:1px solid rgba(0,255,65,.25);border-radius:3px">
@@ -320,7 +312,7 @@ a:hover{color:#4DFFFF}
   <div class="section-title text-lg">&gt; RESTORE ON A NEW MACHINE</div>
   <div class="terminal"><div class="terminal-body">
     <div style="opacity:.8;font-size:15px;margin-bottom:20px">Your <code>ai-workspace</code> folder is a private GitHub repo. To restore on a new PC:</div>
-    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">1.</strong> Run the installer on your new machine (same command). Choose option 2.</div>
+    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">1.</strong> Download and run the installer on your new machine (same download button above).</div>
     <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">2.</strong> Authenticate with GitHub. The installer detects your existing <code>ai-workspace</code> repo and restores everything automatically.</div>
     <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;font-size:14px"><strong style="color:var(--matrix-green)">3.</strong> Open the App, add <code>C:\GitHub\ai-workspace</code> as a project. Your agents remember everything.</div>
   </div></div>
