@@ -184,11 +184,11 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">2</div>
     <div class="flow-content">
       <div class="flow-title">Download &amp; run</div>
-      <div class="flow-desc">Click the button below to download <code>new-user-pc-setup.zip</code>. Then: open your <strong>Downloads</strong> folder, right-click the ZIP and choose <strong>Extract All</strong>, open the extracted folder, and double-click <strong style="color:var(--red-pill-light)">setup-red.bat</strong>. The installer handles Git, GitHub CLI, authentication, workspace setup, both agents, and opening the Copilot App.</div>
+      <div class="flow-desc">Click the button below to download <code>new-user-pc-setup-red.zip</code>. Then: open your <strong>Downloads</strong> folder, right-click the ZIP and choose <strong>Extract All</strong>, open the extracted folder, and double-click <strong style="color:var(--red-pill-light)">setup-red.bat</strong>. The installer handles Git, GitHub CLI, authentication, workspace setup, both agents, and opening the Copilot App.</div>
 <div class="install-hero">
   <div class="install-label">&gt;&gt; DOWNLOAD ZIP. EXTRACT. RUN SETUP-RED.BAT.</div>
   <div style="text-align:center;padding:8px 0">
-    <a href="https://marcusash.github.io/ai-maker/new-user-pc-setup.zip" download="new-user-pc-setup.zip" id="downloadBtn" style="display:inline-block;background:var(--red-pill);color:#FFF;text-decoration:none;padding:16px 40px;font-size:18px;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.1em;border-radius:4px;box-shadow:0 0 20px var(--red-glow);transition:all .15s">DOWNLOAD INSTALLER</a>
+    <a href="https://marcusash.github.io/ai-maker/new-user-pc-setup-red.zip" download="new-user-pc-setup-red.zip" id="downloadBtn" style="display:inline-block;background:var(--red-pill);color:#FFF;text-decoration:none;padding:16px 40px;font-size:18px;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.1em;border-radius:4px;box-shadow:0 0 20px var(--red-glow);transition:all .15s">DOWNLOAD INSTALLER</a>
   </div>
   <div class="install-note" style="text-align:center;margin-top:12px">Windows may show a security warning. Click <strong style="color:var(--matrix-green)">&ldquo;More info&rdquo;</strong> then <strong style="color:var(--matrix-green)">&ldquo;Run anyway&rdquo;</strong>. This is normal for downloaded installer files.</div>
 </div>
@@ -204,7 +204,7 @@ a:hover{color:#4DFFFF}
       <div class="flow-req" style="margin-top:8px">
         <ul>
           <li><strong style="color:var(--matrix-green)">GitHub Copilot</strong> (white octocat on dark background) opens the GitHub Copilot App where your AI Maker and AI Workbench agents live</li>
-          <li><strong style="color:var(--matrix-green)">AI Agents</strong> (dark octocat on white background) opens the GitHub Copilot Command Line Interface in Windows Terminal for quick answers from the command line</li>
+          <li><strong style="color:var(--matrix-green)">AI Workspace CLI</strong> (dark octocat on white background) opens the GitHub Copilot Command Line Interface in Windows Terminal for quick answers from the command line</li>
         </ul>
       </div>
     </div>
@@ -229,10 +229,17 @@ a:hover{color:#4DFFFF}
   <div class="flow-step">
     <div class="flow-num">5</div>
     <div class="flow-content">
-      <div class="flow-title">Connect WorkIQ to Microsoft 365</div>
-      <div class="flow-desc">Click the ⚙ gear icon (bottom-left) to open <strong>Settings</strong>. Select <strong>Plugins</strong> &rarr; under <strong>copilot-plugins</strong>, find <strong>workiq</strong> and click <strong>Install</strong>.</div>
-      <div class="flow-desc" style="margin-top:8px">If a browser sign-in window appears, sign in with your Microsoft work account. When you see &ldquo;Authorization Successful,&rdquo; close the tab and return to the app. If no sign-in window appears, start your AI Maker session and ask anything that uses your calendar or email &mdash; the app will prompt you to authorize on first use.</div>
-      <div class="flow-desc" style="margin-top:8px;font-size:13px;opacity:.7">Not working? Restart the Copilot App, return to your AI Maker session, and try again.</div>
+      <div class="flow-title">Activate WorkIQ (Microsoft 365)</div>
+      <div class="flow-req">
+        <ol style="margin-left:20px">
+          <li>From your Desktop, double-click <strong style="color:var(--matrix-green)">AI Workspace CLI</strong>. Wait for the prompt.</li>
+          <li>In the CLI, type: <code>what's on my calendar today?</code> and press Enter.</li>
+          <li>A browser window opens to Microsoft sign-in. Complete sign-in until you see <strong>&ldquo;Authorization Successful&rdquo;</strong>.</li>
+          <li>Close the browser. Restart the <strong>GitHub Copilot</strong> app.</li>
+          <li>Open Settings &rarr; Plugins in the app. WorkIQ shows as connected. WorkIQ tools now work in both the app and the CLI.</li>
+        </ol>
+      </div>
+      <div class="flow-desc" style="margin-top:8px;font-size:13px;opacity:.7"><em>Note: the app does not yet trigger Microsoft sign-in on its own. Reported to the WorkIQ team.</em></div>
     </div>
   </div>
 
