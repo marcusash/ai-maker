@@ -223,6 +223,7 @@ a:hover{color:#4DFFFF}
           <li>Follow the prompts to complete the connection</li>
         </ul>
       </div>
+      <div class="flow-desc" style="margin-top:12px;opacity:.8">You&rsquo;re now signed in and your <code>ai-workspace</code> project is visible in the sidebar. Leave the app open.</div>
     </div>
   </div>
 
@@ -230,16 +231,17 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">5</div>
     <div class="flow-content">
       <div class="flow-title">Activate WorkIQ (Microsoft 365)</div>
+      <div class="flow-desc" style="margin-bottom:12px">Still in the app:</div>
       <div class="flow-req">
         <ol style="margin-left:20px">
-          <li>Open the <strong>GitHub Copilot</strong> app &rarr; click the <strong>gear icon</strong> &rarr; <strong>Plugins</strong> &rarr; toggle <strong>WorkIQ</strong> on.</li>
-          <li>From your Desktop, double-click <strong style="color:var(--matrix-green)">AI Workspace CLI</strong>.</li>
+          <li>Click the <strong>gear icon</strong> (bottom-left) &rarr; <strong>Plugins</strong> &rarr; toggle <strong>WorkIQ</strong> on.</li>
+          <li>Minimize the app. On your Desktop, double-click <strong style="color:var(--matrix-green)">AI Workspace CLI</strong>.</li>
           <li>In the CLI, type: <code>what's on my calendar today?</code> and press Enter.</li>
-          <li>A browser opens to Microsoft sign-in. Complete sign-in until you see <strong>&ldquo;Authorization Successful&rdquo;</strong>.</li>
-          <li>Back in the <strong>GitHub Copilot</strong> app, you&rsquo;ll see your <code>ai-workspace</code> project with a session open underneath it. Continue to Step 6 below &mdash; WorkIQ tools are now active in both agents, in the app, and in the CLI.</li>
+          <li>A browser opens to Microsoft sign-in. Complete sign-in until you see <strong>&ldquo;Authorization Successful&rdquo;</strong>. Close the browser tab.</li>
+          <li>Switch back to the <strong>GitHub Copilot</strong> app. Your <code>ai-workspace</code> project is still in the sidebar with a session underneath it. WorkIQ is now connected.</li>
         </ol>
       </div>
-      <div class="flow-desc" style="margin-top:8px;font-size:13px;opacity:.7"><em>Note: the app does not trigger Microsoft sign-in on its own. Reported to the WorkIQ team.</em></div>
+      <div class="flow-desc" style="margin-top:8px;font-size:13px;opacity:.7"><em>Note: the app does not trigger Microsoft sign-in on its own. The CLI triggers it for you above.</em></div>
     </div>
   </div>
 
@@ -247,7 +249,7 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">6</div>
     <div class="flow-content">
       <div class="flow-title">Start your first session</div>
-      <div class="flow-desc">Open a new session in the App. Paste this as your first message (click to copy):</div>
+      <div class="flow-desc">Click the session under your <code>ai-workspace</code> project. Paste this as your first message (click to copy):</div>
       <div class="chip" style="margin-top:10px">
         <div class="chip-quote">Bootstrap: Create two sessions: &ldquo;AI Maker&rdquo; (from .github/agents/ai-maker.md) and &ldquo;AI Workbench&rdquo; (from .github/agents/ai-workbench.md). Then delete this session.</div>
         <div class="chip-tag"><span>SETUP</span><button class="chip-copy-btn" onclick="copyChip(this,'Bootstrap: Create two sessions. First, create a session named AI Maker with kickoff prompt: Read .github/agents/ai-maker.md and load that identity completely. You are AI Maker. Greet the user briefly and wait for instructions. Second, create a session named AI Workbench with kickoff prompt: Read .github/agents/ai-workbench.md and load that identity completely. You are AI Workbench. Acknowledge briefly and wait for instructions. Set both to kickoff mode autopilot and coordinate_with_creator false. After creating both, delete this session so they appear at root level in the sidebar.')">COPY</button></div>
