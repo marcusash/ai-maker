@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" href="../favicon.ico" type="image/x-icon">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RED PILL: AI maker</title>
@@ -51,23 +52,20 @@ a:hover{color:#4DFFFF}
 .chip{background:rgba(0,20,0,.9);border:1px solid rgba(0,255,65,.3);border-radius:4px;overflow:hidden;cursor:pointer;transition:border-color .15s}
 .chip:hover{border-color:var(--matrix-green)}
 .chip-quote{padding:16px 18px;font-size:14px;opacity:.85;font-style:italic;line-height:1.6}
-.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green);display:flex;align-items:center;justify-content:space-between}
-.chip-copy-btn{background:transparent;color:var(--matrix-green);border:1px solid rgba(0,255,65,.4);padding:3px 10px;font-size:11px;font-weight:700;letter-spacing:.1em;font-family:'Courier New',monospace;cursor:pointer;border-radius:2px;margin-left:auto}
-.chip-copy-btn:hover{background:rgba(0,255,65,.15)}
+.chip-tag{padding:6px 18px;font-size:14px;font-weight:700;letter-spacing:1px;border-top:1px solid rgba(0,255,65,.2);color:var(--matrix-green);display:flex;justify-content:space-between;align-items:center}
+.chip-copy-btn{background:var(--matrix-green);color:#000;border:none;padding:4px 12px;font-weight:700;font-size:11px;cursor:pointer;font-family:'Courier New',monospace;letter-spacing:.08em;border-radius:2px;white-space:nowrap}
 .footer{text-align:center;margin-top:80px;padding:40px 20px;border-top:1px solid rgba(0,255,65,.2);opacity:.6;font-size:14px}
 .footer a{color:var(--matrix-green)}
 @keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.3}}
 .pill-blue{opacity:.5}
 .pill-blue:hover{opacity:1;transform:scale(1.05)}
-.pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2);position:relative;overflow:hidden}
-.pill-red::before{content:'';position:absolute;top:-30%;left:0;right:0;height:30%;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.1) 35%,rgba(255,255,255,.18) 50%,rgba(255,255,255,.1) 65%,transparent);animation:scanline 4.5s linear infinite;pointer-events:none;z-index:1}
-@keyframes scanline{0%{top:-30%}100%{top:100%}}
+.pill-red{background:radial-gradient(circle at 30% 30%,var(--red-pill-light),var(--red-pill) 50%,var(--red-pill-dark));border:3px solid var(--red-pill);box-shadow:0 0 40px var(--red-glow),inset 0 0 60px rgba(255,255,255,.2)}
 .pill-red:hover{transform:scale(1.05);box-shadow:0 0 60px var(--red-glow)}
 .pill-current::after{content:">>> YOU ARE HERE";position:absolute;bottom:-52px;left:50%;transform:translateX(-50%);color:var(--red-pill-light);text-shadow:0 0 8px var(--red-glow);animation:blink 1.5s infinite;font-size:12px;letter-spacing:.1em;white-space:nowrap}
 .plus-badge{display:inline-block;background:rgba(206,17,38,.2);border:1px solid var(--red-pill);color:var(--matrix-green);font-size:12px;font-weight:700;letter-spacing:1px;padding:3px 10px;border-radius:3px;margin-left:8px;vertical-align:middle}
-@keyframes pillshake{0%{transform:translate(0,0) rotate(0deg)}6%{transform:translate(-.5px,.5px) rotate(-.15deg)}12%{transform:translate(.5px,-.5px) rotate(.2deg)}18%{transform:translate(-.5px,0) rotate(-.1deg)}24%{transform:translate(.5px,.5px) rotate(.15deg)}30%{transform:translate(0,-.5px) rotate(-.2deg)}36%{transform:translate(-.5px,.5px) rotate(.1deg)}42%{transform:translate(.5px,0) rotate(-.15deg)}48%{transform:translate(0,.5px) rotate(.2deg)}54%{transform:translate(-.5px,-.5px) rotate(-.1deg)}60%{transform:translate(.5px,.5px) rotate(.15deg)}66%{transform:translate(0,-.5px) rotate(-.2deg)}72%{transform:translate(-.5px,0) rotate(.1deg)}78%{transform:translate(.5px,.5px) rotate(-.15deg)}84%{transform:translate(-.5px,-.5px) rotate(.2deg)}90%{transform:translate(.5px,0) rotate(-.1deg)}100%{transform:translate(0,0) rotate(0deg)}}
-@keyframes pillstatic{0%,100%{filter:blur(0) brightness(1)}22%{filter:blur(0) brightness(1)}23%{filter:blur(.8px) brightness(1.15)}25%{filter:blur(0) brightness(1)}64%{filter:blur(0) brightness(1)}65%{filter:blur(1.2px) brightness(.85)}67%{filter:blur(0) brightness(1)}}
-.pill-red.pill-current{animation:pillshake .8s linear infinite,pillstatic 4s steps(1) infinite}
+@keyframes pillshake{0%{transform:translate(0,0) rotate(0deg) scale(1)}3%{transform:translate(-4px,3px) rotate(-1.2deg) scale(1.01)}7%{transform:translate(5px,-2px) rotate(1.5deg) scale(.99)}11%{transform:translate(-3px,-4px) rotate(-.8deg) scale(1.02)}15%{transform:translate(6px,2px) rotate(2deg) scale(.98)}19%{transform:translate(-5px,4px) rotate(-1.8deg) scale(1.01)}23%{transform:translate(3px,-5px) rotate(1.2deg) scale(1)}27%{transform:translate(-6px,1px) rotate(-2.2deg) scale(1.02)}31%{transform:translate(4px,3px) rotate(1.6deg) scale(.99)}36%{transform:translate(-2px,-3px) rotate(-.6deg) scale(1)}40%{transform:translate(5px,-4px) rotate(2.4deg) scale(1.03)}44%{transform:translate(-7px,2px) rotate(-1.4deg) scale(.98)}48%{transform:translate(3px,5px) rotate(.9deg) scale(1.01)}52%{transform:translate(-4px,-2px) rotate(-2deg) scale(1)}56%{transform:translate(6px,-3px) rotate(1.8deg) scale(1.02)}60%{transform:translate(-3px,4px) rotate(-1.1deg) scale(.99)}65%{transform:translate(5px,1px) rotate(2.2deg) scale(1.01)}69%{transform:translate(-6px,-4px) rotate(-1.6deg) scale(1)}73%{transform:translate(4px,3px) rotate(1.3deg) scale(1.02)}77%{transform:translate(-2px,-5px) rotate(-2.4deg) scale(.98)}82%{transform:translate(7px,2px) rotate(1.9deg) scale(1.01)}86%{transform:translate(-5px,-1px) rotate(-.7deg) scale(1)}90%{transform:translate(3px,4px) rotate(2.1deg) scale(1.02)}95%{transform:translate(-4px,-3px) rotate(-1.5deg) scale(.99)}100%{transform:translate(0,0) rotate(0deg) scale(1)}}
+@keyframes pillstatic{0%,100%{filter:blur(0) brightness(1)}12%{filter:blur(0) brightness(1)}13%{filter:blur(1.5px) brightness(1.3)}15%{filter:blur(0) brightness(1)}42%{filter:blur(0) brightness(1)}43%{filter:blur(2px) brightness(.7)}44%{filter:blur(.5px) brightness(1.4)}46%{filter:blur(0) brightness(1)}71%{filter:blur(0) brightness(1)}72%{filter:blur(1px) brightness(1.2)}73%{filter:blur(2.5px) brightness(.6)}75%{filter:blur(0) brightness(1)}}
+.pill-red.pill-current{animation:pillshake 1.8s ease-in-out infinite,pillstatic 3.2s steps(1) infinite}
 .flow-step{display:flex;gap:24px;margin-bottom:36px;align-items:flex-start}
 .flow-num{flex-shrink:0;width:48px;height:48px;border-radius:50%;background:var(--matrix-green);color:var(--black);font-weight:700;font-size:22px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 20px var(--matrix-green-glow);margin-top:4px}
 .flow-content{flex:1;min-width:0}
@@ -120,8 +118,7 @@ a:hover{color:#4DFFFF}
 .chip{border-color:var(--accent-dim)}
 .chip:hover{border-color:var(--accent)}
 .chip-tag{color:var(--accent);border-top-color:var(--accent-dim)}
-.chip-copy-btn{color:var(--accent);border-color:rgba(255,26,26,.4)}
-.chip-copy-btn:hover{background:rgba(255,26,26,.15)}
+.chip-copy-btn{background:var(--accent);color:#FFF}
 .skill-list{border-color:var(--accent-dim)}
 .skill-row{border-bottom-color:rgba(255,26,26,.1)}
 .skill-name{color:var(--accent);text-shadow:0 0 6px var(--accent-glow)}
@@ -145,8 +142,8 @@ a:hover{color:#4DFFFF}
     </div>
   </div>
   <div style="display:flex;justify-content:center;gap:100px;margin-top:72px;font-size:12px;color:var(--matrix-green);letter-spacing:.08em">
-    <div style="width:280px;text-align:center;opacity:.55">One agent. 11 skills.</div>
-    <div style="width:280px;text-align:center;opacity:.55">Two agents. 22 skills.</div>
+    <div style="width:280px;text-align:center;opacity:.55">Fastest setup. No GitHub required.</div>
+    <div style="width:280px;text-align:center;opacity:.55">Restore anywhere. AI workbench.</div>
   </div>
 </div>
 
@@ -157,9 +154,9 @@ a:hover{color:#4DFFFF}
     <span style="margin-left:auto;opacity:.6">AI-MAKER-PRO.EXE</span>
   </div>
   <div class="terminal-body">
-    <div class="text-lg" style="margin-bottom:16px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; WHAT DO YOU GET?</div>
-    <div class="text-base" style="opacity:.9">Everything in Blue, plus a second agent for technical work. AI Maker handles writing, research, design, and communication (11 skills). AI Workbench handles code, automation, security, debugging (11 more skills).</div>
-    <div class="text-sm" style="margin-top:12px;opacity:.6">Two agents, 22 skills, same <strong style="color:var(--matrix-green)">GitHub-backed workspace</strong>.</div>
+    <div class="text-lg" style="margin-bottom:16px;color:var(--matrix-green);text-shadow:0 0 10px var(--matrix-green)">&gt; WHAT IS AI MAKER?</div>
+    <div class="text-base" style="opacity:.9">For power users who want version control and the full technical skill set. Two AI agents, 22 skills, private GitHub repo that backs up your work, and restores it on any machine in minutes.</div>
+    <div class="text-sm" style="margin-top:12px;opacity:.6">Everything the Blue Pill gives you, plus <strong style="color:var(--matrix-green)">AI workbench</strong>, <strong style="color:var(--matrix-green)">GitHub backup</strong>, and <strong style="color:var(--matrix-green)">cross-machine restore</strong>.</div>
   </div>
 </div>
 
@@ -174,8 +171,9 @@ a:hover{color:#4DFFFF}
         <ul>
           <li>Windows 11</li>
           <li>Internet connection</li>
-          <li>Your GitHub Enterprise account. Everyone at Microsoft has one. The format is <code>alias_microsoft</code> (for example, <code>marcusash_microsoft</code>). Use this to sign in during the steps below.</li>
+          <li>GitHub account, sign in with your <code>alias_microsoft</code> enterprise account (e.g. <code>marcusash_microsoft</code>). The install guide works with this account out of the box.</li>
         </ul>
+        <div style="margin-top:10px;font-size:13px;opacity:.55">Microsoft employee? You can also link a personal GitHub account for personal projects, free within Microsoft. <a href="/ai-maker/account-setup/" target="_blank" style="color:var(--matrix-green)">Learn how &rarr;</a> &nbsp;&bull;&nbsp; Not at Microsoft? <a href="https://github.com/signup" target="_blank" style="color:inherit">Create a personal account at github.com</a><br><span style="opacity:.7">Git, GitHub CLI, and VS Code are installed automatically.</span></div>
       </div>
     </div>
   </div>
@@ -183,14 +181,14 @@ a:hover{color:#4DFFFF}
   <div class="flow-step">
     <div class="flow-num">2</div>
     <div class="flow-content">
-      <div class="flow-title">Download &amp; run</div>
-      <div class="flow-desc">Click the button below to download <code>new-user-pc-setup-red.zip</code>. Then: open your <strong>Downloads</strong> folder, right-click the ZIP and choose <strong>Extract All</strong>, open the extracted folder, and double-click <strong style="color:var(--red-pill-light)">setup-red.bat</strong>. The installer handles Git, GitHub CLI, authentication, workspace setup, both agents, and opening the Copilot App.</div>
+      <div class="flow-title">Install</div>
+      <div class="flow-desc">Open PowerShell (<code>Win+X</code> &rarr; Terminal) and paste this command. When prompted, choose <strong style="color:var(--red-pill-light)">option 2 (Red Pill)</strong>:</div>
 <div class="install-hero">
-  <div class="install-label">&gt;&gt; DOWNLOAD ZIP. EXTRACT. RUN SETUP-RED.BAT.</div>
-  <div style="text-align:center;padding:8px 0">
-    <a href="https://marcusash.github.io/ai-maker/new-user-pc-setup-red.zip" download="new-user-pc-setup-red.zip" id="downloadBtn" style="display:inline-block;background:var(--red-pill);color:#FFF;text-decoration:none;padding:16px 40px;font-size:18px;font-weight:700;font-family:'Courier New',monospace;letter-spacing:.1em;border-radius:4px;box-shadow:0 0 20px var(--red-glow);transition:all .15s">DOWNLOAD INSTALLER</a>
+  <div class="install-label">&gt;&gt; PASTE INTO POWERSHELL</div>
+  <div class="install-cmd-wrap">
+    <span id="installCmd" class="install-cmd">curl.exe -sSL -o $env:TEMP\install.bat https://github.com/marcusash/ai-maker/releases/latest/download/install.bat; &amp; $env:TEMP\install.bat</span>
+    <button onclick="copyInstall()" id="installBtn" class="install-copy-btn">COPY</button>
   </div>
-  <div class="install-note" style="text-align:center;margin-top:12px">Windows may show a security warning. Click <strong style="color:var(--matrix-green)">&ldquo;More info&rdquo;</strong> then <strong style="color:var(--matrix-green)">&ldquo;Run anyway&rdquo;</strong>. This is normal for downloaded installer files.</div>
 </div>
 
     </div>
@@ -199,14 +197,8 @@ a:hover{color:#4DFFFF}
   <div class="flow-step">
     <div class="flow-num">3</div>
     <div class="flow-content">
-      <div class="flow-title">What you'll see after install</div>
-      <div class="flow-desc">Two new shortcuts on your desktop:</div>
-      <div class="flow-req" style="margin-top:8px">
-        <ul>
-          <li><strong style="color:var(--matrix-green)">GitHub Copilot</strong> (white octocat on dark background) opens the GitHub Copilot App where your AI Maker and AI Workbench agents live</li>
-          <li><strong style="color:var(--matrix-green)">AI Workspace CLI</strong> (dark octocat on white background) opens the GitHub Copilot Command Line Interface in Windows Terminal for quick answers from the command line</li>
-        </ul>
-      </div>
+      <div class="flow-title">Authenticate with GitHub</div>
+      <div class="flow-desc">The installer opens a browser window and prompts you to sign in to GitHub. This creates your private <code>ai-workspace</code> repo and pushes your first backup. One-time step.</div>
     </div>
   </div>
 
@@ -214,34 +206,23 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">4</div>
     <div class="flow-content">
       <div class="flow-title">Open the GitHub Copilot App</div>
-      <div class="flow-desc">The app opens automatically after install. Or search <strong style="color:var(--matrix-green)">&ldquo;GitHub Copilot&rdquo;</strong> in the Start menu. Add your project folder: click <strong>+</strong> next to Sessions &rarr; <strong>Add local folder</strong> &rarr; select <code style="white-space:nowrap">C:\GitHub\ai-workspace</code>.</div>
+      <div class="flow-desc">The app opens automatically after install. Or search <strong style="color:var(--matrix-green)">&ldquo;GitHub Copilot&rdquo;</strong> in the Start menu.</div>
       <div class="flow-req" style="margin-top:12px">
-        <strong style="color:var(--matrix-green)">When asked to sign in to the App:</strong>
+        <strong style="color:var(--matrix-green)">When asked to sign in:</strong>
         <ul style="margin-top:8px">
           <li>Go to <a href="https://github.com" target="_blank">github.com</a> and sign in with your enterprise credentials, your <code>alias_microsoft</code> account</li>
           <li>The app will show you a code, enter it on GitHub when prompted to authorize the device</li>
           <li>Follow the prompts to complete the connection</li>
         </ul>
       </div>
-      <div class="flow-desc" style="margin-top:12px;opacity:.8">You&rsquo;re now signed in and your <code>ai-workspace</code> project is visible in the sidebar. Leave the app open.</div>
     </div>
   </div>
 
   <div class="flow-step">
     <div class="flow-num">5</div>
     <div class="flow-content">
-      <div class="flow-title">Activate WorkIQ (Microsoft 365)</div>
-      <div class="flow-desc" style="margin-bottom:12px">Still in the app:</div>
-      <div class="flow-req">
-        <ol style="margin-left:20px">
-          <li>Click the <strong>gear icon</strong> (bottom-left) &rarr; <strong>Plugins</strong> &rarr; toggle <strong>WorkIQ</strong> on.</li>
-          <li>Minimize the app. On your Desktop, double-click <strong style="color:var(--matrix-green)">AI Workspace CLI</strong>.</li>
-          <li>In the CLI, type: <code>what's on my calendar today?</code> and press Enter.</li>
-          <li>A browser opens to Microsoft sign-in. Complete sign-in until you see <strong>&ldquo;Authorization Successful&rdquo;</strong>. Close the browser tab.</li>
-          <li>Switch back to the <strong>GitHub Copilot</strong> app. Your <code>ai-workspace</code> project is still in the sidebar with a session underneath it. WorkIQ is now connected.</li>
-        </ol>
-      </div>
-      <div class="flow-desc" style="margin-top:8px;font-size:13px;opacity:.7"><em>Note: the app does not trigger Microsoft sign-in on its own. The CLI triggers it for you above.</em></div>
+      <div class="flow-title">Add your project folder</div>
+      <div class="flow-desc">In the App's left rail, find the <strong>Sessions</strong> section and click the <strong>+</strong> button next to it. Choose <strong>Add local folder</strong> and select <code style="white-space:nowrap">C:\GitHub\ai-workspace</code>. This is where both AI agents live, the folder was created during install.</div>
     </div>
   </div>
 
@@ -249,19 +230,19 @@ a:hover{color:#4DFFFF}
     <div class="flow-num">6</div>
     <div class="flow-content">
       <div class="flow-title">Start your first session</div>
-      <div class="flow-desc">Click the session under your <code>ai-workspace</code> project. Paste this as your first message (click to copy):</div>
-      <div class="chip" style="margin-top:10px">
-        <div class="chip-quote">Bootstrap: Create two sessions: &ldquo;AI Maker&rdquo; (from .github/agents/ai-maker.md) and &ldquo;AI Workbench&rdquo; (from .github/agents/ai-workbench.md). Then delete this session.</div>
-        <div class="chip-tag"><span>SETUP</span><button class="chip-copy-btn" onclick="copyChip(this,'Bootstrap: Create two sessions. First, create a session named AI Maker with kickoff prompt: Read .github/agents/ai-maker.md and load that identity completely. You are AI Maker. Greet the user briefly and wait for instructions. Second, create a session named AI Workbench with kickoff prompt: Read .github/agents/ai-workbench.md and load that identity completely. You are AI Workbench. Acknowledge briefly and wait for instructions. Set both to kickoff mode autopilot and coordinate_with_creator false. After creating both, delete this session so they appear at root level in the sidebar.')">COPY</button></div>
+      <div class="flow-desc">Open a new session in the App. Paste this as your first message (click to copy):</div>
+      <div class="chip" style="margin-top:10px" onclick="copyChip(this,'Bootstrap: Create two sessions. First, create a session named AI Maker with kickoff prompt: Read .github/agents/ai-maker.md and load that identity completely. You are AI Maker. Greet the user briefly and wait for instructions. Second, create a session named AI Workbench with kickoff prompt: Read .github/agents/ai-workbench.md and load that identity completely. You are AI Workbench. Acknowledge briefly and wait for instructions. Set both to kickoff mode autopilot and coordinate_with_creator false. After creating both, delete this session so they appear at root level in the sidebar.')">
+        <div class="chip-quote">Bootstrap: Create two sessions &mdash; &ldquo;AI Maker&rdquo; (from .github/agents/ai-maker.md) and &ldquo;AI Workbench&rdquo; (from .github/agents/ai-workbench.md). Then delete this session.</div>
+        <div class="chip-tag">SETUP</div>
       </div>
     </div>
   </div>
 
-  <div class="flow-step" style="opacity:.45">
-    <div class="flow-num" style="background:#555;box-shadow:none">7</div>
+  <div class="flow-step">
+    <div class="flow-num">7</div>
     <div class="flow-content">
-      <div class="flow-title" style="color:#888;text-shadow:none">Connect Agency <span style="font-size:12px;letter-spacing:.1em;opacity:.7">TEMPORARILY DISABLED</span></div>
-      <div class="flow-desc">Agency lets your agents send emails, post to Teams, and create meetings on your behalf. Currently disabled while the team fixes a compatibility issue. This page will update when it&rsquo;s back.</div>
+      <div class="flow-title">Connect WorkIQ (Microsoft 365)</div>
+      <div class="flow-desc">Go to <strong>Settings</strong> (gear icon, bottom-left) &rarr; <strong>MCP servers</strong> &rarr; click the <strong>Plugins</strong> tab &rarr; click <strong>Sign in</strong> next to <strong>workiq</strong>. A browser window opens &mdash; sign in with your <code>alias@microsoft.com</code> account. You&rsquo;ll see &ldquo;Authorization Successful&rdquo; &mdash; close the tab and return to the app.</div>
     </div>
   </div>
 
@@ -299,7 +280,7 @@ a:hover{color:#4DFFFF}
   <div class="section-title text-lg">&gt; WHAT YOU GET</div>
   <button onclick="toggleWYG()" id="wyg-toggle-btn" style="background:transparent;border:1px solid rgba(0,255,65,.4);color:var(--matrix-green);font-family:'Courier New',monospace;font-size:13px;letter-spacing:.1em;padding:8px 20px;cursor:pointer;margin-bottom:16px;display:block">+ SHOW ALL 22 SKILLS</button>
   <div id="wyg-body" style="display:none"><div class="terminal"><div class="terminal-body">
-    <div style="opacity:.7;font-size:14px;margin-bottom:16px">Two agents, 22 skills, GitHub-backed workspace. Describe what you need, they route automatically.</div>
+    <div style="opacity:.7;font-size:14px;margin-bottom:16px">Two AI agents, 22 skills, GitHub-backed workspace. Describe what you need, they route automatically.</div>
     <div style="font-size:11px;font-weight:700;letter-spacing:2px;opacity:.5;text-transform:uppercase;margin-bottom:8px">AI maker, 11 skills</div>
     <div class="skill-list">
       <div class="skill-row"><div class="skill-name">Canvas</div><div class="skill-body"><div class="skill-desc">Generates a live HTML page in your browser, dashboards, status boards, trackers, comparison views.</div><div class="skill-trigger">Trigger: &ldquo;Build me a canvas that shows&hellip;&rdquo; / &ldquo;Display this in a canvas.&rdquo;</div></div></div>
@@ -335,7 +316,7 @@ a:hover{color:#4DFFFF}
   <div class="section-title text-lg">&gt; RESTORE ON A NEW MACHINE</div>
   <div class="terminal"><div class="terminal-body">
     <div style="opacity:.8;font-size:15px;margin-bottom:20px">Your <code>ai-workspace</code> folder is a private GitHub repo. To restore on a new PC:</div>
-    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">1.</strong> Download and run the installer on your new machine (same download button above).</div>
+    <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">1.</strong> Run the installer on your new machine (same command). Choose option 2.</div>
     <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;margin-bottom:12px;font-size:14px"><strong style="color:var(--matrix-green)">2.</strong> Authenticate with GitHub. The installer detects your existing <code>ai-workspace</code> repo and restores everything automatically.</div>
     <div style="background:rgba(0,59,0,.2);border-left:3px solid var(--matrix-green);padding:16px 20px;font-size:14px"><strong style="color:var(--matrix-green)">3.</strong> Open the App, add <code>C:\GitHub\ai-workspace</code> as a project. Your agents remember everything.</div>
   </div></div>
@@ -356,7 +337,7 @@ a:hover{color:#4DFFFF}
 </div>
 
 <div class="footer">
-  <div style="margin-bottom:12px">Want to also use a personal GitHub account? Go to <a href="https://copilot.github.microsoft.com/link" target="_blank" style="color:var(--matrix-green)">copilot.github.microsoft.com/link</a> to link it to your Microsoft identity. Both accounts work with AI Maker.</div>
+  <div style="margin-bottom:12px">Want the simpler setup? <a href="https://marcusash.github.io/ai-maker/">Take the blue pill instead</a>. Upgrading from CLI? <a href="https://marcusash.github.io/ai-maker/docs/migration-guide.html">Migration guide</a>.</div>
   <div>Created by Marcus Ash. <a href="https://github.com/marcusash">github.com/marcusash</a>. 2026.</div>
 </div>
 </div>
