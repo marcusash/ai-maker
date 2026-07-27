@@ -61,18 +61,41 @@ echo          - ~5 minutes to install (requires GitHub account)
 echo.
 echo   ___________________________________________________________________________
 echo.
+echo     [3]  BRING YOUR OWN AGENTS
+echo.
+echo          Already have your own agent repo? Skip AI Maker/Workbench.
+echo.
+echo          - Same infra as Red Pill (Git, Copilot App, WorkIQ, GitHub auth)
+echo          - No AI Maker / AI Workbench skills or agents installed
+echo          - Syncs a GitHub repo of your choosing to C:\GitHub\^<repo^>
+echo          - ~5 minutes to install (requires GitHub account)
+echo.
+echo   ___________________________________________________________________________
+echo.
 echo.
 
-set /p "C=  Enter 1 or 2: "
+set /p "C=  Enter 1, 2, or 3: "
+set "S="
 if "%C%"=="1" set "S=install-blue.ps1"
 if "%C%"=="2" set "S=install-red.ps1"
+if "%C%"=="3" set "S=install-byo.ps1"
 if not defined S (
     echo   Invalid choice. Run again.
     pause
     exit /b 1
 )
 
-curl.exe --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
-curl.exe --silent -L -o "%TEMP%\%S%" "https://github.com/marcusash/ai-maker/releases/latest/download/%S%"
+curl.exe --fail --silent -L -o "%TEMP%\ai-maker-lib.ps1" "https://github.com/marcusash/ai-maker/releases/latest/download/ai-maker-lib.ps1"
+if errorlevel 1 (
+    echo   ERROR: Could not download ai-maker-lib.ps1
+    pause
+    exit /b 1
+)
+curl.exe --fail --silent -L -o "%TEMP%\%S%" "https://github.com/marcusash/ai-maker/releases/latest/download/%S%"
+if errorlevel 1 (
+    echo   ERROR: Could not download %S%
+    pause
+    exit /b 1
+)
 "%PWSH%" -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\%S%"
 pause
